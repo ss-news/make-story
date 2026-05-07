@@ -7,6 +7,7 @@ import (
 	"github.com/duyld/make-story/backend/internal/service"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/httprate"
 )
 
 // RouterDeps holds the dependencies needed to build the HTTP router.
@@ -34,8 +35,13 @@ func NewRouter(deps RouterDeps) http.Handler {
 
 	if deps.Auth != nil {
 		r.Route("/api/auth", func(r chi.Router) {
-			r.Post("/register", handleRegister(deps.Auth, deps.SecureCookie))
-			r.Post("/login", handleLogin(deps.Auth, deps.SecureCookie))
+			// Register and login: 10 req/min per client IP.
+			r.Group(func(r chi.Router) {
+				r.Use(httprate.LimitByIP(10, 1*time.Minute))
+				r.Post("/register", handleRegister(deps.Auth, deps.SecureCookie))
+				r.Post("/login", handleLogin(deps.Auth, deps.SecureCookie))
+			})
+			// Logout and me are not rate-limited.
 			r.Post("/logout", handleLogout(deps.Auth, deps.SecureCookie))
 			r.Get("/me", handleMe())
 		})
