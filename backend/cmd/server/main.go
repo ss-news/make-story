@@ -10,8 +10,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/duyld/make-story/backend/internal/adapter/repo"
 	"github.com/duyld/make-story/backend/internal/api"
 	"github.com/duyld/make-story/backend/internal/app"
+	"github.com/duyld/make-story/backend/internal/migrations"
 )
 
 func main() {
@@ -24,8 +26,23 @@ func main() {
 	logger := app.NewLogger(cfg)
 	slog.SetDefault(logger)
 
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	if err := migrations.Up(cfg.DatabaseURL); err != nil {
+		logger.Error("migrations failed", "err", err)
+		os.Exit(1)
+	}
+
+	pool, err := repo.NewPool(ctx, cfg.DatabaseURL)
+	if err != nil {
+		logger.Error("postgres pool failed", "err", err)
+		os.Exit(1)
+	}
+	defer pool.Close()
+
 	handler := api.NewRouter(api.RouterDeps{
-		HealthDB:  func() bool { return false }, // wired in Step 0.4 + Step 1
+		HealthDB:  func() bool { return pool.Ping(context.Background()) == nil },
 		HealthLLM: func() bool { return false },
 	})
 
@@ -34,9 +51,6 @@ func main() {
 		Handler:           handler,
 		ReadHeaderTimeout: 10 * time.Second,
 	}
-
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
 
 	go func() {
 		logger.Info("server starting", "port", cfg.Port)
