@@ -230,13 +230,22 @@ Dùng `simple` dictionary (không có VN dict mạnh trong Postgres core); pg_tr
 
 ### 3.4 Migrations
 
-- `golang-migrate` + `embed.FS` từ `backend/internal/migrations/*.sql`
-- `0001_init.sql` — extensions + users + sessions
-- `0002_stories.sql` — stories + storylines + arcs + chapters
-- `0003_codex.sql` — characters + events + character_event_links + relationships + world_bible
-- `0004_attribute_history.sql` — attribute_history + traits
-- `0005_search.sql` — tsvector cột + GIN indexes + pg_trgm
-- `0006_seed_demo.sql` — seed `demo@example.com / demo1234` + Lý Thanh Vân story (port từ `data.js`); disable bằng env `SEED_DEMO=false`
+`golang-migrate` + `embed.FS` từ `backend/internal/migrations/*.sql`. Numbering align 1-1 với Section 8 build order:
+
+| File | Step | Nội dung |
+|---|---|---|
+| `0001_init.sql` | 1 | Extensions (`pgcrypto`, `citext`, `pg_trgm`) + `users` + `sessions` |
+| `0002_stories.sql` | 2 | `stories` (kèm `owner_user_id`) |
+| `0003_chapters.sql` | 3 | `chapters` + `chapter_snapshots` |
+| `0004_storylines_arcs_events.sql` | 4 | `storylines` + `arcs` + `events` |
+| `0005_characters.sql` | 5 | `characters` + `attribute_history` + `traits` + `character_event_links` |
+| `0006_relationships.sql` | 6 | `relationships` |
+| `0007_world.sql` | 8 | `world_sections` + `world_entries` |
+| `0008_search.sql` | 9 | `search_tsv` columns + GIN indexes + pg_trgm indexes |
+| `0009_ai.sql` | 11 | `ai_audit` + `ai_usage` + `users.ai_enabled` |
+| `0010_seed_demo.sql` | (optional, last) | Seed `demo@example.com / demo1234` + Lý Thanh Vân story (port từ `data.js`); disable bằng env `SEED_DEMO=false` |
+
+Migration files có cặp `*.up.sql` + `*.down.sql` tuân theo convention golang-migrate.
 
 ### 3.5 Decisions cần update trong `docs/06`
 
@@ -397,7 +406,7 @@ Bỏ "SQLite local · path", thay bằng email user (truncate). UI khác giữ p
 
 - Extensions: StarterKit + Heading + BulletList + OrderedList + Blockquote + CodeBlock + Link
 - Custom node `@character-mention` (popup chọn character từ codex story hiện tại). Lưu `<span data-character-id="...">@Tên</span>`.
-- Lưu format: JSON (TipTap native) trong `chapters.content_json`. Plain text vào `chapters.content_text` (generated column hoặc trigger) cho FTS.
+- Lưu format: JSON (TipTap native) trong `chapters.content_json`. Plain text vào `chapters.content_text` cho FTS — **denormalize ở app-side** khi PATCH chapter: backend extract text từ TipTap JSON (qua `prosemirror-go` hoặc walk JSON tree), ghi đồng thời cả `content_json` + `content_text` trong cùng transaction. Lý do chọn app-side: TipTap JSON schema phức tạp (custom marks, mention nodes), Postgres GENERATED column không xử lý được; trigger viết PL/pgSQL parse JSON cũng tương đương app-side về tính clean nhưng khó debug hơn.
 - Auto-save: debounce 800ms → PATCH `/api/chapters/{id}` với `updated_at` cũ.
 
 ### 5.8 Frontend serving
@@ -471,7 +480,7 @@ Backend gọi `GET /v1/models` 1 lần startup, cache list, expose qua `GET /api
 6. Last 2 chapters raw + manual_summary các chapter trước
 7. Current chapter draft + cursor marker
 
-Token budget mặc định 32k. Tier 6 cap 8k, tier 7 fill phần còn lại. Estimate `len(text)/3`; thêm `tiktoken-go` nếu cần chính xác.
+Token budget mặc định 32k. Tier 6 cap 8k, tier 7 fill phần còn lại. **Token estimate v1: `len(text)/3`** (rough cho VN — known approximation, có thể off ±20%). Theo dõi `usage.total_tokens` từ upstream response: nếu Step 12 thấy thường xuyên overshoot/undershoot budget → switch sang `tiktoken-go` cho chính xác. Document trade-off ở Step 12.
 
 ### 6.5 Per-user rate limit
 
@@ -589,6 +598,7 @@ services:
       LOG_LEVEL: info
       LOG_FORMAT: json
       PORT: "8080"
+      ALLOWED_ORIGINS: "https://makestory.example.com"   # CSRF Origin header check
     depends_on:
       postgres: { condition: service_healthy }
     restart: unless-stopped
@@ -708,11 +718,11 @@ Vertical slice. Mỗi step deploy được, dogfood sớm. ✅ = pixel-perfect k
 
 ### Step 1.5 — Architecture review với `golang-design-patterns` skill
 - Invoke skill `golang-design-patterns` để review project structure đã scaffold
-- Review: layer boundaries, DI usage (samber/do), error chain (samber/oops), repository pattern, HTTP handler pattern, testing pattern, file size signals
-- Output: `docs/architecture/go-patterns.md` chốt convention
-- Refactor Step 0/1 code nếu skill chỉ ra pattern lệch
+- Review focus: layer boundaries, DI usage (samber/do), error chain (samber/oops), repository pattern, HTTP handler pattern, testing pattern, file size signals
+- **Output:** `docs/architecture/go-patterns.md` chốt convention cho cả project
+- **Scope guard (tránh blow-up):** chỉ refactor khi skill chỉ ra **concrete violation** (vd: init() abuse, global state, missing context propagation, leaky goroutine). Không refactor cosmetic / "cleaner if". Nếu không tìm thấy violation rõ → document convention và move on.
 - Step 2-15 sau follow document đã chốt
-- Note: nếu skill chưa cài, copy từ `.agents/skills/golang-design-patterns` vào `~/.claude/skills/`
+- Note: skill đã có ở `~/.claude/skills/golang-design-patterns/` (copy từ `.agents/skills/`)
 
 ### Step 2 — Stories CRUD + Dashboard ✅
 - Migration `0002_stories.sql` (stories với `owner_user_id`)
@@ -722,7 +732,7 @@ Vertical slice. Mỗi step deploy được, dogfood sớm. ✅ = pixel-perfect k
 - Routing `/dashboard`, `/s/:storyId` redirect editor (placeholder)
 
 ### Step 3 — Editor M0 ✅
-- Migration `0002` thêm chapters
+- Migration `0003_chapters.sql` (chapters + chapter_snapshots)
 - Backend: `/api/stories/{sid}/chapters` + `/api/chapters/{id}` + auto-save
 - Frontend: `features/editor/Editor` port `editor.jsx` + `canvas.jsx` pixel-perfect
 - TipTap setup
@@ -734,7 +744,7 @@ Vertical slice. Mỗi step deploy được, dogfood sớm. ✅ = pixel-perfect k
 **Ship:** Vào story → tạo chapter → viết → auto-save. Dogfood viết được 1 chương thật.
 
 ### Step 4 — Storyline + Arc + Event CRUD + Story Map ✅
-- Migration `0003` storylines + arcs + events
+- Migration `0004_storylines_arcs_events.sql`
 - Backend: 16 endpoints + reorder/move
 - Frontend: `features/storymap/StoryMapCanvas` + `ArcDetail`
 - CreateModal mở rộng tabs `storyline/arc/event`
@@ -742,7 +752,7 @@ Vertical slice. Mỗi step deploy được, dogfood sớm. ✅ = pixel-perfect k
 - Story Map mini trong Editor context panel
 
 ### Step 5 — Characters + AttributeHistory + Traits ✅
-- Migration `0004` characters + attribute_history + traits + character_event_links
+- Migration `0005_characters.sql` (characters + attribute_history + traits + character_event_links)
 - Backend: 15 endpoints
 - Frontend: `features/characters/{CharacterGrid, CharacterDetail}`
 - CreateModal tab `character`
@@ -753,7 +763,7 @@ Vertical slice. Mỗi step deploy được, dogfood sớm. ✅ = pixel-perfect k
 **🚧 Risk gate:** ép viết 5 chương thật trong web app. Không viết được → fix viết, không build Step 6+.
 
 ### Step 6 — Relationships + Rel Graph ✅
-- Migration `0004` thêm relationships
+- Migration `0006_relationships.sql`
 - Backend: 4 endpoints
 - Frontend: `features/relgraph/RelGraph` pixel-perfect SVG
 - CreateModal tab `relationship`
@@ -764,12 +774,12 @@ Vertical slice. Mỗi step deploy được, dogfood sớm. ✅ = pixel-perfect k
 - Crossover detect (auto-flag character từ storyline khác)
 
 ### Step 8 — World Bible ✅
-- Migration `0005` world_sections + world_entries
+- Migration `0007_world.sql` (world_sections + world_entries)
 - Backend: 4 endpoints
 - Frontend: `features/world/WorldBible` markdown + glossary
 
 ### Step 9 — Cmd+K, search, conflict warnings ✅
-- Migration `0005` search tsvector + pg_trgm
+- Migration `0008_search.sql` (search_tsv columns + GIN + pg_trgm)
 - Backend: `/api/stories/{sid}/search` + ConflictRules service
 - Frontend: `features/cmdk/CommandK` ⌘K modal
 - Conflict warnings banner trong context panel
@@ -782,7 +792,7 @@ Vertical slice. Mỗi step deploy được, dogfood sớm. ✅ = pixel-perfect k
 **Ship:** Tool **manual** complete (như Plottr/Notion).
 
 ### Step 11 — AI infrastructure ✅
-- Migration `0006` ai_audit + ai_usage + `users.ai_enabled`
+- Migration `0009_ai.sql` (ai_audit + ai_usage + `users.ai_enabled`)
 - Backend: LLM client adapter, ContextBuilder, rate limit env-based, `/api/ai/models`
 - Frontend: AI toggle với confirm dialog
 - Settings model picker từ `/api/ai/models`
@@ -866,11 +876,18 @@ Vertical slice. Mỗi step deploy được, dogfood sớm. ✅ = pixel-perfect k
 - [ ] Fonts Lora + JetBrains Mono + Inter load đúng (qua @fontsource)
 - [ ] CSS tokens từ `styles.css` được giữ nguyên
 
-### 9.5 Long-form
+### 9.5 Long-form (perf gate ở các step trung gian)
+
+**Interim gates (test khi step ship):**
+- [ ] Step 3 ship: Editor mở chapter 5k chữ, gõ liên tục 30s — không lag, auto-save không freeze input
+- [ ] Step 5 ship: project có 30+ character, 50+ event — Story Map render < 1s, character grid scroll smooth
+
+**Final gates (v1 Done):**
 - [ ] Mở project có 50k+ chữ, 100+ event, 30+ character — UI vẫn responsive (TTI < 2s)
 - [ ] Context tier nén đúng, không vượt token budget khi AI ON
 - [ ] Auto-save không lag editor (debounce 800ms, không UI freeze)
 - [ ] Cmd+K search trên 50k+ chữ trả kết quả < 300ms
+- [ ] Bundle size frontend < 800KB gzipped (đảm bảo TTI trên slow connection)
 
 ### 9.6 Reliability
 - [ ] Crash/reload không mất chương đang viết
