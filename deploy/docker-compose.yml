@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: makestory
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: makestory
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "makestory"]
+      interval: 5s
+
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    environment:
+      DATABASE_URL: postgres://makestory:${POSTGRES_PASSWORD}@postgres:5432/makestory?sslmode=disable
+      SESSION_SECRET: ${SESSION_SECRET}
+      LLM_BASE_URL: https://llm.musia.store/v1
+      LLM_API_KEY: ${LLM_API_KEY}
+      LLM_DEFAULT_MODEL: claude-sonnet-4-5
+      AI_DAILY_LIMIT: "0"
+      DISABLE_REGISTRATION: "false"
+      SEED_DEMO: "false"
+      LOG_LEVEL: info
+      LOG_FORMAT: json
+      PORT: "8080"
+      ALLOWED_ORIGINS: "https://makestory.example.com"
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+
+volumes:
+  pgdata:
