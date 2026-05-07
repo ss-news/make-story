@@ -1,0 +1,20 @@
+@import './tokens.css';
+@import '@fontsource/lora/400.css';
+@import '@fontsource/lora/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/600.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; margin: 0; }
+body {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.01em;
+}
