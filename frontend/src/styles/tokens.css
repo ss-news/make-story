@@ -1,1 +1,46 @@
-/* Tokens — placeholder; replaced in Task 0.6 with content from docs/design/story-v2/project/styles.css */
+/* Tokens — ported from docs/design/story-v2/project/styles.css */
+/* DO NOT add component styles here; use Tailwind utilities or component-scoped CSS. */
+
+:root {
+  /* light */
+  --paper: #faf8f3;
+  --paper-2: #f3efe5;
+  --paper-3: #ebe5d6;
+  --ink: #1a1715;
+  --ink-2: #4a4239;
+  --muted: #847a6c;
+  --muted-2: #a89e8e;
+  --hairline: #e0d9c8;
+  --hairline-strong: #c9c0ad;
+  --accent: oklch(58% 0.12 30);
+  --accent-soft: oklch(58% 0.12 30 / 0.10);
+  --warn: oklch(60% 0.13 60);
+  --ok: oklch(55% 0.10 150);
+  --turning: oklch(62% 0.13 75);
+
+  --sl-main: oklch(58% 0.12 30);
+  --sl-court: oklch(48% 0.10 250);
+  --sl-demon: oklch(45% 0.13 340);
+
+  --font-mono: 'JetBrains Mono', 'iA Writer Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-serif: 'Lora', 'Iowan Old Style', 'Georgia', serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+[data-theme="dark"] {
+  --paper: #16140f;
+  --paper-2: #1f1c16;
+  --paper-3: #28241c;
+  --ink: #ebe4d4;
+  --ink-2: #c4bca8;
+  --muted: #8a8275;
+  --muted-2: #5e5749;
+  --hairline: #2a2620;
+  --hairline-strong: #3d382e;
+  --accent: oklch(70% 0.13 30);
+  --accent-soft: oklch(70% 0.13 30 / 0.14);
+
+  --sl-main: oklch(70% 0.13 30);
+  --sl-court: oklch(65% 0.12 250);
+  --sl-demon: oklch(62% 0.14 340);
+}
