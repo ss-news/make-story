@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/duyld/make-story/backend/internal/api"
 	"github.com/duyld/make-story/backend/internal/app"
 )
 
@@ -23,15 +24,14 @@ func main() {
 	logger := app.NewLogger(cfg)
 	slog.SetDefault(logger)
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"data":{"status":"ok","db":"unknown","llm":"unknown"}}`))
+	handler := api.NewRouter(api.RouterDeps{
+		HealthDB:  func() bool { return false }, // wired in Step 0.4 + Step 1
+		HealthLLM: func() bool { return false },
 	})
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
-		Handler:           mux,
+		Handler:           handler,
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
