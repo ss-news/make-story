@@ -1,10 +1,20 @@
-# Web Story
+# Make Story — Web (multi-user)
 
-Personal AI co-writing tool cho web novelist viết truyện dài (tiên hiệp, fantasy, …) với khả năng theo dõi nhân vật, sự kiện, dòng thời gian, quan hệ trên nhiều storyline song song.
+Web app port của Make Story (multi-user, self-hosted nhỏ).
 
-**Stack:** Go (backend) · React + Vite (frontend) · PostgreSQL 16 (database).
+- Spec: [`docs/superpowers/specs/2026-05-07-web-multi-user-design.md`](docs/superpowers/specs/2026-05-07-web-multi-user-design.md)
+- Plans: [`docs/superpowers/plans/`](docs/superpowers/plans/)
+- Design source of truth: [`docs/design/story-v2/`](docs/design/story-v2/)
 
-> Hiện tại repo chỉ chứa **tài liệu thiết kế**. Chưa có code triển khai.
+## Quickstart (dev)
+
+```bash
+make dev-db        # start postgres in docker
+make dev-be        # run backend with hot reload (:8080)
+make dev-fe        # run frontend (:5173)
+```
+
+See `Makefile` for all targets.
 
 ## Cấu trúc repo
 

@@ -1,3 +1,20 @@
-# macOS
+# Go
+backend/bin/
+backend/tmp/
+backend/coverage.out
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Embedded static (built artifact)
+backend/internal/api/static/dist/
+
+# Env
+.env
+deploy/.env
+
+# IDE
+.idea/
+.vscode/
 .DS_Store
-**/.DS_Store
