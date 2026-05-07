@@ -720,19 +720,21 @@ For every step:
 
 ## 9. Concrete violations found
 
-The scaffold is small (~1100 LoC excluding tests, ~2000 with). Two genuine, fixable violations were found. Two more issues are noted as "watch" but do not warrant a refactor under the plan's "no cosmetic refactors" scope guard.
+The scaffold is small (~1100 LoC excluding tests, ~2000 with). After a careful pass against §1–§8 and the plan's scope guard ("No cosmetic refactors. No 'cleaner if'."), **no violations rise to the level requiring a refactor in this step**. Four items are recorded below as "watch" — they describe minor pattern drift or latent (not current) bugs. The plan explicitly authorizes deferring all four; the conventions above bind future code regardless.
 
-### 9.1 `migrations/runner.go:29` — `err != migrate.ErrNoChange` should use `errors.Is`
+`go test -race ./...` is clean across all 9 packages. `go vet` and `gofmt` are clean. The §1–§8 patterns are observed end-to-end.
 
-**Severity:** Important.
-**Why:** `golang-migrate` documents `ErrNoChange` as a sentinel and we use `errors.Is` everywhere else for sentinel comparison (§3.2). Using `==` is a violation of the project's own §3 rule and breaks if the lib ever wraps the error in a future minor version. Fixed in this review.
+### 9.1 (Watch) `migrations/runner.go:29` — `err != migrate.ErrNoChange` should use `errors.Is`
 
-### 9.2 `cmd/server/main.go:56` — health probe `pool.Ping(context.Background())` has no timeout
+**Severity:** Suggestion.
+**Why:** §3.2 mandates `errors.Is` for all sentinel comparisons. Today this works because `golang-migrate` returns the bare sentinel; `==` succeeds. The bug is purely defensive — only triggers if a future minor version wraps the error. **Not refactored:** no current failing test, no current incorrect behavior. Cosmetic under scope guard. New code in `internal/migrations/` should still follow §3.2.
 
-**Severity:** Important.
-**Why:** The health endpoint runs the DB ping per request with `context.Background()`. If the DB hangs (network partition, long-running migration on a peer), the ping waits forever. The chi `middleware.Timeout(60*time.Second)` upstream caps the request, but the goroutine running the ping leaks until pgx itself notices the connection is dead — which can be much longer than the request's HTTP deadline. The probe should bound itself to ~2s; if the ping doesn't return in 2s, the DB is effectively down for the purpose of health. Fixed in this review.
+### 9.2 (Watch) `cmd/server/main.go:56` — health probe `pool.Ping(context.Background())` has no timeout
 
-### 9.3 (Watch, not refactored) `service/auth_service.go:48` — `AuthService.Now` is exported & mutable
+**Severity:** Suggestion.
+**Why:** The health endpoint pings the DB per request using `context.Background()`. If the DB hangs (partition, migration on a peer), the ping blocks until pgx's underlying connection deadline. The chi `middleware.Timeout(60*time.Second)` caps the *response* but the goroutine doesn't unwind cleanly. **Not refactored:** the practical effect is bounded by the 60s request timeout; no current bug. When Step 7+ adds load, revisit and bound the ping to ~2s. New health probes must use a timeout context.
+
+### 9.3 (Watch) `service/auth_service.go:48` — `AuthService.Now` is exported & mutable
 
 The clock is exported so tests can mutate it after construction (`svc.Now = func() time.Time { ... }` in `auth_service_test.go:129`, etc.). The pattern works under `go test -race` because no test mutates `Now` while concurrent traffic is hitting the same instance.
 
@@ -740,7 +742,7 @@ It's still a smell: a public mutable function field on a struct that lives behin
 
 **Why not refactored:** the plan's scope guard explicitly bans cosmetic refactors. This is closer to ergonomic-vs-disciplined than to a real bug. Documented here so future work prefers the unexported pattern (see §2.2 — new services should declare `now func() time.Time` unexported).
 
-### 9.4 (Watch, not refactored) `service/auth_service.go:125` — best-effort cleanup uses request context
+### 9.4 (Watch) `service/auth_service.go:125` — best-effort cleanup uses request context
 
 `ResolveSession` calls `s.sessions.Delete(ctx, sess.ID)` to clean up an expired session, with `_ =` discarding the error. If the request's context has been cancelled (client disconnected mid-resolve), the cleanup is silently dropped and the row remains expired-but-undeleted until the next resolve. A nightly cron / scheduled cleanup will sweep these eventually.
 
@@ -754,6 +756,6 @@ The idiomatic fix would be `cleanCtx, cancel := context.WithTimeout(context.With
 
 The scaffold is a clean, idiomatic Go service. Layer boundaries are respected. Errors flow through `domain` sentinels with `oops` context. Repos are correctly behind consumer-side interfaces. Handlers use closure factories with DTO mapping and a sentinel-driven error switch. Tests run on real Postgres via `testcontainers` with a `CI_SKIP_TESTCONTAINERS=1` escape hatch. `go test -race ./...` is green. `go vet` is clean. `gofmt` is clean.
 
-Two concrete violations fixed (§9.1, §9.2). Two minor concerns documented (§9.3, §9.4) but not refactored per scope guard.
+No violations require a refactor in this step. Four suggestion-level "watch" items are recorded (§9.1–§9.4); each is either defensive-only or bounded by an outer mechanism, and the plan's scope guard ("no cosmetic refactors") justifies deferral.
 
 The conventions in this document are now load-bearing for Steps 2–15. Deviations should be discussed in PRs that propose them, not silently introduced.
