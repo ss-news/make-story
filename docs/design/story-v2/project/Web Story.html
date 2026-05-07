@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<title>Web Story — Personal AI Co-writing Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="data.js"></script>
+<script type="text/babel" src="common.jsx"></script>
+<script type="text/babel" src="projects.jsx"></script>
+<script type="text/babel" src="editor.jsx"></script>
+<script type="text/babel" src="canvas.jsx"></script>
+<script type="text/babel" src="create-modal.jsx"></script>
+<script type="text/babel" src="storymap.jsx"></script>
+<script type="text/babel" src="characters.jsx"></script>
+<script type="text/babel" src="relgraph.jsx"></script>
+<script type="text/babel" src="events.jsx"></script>
+<script type="text/babel" src="misc.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo, useCallback } = React;
+
+function CmdK({ open, onClose, onJump }) {
+  const [q, setQ] = useState('');
+  if (!open) return null;
+  const all = [
+    ...window.SEED.characters.map(c => ({ kind: 'char', id: c.id, name: c.name, ctx: c.role, color: c.color })),
+    ...window.SEED.events.map(e => ({ kind: 'event', id: e.id, name: e.title, ctx: 'CH ' + getChapter(e.chapter_id)?.order })),
+    ...window.SEED.arcs.map(a => ({ kind: 'arc', id: a.id, name: 'Arc ' + a.order + ' — ' + a.name, ctx: getStoryline(a.storyline_id)?.name })),
+    ...window.SEED.chapters.map(c => ({ kind: 'chap', id: c.id, name: c.title, ctx: c.word_count + ' từ' })),
+  ];
+  const results = q ? all.filter(r => r.name.toLowerCase().includes(q.toLowerCase())).slice(0, 12) : all.slice(0, 8);
+  return (
+    <div className="cmdk" onClick={onClose}>
+      <div className="box" onClick={e => e.stopPropagation()}>
+        <input autoFocus placeholder="Tìm chương, character, event, arc…" value={q} onChange={e => setQ(e.target.value)}/>
+        <div className="results">
+          {results.map((r, i) => (
+            <div key={r.kind + r.id} className={classNames('res', i === 0 && 'sel')} onClick={() => { onJump(r.kind, r.id); onClose(); }}>
+              <span className="kind">{r.kind}</span>
+              <span className="nm" style={r.color ? { color: r.color } : null}>{r.name}</span>
+              <span className="ctx">{r.ctx}</span>
+            </div>
+          ))}
+          {!results.length && <div style={{ padding: 18, color: 'var(--muted)', fontSize: 12 }}>Không có kết quả.</div>}
+        </div>
+        <div style={{ padding: '8px 18px', borderTop: '1px solid var(--hairline)', fontSize: 10, color: 'var(--muted)', display: 'flex', gap: 12 }}>
+          <span><span className="kbd">↑↓</span> di chuyển</span>
+          <span><span className="kbd">↵</span> mở</span>
+          <span><span className="kbd">esc</span> đóng</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DiffModal({ open, onClose }) {
+  if (!open) return null;
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="mh">
+          <Icon name="sparkle" size={16}/>
+          <h2>AI gợi ý — 3 thay đổi cho dự án</h2>
+          <button className="close" onClick={onClose}><Icon name="x"/></button>
+        </div>
+        <div className="mb">
+          <div className="diff-item">
+            <div className="di-head">
+              <span className="di-tag">+ Event mới</span>
+              <span className="di-ttl">"Lý Thanh Vân và Tô Ngọc đối thoại lần đầu"</span>
+            </div>
+            <div className="di-body">Phát hiện trong CH 18 vừa viết. Đề xuất: Arc 3, narrative_order 12.5, importance major, type plot, crossover (Main × Triều đình).</div>
+            <div className="di-actions">
+              <button className="btn primary">Chấp nhận</button>
+              <button className="btn">Sửa</button>
+              <button className="btn ghost">Bỏ qua</button>
+            </div>
+          </div>
+          <div className="diff-item">
+            <div className="di-head">
+              <span className="di-tag" style={{ borderColor: 'var(--turning)', color: 'var(--turning)' }}>~ Cập nhật trait</span>
+              <span className="di-ttl">Lý Thanh Vân — Vết thương cũ ở vai</span>
+            </div>
+            <div className="di-body">Trait này được đánh dấu đã lành tại E5 ("Bái sư"). Tuy nhiên CH 7 ("Lưu sư huynh") có nhắc tới "vết thương còn nhức". Đề xuất: chuyển lost_event sang E12 thay vì E5.</div>
+            <div className="di-actions">
+              <button className="btn primary">Chấp nhận</button>
+              <button className="btn ghost">Bỏ qua</button>
+            </div>
+          </div>
+          <div className="diff-item">
+            <div className="di-head">
+              <span className="di-tag">+ Quan hệ mới</span>
+              <span className="di-ttl">Lý Thanh Vân ↔ Tô Ngọc — "Liên minh tạm"</span>
+            </div>
+            <div className="di-body">Suy ra từ E14. Đề xuất tạo relationship type=ally, label="Liên minh tạm thời", started_at=E14.</div>
+            <div className="di-actions">
+              <button className="btn primary">Chấp nhận</button>
+              <button className="btn ghost">Bỏ qua</button>
+            </div>
+          </div>
+        </div>
+        <div className="mf">
+          <button className="btn">Chấp nhận tất cả</button>
+          <button className="btn ghost" onClick={onClose}>Đóng</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [theme, setTheme] = useState('light');
+  const [view, setView] = useState('editor'); // dashboard | editor | storymap | characters | charDetail | rels | events | world | settings
+  const [smapSub, setSmapSub] = useState('canvas');
+  const [charSel, setCharSel] = useState(null);
+  const [eventSel, setEventSel] = useState(null);
+  const [aiOn, setAiOn] = useState(true);
+  const [cmdk, setCmdk] = useState(false);
+  const [diffOpen, setDiffOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createTab, setCreateTab] = useState('event');
+  const [createPrefill, setCreatePrefill] = useState({});
+  const openCreate = (tab = 'event', prefill = {}) => { setCreateTab(tab); setCreatePrefill(prefill); setCreateOpen(true); };
+
+  useEffect(() => { document.body.dataset.theme = theme; }, [theme]);
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setCmdk(c => !c); }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'n') { e.preventDefault(); openCreate('event'); }
+      if (e.key === 'Escape') { setCmdk(false); setDiffOpen(false); setEventSel(null); setCreateOpen(false); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  const jump = (kind, id) => {
+    if (kind === 'char') { setCharSel(id); setView('charDetail'); }
+    else if (kind === 'event') { setEventSel(id); }
+    else if (kind === 'arc') { setSmapSub('arc-detail'); setView('storymap'); }
+    else if (kind === 'chap') { setView('editor'); }
+    else if (kind === 'character') { setCharSel(id); setView('charDetail'); }
+  };
+
+  const railItems = [
+    { id: 'dashboard', icon: 'home', label: 'Dự án' },
+    { id: 'editor', icon: 'edit', label: 'Editor' },
+    { id: 'storymap', icon: 'map', label: 'Story Map' },
+    { id: 'characters', icon: 'users', label: 'Nhân vật' },
+    { id: 'rels', icon: 'graph', label: 'Quan hệ' },
+    { id: 'events', icon: 'bolt', label: 'Events' },
+    { id: 'world', icon: 'book', label: 'World Bible' },
+  ];
+
+  return (
+    <div className="app">
+      <div className="topbar">
+        <span className="brand"><span className="dot"/>Web Story</span>
+        <div className="switcher" onClick={() => setView('dashboard')}>
+          <span style={{ fontFamily: 'var(--font-serif)', fontSize: 13, fontStyle: 'italic' }}>Lý Thanh Vân — Thanh Đế</span>
+          <span className="meta">19 ch · 56k từ</span>
+          <Icon name="chevronDown" size={11}/>
+        </div>
+        <button className="top-action" onClick={() => setCmdk(true)}><Icon name="search" size={11}/> Tìm <span className="kbd" style={{ marginLeft: 6 }}>⌘K</span></button>
+        <button className="top-action" onClick={() => openCreate('event')} style={{ color: 'var(--accent)', borderColor: 'var(--accent)' }}>+ Tạo <span className="kbd" style={{ marginLeft: 6 }}>⌘N</span></button>
+        <button className="top-action" onClick={() => setDiffOpen(true)}><Icon name="sparkle" size={11}/> Gợi ý AI <span className="tag" style={{ marginLeft: 4, color: 'var(--accent)', borderColor: 'var(--accent)' }}>3</span></button>
+        <div className="topbar-spacer"/>
+        <button className={classNames('ai-toggle', aiOn ? 'on' : 'off')} onClick={() => setAiOn(!aiOn)}>
+          <span className="pulse"/> AI {aiOn ? 'ON' : 'OFF'}
+        </button>
+        <button className="top-action" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+          <Icon name={theme === 'light' ? 'moon' : 'sun'} size={12}/>
+        </button>
+        <button className="top-action" onClick={() => setView('settings')}><Icon name="settings" size={12}/></button>
+      </div>
+
+      <div className="rail">
+        {railItems.map(r => (
+          <button key={r.id} className={classNames('ricon', view === r.id && 'active')} onClick={() => setView(r.id)} title={r.label}>
+            <Icon name={r.icon}/>
+            <span className="rail-label">{r.label}</span>
+          </button>
+        ))}
+        <div style={{ flex: 1 }}/>
+        <div className="divider"/>
+        <button className={classNames('ricon', view === 'settings' && 'active')} onClick={() => setView('settings')} title="Cài đặt">
+          <Icon name="settings"/>
+          <span className="rail-label">Cài đặt</span>
+        </button>
+      </div>
+
+      <div className="main">
+        {view === 'dashboard' && <ProjectList onOpen={() => setView('editor')} onCreate={() => openCreate('project')}/>}
+        {view === 'editor' && <Editor onJump={jump}/>}
+        {view === 'storymap' && <StoryMap subview={smapSub} setSubview={setSmapSub} onOpenArc={() => setSmapSub('arc-detail')}/>}
+        {view === 'characters' && <CharacterGrid onOpen={(id) => { setCharSel(id); setView('charDetail'); }}/>}
+        {view === 'charDetail' && <CharacterDetail cid={charSel} onBack={() => setView('characters')} onOpenEvent={(id) => setEventSel(id)}/>}
+        {view === 'rels' && <RelGraph onOpen={(id) => { setCharSel(id); setView('charDetail'); }}/>}
+        {view === 'events' && <EventList onOpen={(id) => setEventSel(id)}/>}
+        {view === 'world' && <WorldBible/>}
+        {view === 'settings' && <Settings theme={theme} setTheme={setTheme} aiOn={aiOn} setAiOn={setAiOn}/>}
+
+        <CreateModal
+          open={createOpen}
+          initialTab={createTab}
+          prefill={createPrefill}
+          onClose={() => setCreateOpen(false)}
+          onCreated={(kind, id) => { setCreateOpen(false); }}
+        />
+
+        {eventSel && <EventDetail eid={eventSel} onClose={() => setEventSel(null)} onJump={jump}/>}
+      </div>
+
+      <div className="statusbar">
+        <span className="sb-item"><span className="k">DỰ ÁN</span> Lý Thanh Vân</span>
+        <span className="sb-item"><span className="k">CH</span> 18 / 19</span>
+        <span className="sb-item"><span className="k">TỪ</span> 3,640</span>
+        <span className="sb-item"><span className="k">ARC</span> 3 — Bí cảnh thượng cổ</span>
+        <span className="sb-spacer"/>
+        <span className="sb-item">SQLite local · ~/Library/web-story.db</span>
+        <span className="sb-item" style={{ color: 'var(--ok)' }}>● Đã lưu</span>
+        <span className="sb-item">v0.1</span>
+      </div>
+
+      <CmdK open={cmdk} onClose={() => setCmdk(false)} onJump={jump}/>
+      <DiffModal open={diffOpen} onClose={() => setDiffOpen(false)}/>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
