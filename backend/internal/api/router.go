@@ -46,5 +46,11 @@ func NewRouter(deps RouterDeps) http.Handler {
 			r.Get("/me", handleMe())
 		})
 	}
+
+	// SPA fallback. Registered after all /api/* routes so chi matches API
+	// handlers first; everything else (including 404s on non-API paths)
+	// is served by the embedded frontend bundle.
+	spa := SPAHandler()
+	r.NotFound(spa.ServeHTTP)
 	return r
 }

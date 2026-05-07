@@ -72,9 +72,9 @@ func sidCookie(resp *http.Response) *http.Cookie {
 func TestRegister201(t *testing.T) {
 	env := newAuthEnv(t, false)
 	resp := doJSON(t, env.router, http.MethodPost, "/api/auth/register", map[string]any{
-		"email":       "reg@example.com",
-		"password":    "supersecret",
-		"displayName": "Reggie",
+		"email":        "reg@example.com",
+		"password":     "supersecret",
+		"display_name": "Reggie",
 	})
 	require.Equal(t, http.StatusCreated, resp.StatusCode)
 	require.NotNil(t, sidCookie(resp))
@@ -91,10 +91,10 @@ func TestRegister201(t *testing.T) {
 func TestRegisterDuplicate409(t *testing.T) {
 	env := newAuthEnv(t, false)
 	doJSON(t, env.router, http.MethodPost, "/api/auth/register", map[string]any{
-		"email": "d@example.com", "password": "supersecret", "displayName": "D",
+		"email": "d@example.com", "password": "supersecret", "display_name": "D",
 	})
 	resp := doJSON(t, env.router, http.MethodPost, "/api/auth/register", map[string]any{
-		"email": "d@example.com", "password": "supersecret", "displayName": "D",
+		"email": "d@example.com", "password": "supersecret", "display_name": "D",
 	})
 	require.Equal(t, http.StatusConflict, resp.StatusCode)
 	var body map[string]any
@@ -105,7 +105,7 @@ func TestRegisterDuplicate409(t *testing.T) {
 func TestRegisterValidationShortPassword400(t *testing.T) {
 	env := newAuthEnv(t, false)
 	resp := doJSON(t, env.router, http.MethodPost, "/api/auth/register", map[string]any{
-		"email": "v@example.com", "password": "short", "displayName": "V",
+		"email": "v@example.com", "password": "short", "display_name": "V",
 	})
 	require.Equal(t, http.StatusBadRequest, resp.StatusCode)
 	var body map[string]any
@@ -117,7 +117,7 @@ func TestRegisterValidationShortPassword400(t *testing.T) {
 func TestRegisterDisabled403(t *testing.T) {
 	env := newAuthEnv(t, true)
 	resp := doJSON(t, env.router, http.MethodPost, "/api/auth/register", map[string]any{
-		"email": "x@example.com", "password": "supersecret", "displayName": "X",
+		"email": "x@example.com", "password": "supersecret", "display_name": "X",
 	})
 	require.Equal(t, http.StatusForbidden, resp.StatusCode)
 	var body map[string]any

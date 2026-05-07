@@ -33,7 +33,7 @@ func toUserDTO(u domain.User) userDTO {
 type registerReq struct {
 	Email       string `json:"email"`
 	Password    string `json:"password"`
-	DisplayName string `json:"displayName"`
+	DisplayName string `json:"display_name"`
 }
 
 type loginReq struct {

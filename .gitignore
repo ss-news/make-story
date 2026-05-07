@@ -7,8 +7,13 @@ backend/coverage.out
 frontend/node_modules/
 frontend/dist/
 
-# Embedded static (built artifact)
-backend/internal/api/static/dist/
+# Embedded static (built artifact).
+# The real Vite output overwrites this directory at deploy time, but the
+# directory must exist for `go:embed` to succeed. We commit a placeholder
+# index.html so local `go build` works without first running the FE build.
+backend/internal/api/static/dist/*
+!backend/internal/api/static/dist/.gitkeep
+!backend/internal/api/static/dist/index.html
 
 # Env
 .env

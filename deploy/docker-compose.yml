@@ -17,6 +17,7 @@ services:
       context: ..
       dockerfile: deploy/Dockerfile
     environment:
+      ENV: production
       DATABASE_URL: postgres://makestory:${POSTGRES_PASSWORD}@postgres:5432/makestory?sslmode=disable
       SESSION_SECRET: ${SESSION_SECRET}
       LLM_BASE_URL: https://llm.musia.store/v1
