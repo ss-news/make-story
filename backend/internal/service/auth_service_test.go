@@ -94,6 +94,19 @@ func TestAuthLoginWrongPassword(t *testing.T) {
 	assert.True(t, errors.Is(err, domain.ErrInvalidCredentials))
 }
 
+func TestAuthEmailNormalizedOnRegisterAndLogin(t *testing.T) {
+	svc := newAuthService(t, false)
+	ctx := context.Background()
+
+	u, _, err := svc.Register(ctx, "  Alice@Example.COM  ", "supersecret", "Alice", "", "")
+	require.NoError(t, err)
+	assert.Equal(t, "alice@example.com", u.Email)
+
+	u2, _, err := svc.Login(ctx, "alice@example.com", "supersecret", "", "")
+	require.NoError(t, err)
+	assert.Equal(t, u.ID, u2.ID)
+}
+
 func TestAuthLoginUnknownEmail(t *testing.T) {
 	svc := newAuthService(t, false)
 	ctx := context.Background()

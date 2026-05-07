@@ -15,9 +15,9 @@ import (
 type userDTO struct {
 	ID          string `json:"id"`
 	Email       string `json:"email"`
-	DisplayName string `json:"displayName"`
-	IsAdmin     bool   `json:"isAdmin"`
-	AIEnabled   bool   `json:"aiEnabled"`
+	DisplayName string `json:"display_name"`
+	IsAdmin     bool   `json:"is_admin"`
+	AIEnabled   bool   `json:"ai_enabled"`
 }
 
 func toUserDTO(u domain.User) userDTO {
@@ -52,7 +52,7 @@ func handleRegister(svc *service.AuthService, secureCookie bool) http.HandlerFun
 		switch {
 		case err == nil:
 			auth.SetSessionCookie(w, sess.ID, sess.ExpiresAt, secureCookie)
-			JSON(w, http.StatusCreated, map[string]any{"user": toUserDTO(u)})
+			JSON(w, http.StatusCreated, toUserDTO(u))
 		case errors.Is(err, domain.ErrEmailTaken):
 			Error(w, http.StatusConflict, "EMAIL_TAKEN", "email already registered", nil)
 		case errors.Is(err, domain.ErrPasswordTooShort):
@@ -77,7 +77,7 @@ func handleLogin(svc *service.AuthService, secureCookie bool) http.HandlerFunc {
 		switch {
 		case err == nil:
 			auth.SetSessionCookie(w, sess.ID, sess.ExpiresAt, secureCookie)
-			JSON(w, http.StatusOK, map[string]any{"user": toUserDTO(u)})
+			JSON(w, http.StatusOK, toUserDTO(u))
 		case errors.Is(err, domain.ErrInvalidCredentials):
 			Error(w, http.StatusUnauthorized, "INVALID_CREDENTIALS", "invalid email or password", nil)
 		default:
@@ -103,7 +103,7 @@ func handleMe() http.HandlerFunc {
 			Error(w, http.StatusUnauthorized, "UNAUTHORIZED", "authentication required", nil)
 			return
 		}
-		JSON(w, http.StatusOK, map[string]any{"user": toUserDTO(u)})
+		JSON(w, http.StatusOK, toUserDTO(u))
 	}
 }
 

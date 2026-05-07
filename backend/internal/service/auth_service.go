@@ -4,6 +4,7 @@ package service
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/duyld/make-story/backend/internal/auth"
@@ -65,6 +66,7 @@ func (s *AuthService) Register(ctx context.Context, email, password, displayName
 	if s.disableRegistration {
 		return domain.User{}, domain.Session{}, oops.Wrapf(domain.ErrRegistrationDisabled, "register")
 	}
+	email = strings.ToLower(strings.TrimSpace(email))
 	hash, err := auth.HashPassword(password)
 	if err != nil {
 		return domain.User{}, domain.Session{}, err
@@ -84,6 +86,7 @@ func (s *AuthService) Register(ctx context.Context, email, password, displayName
 // Returns domain.ErrInvalidCredentials for both unknown email and wrong password
 // (no enumeration leak).
 func (s *AuthService) Login(ctx context.Context, email, password, userAgent, ip string) (domain.User, domain.Session, error) {
+	email = strings.ToLower(strings.TrimSpace(email))
 	u, err := s.users.FindByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
@@ -117,7 +120,7 @@ func (s *AuthService) ResolveSession(ctx context.Context, sessionID string) (dom
 	if err != nil {
 		return domain.User{}, domain.Session{}, err
 	}
-	if !now.Before(sess.ExpiresAt) {
+	if !sess.Active(now) {
 		// Best-effort cleanup.
 		_ = s.sessions.Delete(ctx, sess.ID)
 		return domain.User{}, domain.Session{}, oops.Wrapf(domain.ErrSessionExpired, "resolveSession")

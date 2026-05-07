@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/duyld/make-story/backend/internal/adapter/repo"
 	"github.com/duyld/make-story/backend/internal/api"
@@ -77,6 +78,44 @@ func TestSessionLoaderValidCookieSetsUser(t *testing.T) {
 	}
 	require.NotNil(t, sidCookie)
 	assert.Equal(t, sess.ID, sidCookie.Value)
+}
+
+func TestSessionLoaderExpiredCookieIsCleared(t *testing.T) {
+	svc := newTestAuthSvc(t)
+	ctx := context.Background()
+
+	_, sess, err := svc.Register(ctx, "exp-mw@example.com", "supersecret", "E", "", "")
+	require.NoError(t, err)
+
+	// Move clock past expiry so ResolveSession returns ErrSessionExpired.
+	svc.Now = func() time.Time { return sess.ExpiresAt.Add(time.Hour) }
+
+	called := false
+	h := api.SessionLoader(svc, false)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		called = true
+		_, ok := api.UserFrom(r.Context())
+		assert.False(t, ok)
+		w.WriteHeader(http.StatusOK)
+	}))
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.AddCookie(&http.Cookie{Name: auth.SessionCookieName, Value: sess.ID})
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+
+	assert.True(t, called)
+	assert.Equal(t, http.StatusOK, rr.Code)
+
+	// Response must clear the sid cookie.
+	var sidCookie *http.Cookie
+	for _, c := range rr.Result().Cookies() {
+		if c.Name == auth.SessionCookieName {
+			sidCookie = c
+		}
+	}
+	require.NotNil(t, sidCookie, "expected a Set-Cookie clearing %q", auth.SessionCookieName)
+	cleared := sidCookie.MaxAge < 0 || sidCookie.Value == ""
+	assert.True(t, cleared, "expected cleared cookie (MaxAge<0 or empty value), got %+v", sidCookie)
 }
 
 func TestAuthRequiredBlocksAnonymous(t *testing.T) {

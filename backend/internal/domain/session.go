@@ -16,3 +16,8 @@ type Session struct {
 	UserAgent  string
 	IP         string
 }
+
+// Active reports whether the session is still valid at the given time.
+func (s Session) Active(now time.Time) bool {
+	return now.Before(s.ExpiresAt)
+}

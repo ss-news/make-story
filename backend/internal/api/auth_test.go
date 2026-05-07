@@ -82,8 +82,10 @@ func TestRegister201(t *testing.T) {
 	var body map[string]any
 	require.NoError(t, json.NewDecoder(resp.Body).Decode(&body))
 	data := body["data"].(map[string]any)
-	user := data["user"].(map[string]any)
-	assert.Equal(t, "reg@example.com", user["email"])
+	assert.Equal(t, "reg@example.com", data["email"])
+	assert.Equal(t, "Reggie", data["display_name"])
+	assert.Equal(t, false, data["is_admin"])
+	assert.Equal(t, false, data["ai_enabled"])
 }
 
 func TestRegisterDuplicate409(t *testing.T) {
@@ -172,7 +174,7 @@ func TestMe200WithCookie(t *testing.T) {
 
 	var body map[string]any
 	require.NoError(t, json.NewDecoder(resp.Body).Decode(&body))
-	got := body["data"].(map[string]any)["user"].(map[string]any)
+	got := body["data"].(map[string]any)
 	assert.Equal(t, u.Email, got["email"])
 }
 

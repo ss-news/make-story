@@ -31,6 +31,7 @@ func SessionLoader(svc *service.AuthService, secureCookies bool) func(http.Handl
 			}
 			u, sess, err := svc.ResolveSession(r.Context(), c.Value)
 			if err != nil {
+				auth.ClearSessionCookie(w, secureCookies)
 				next.ServeHTTP(w, r)
 				return
 			}
