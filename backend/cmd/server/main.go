@@ -14,6 +14,7 @@ import (
 	"github.com/duyld/make-story/backend/internal/api"
 	"github.com/duyld/make-story/backend/internal/app"
 	"github.com/duyld/make-story/backend/internal/migrations"
+	"github.com/duyld/make-story/backend/internal/service"
 )
 
 func main() {
@@ -41,9 +42,22 @@ func main() {
 	}
 	defer pool.Close()
 
+	usersRepo := repo.NewUsers(pool)
+	sessionsRepo := repo.NewSessions(pool)
+	authSvc := service.NewAuth(service.AuthDeps{
+		Users:               usersRepo,
+		Sessions:            sessionsRepo,
+		DisableRegistration: cfg.DisableRegistration,
+	})
+
+	secureCookie := os.Getenv("ENV") == "production"
+
 	handler := api.NewRouter(api.RouterDeps{
-		HealthDB:  func() bool { return pool.Ping(context.Background()) == nil },
-		HealthLLM: func() bool { return false },
+		HealthDB:       func() bool { return pool.Ping(context.Background()) == nil },
+		HealthLLM:      func() bool { return false },
+		Auth:           authSvc,
+		SecureCookie:   secureCookie,
+		AllowedOrigins: cfg.AllowedOrigins,
 	})
 
 	srv := &http.Server{
