@@ -1,0 +1,192 @@
+/*
+ * App shell styles — ported verbatim from
+ * docs/design/story-v2/project/styles.css (lines 64–170).
+ *
+ * Class names match the design source so we can keep the markup
+ * structurally identical to Web Story.html.
+ */
+
+.app {
+  display: grid;
+  grid-template-rows: 40px 1fr 22px;
+  grid-template-columns: 56px 1fr;
+  height: 100vh;
+}
+
+.topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--hairline);
+  padding: 0 12px 0 16px;
+  background: var(--paper);
+  gap: 16px;
+}
+.topbar .brand {
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.topbar .brand .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  margin-right: 8px;
+  vertical-align: middle;
+  border-radius: 50%;
+}
+.topbar .switcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border: 1px solid var(--hairline);
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: pointer;
+  user-select: none;
+}
+.topbar .switcher:hover {
+  border-color: var(--hairline-strong);
+}
+.topbar .switcher .meta {
+  color: var(--muted);
+  font-size: 11px;
+}
+.topbar-spacer {
+  flex: 1;
+}
+.topbar .top-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--muted);
+  border: 1px solid transparent;
+}
+.topbar .top-action:hover {
+  color: var(--ink);
+  border-color: var(--hairline);
+}
+.topbar .ai-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px;
+  border: 1px solid var(--hairline);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.topbar .ai-toggle.on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.topbar .ai-toggle .pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.topbar .ai-toggle.off .pulse {
+  background: var(--muted-2);
+}
+
+.rail {
+  border-right: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 0;
+  gap: 4px;
+  background: var(--paper);
+}
+.rail .ricon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  border-left: 2px solid transparent;
+  margin-left: -2px;
+  font-size: 14px;
+  position: relative;
+  background: none;
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+.rail .ricon:hover {
+  color: var(--ink);
+}
+.rail .ricon.active {
+  color: var(--ink);
+  border-left-color: var(--accent);
+}
+.rail .ricon[disabled],
+.rail .ricon.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.rail .divider {
+  width: 24px;
+  height: 1px;
+  background: var(--hairline);
+  margin: 8px 0;
+}
+.rail .rail-label {
+  position: absolute;
+  left: 100%;
+  margin-left: 8px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 3px 8px;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 50;
+}
+.rail .ricon:hover .rail-label {
+  opacity: 1;
+}
+
+.statusbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid var(--hairline);
+  padding: 0 12px;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  gap: 16px;
+  background: var(--paper);
+}
+.statusbar .sb-item {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.statusbar .sb-item .k {
+  color: var(--muted-2);
+}
+.statusbar .sb-spacer {
+  flex: 1;
+}
+
+.kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  border: 1px solid var(--hairline);
+  padding: 1px 5px;
+  color: var(--muted);
+}
