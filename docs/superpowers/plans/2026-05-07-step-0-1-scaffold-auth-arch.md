@@ -851,6 +851,8 @@ var FS embed.FS
 package migrations
 
 import (
+	"strings"
+
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
@@ -862,7 +864,16 @@ func Up(databaseURL string) error {
 	if err != nil {
 		return oops.Wrapf(err, "iofs new")
 	}
-	m, err := migrate.NewWithSourceInstance("iofs", src, databaseURL)
+	// golang-migrate's pgx/v5 driver registers under the scheme "pgx5",
+	// not "postgres". Rewrite the standard DSN scheme so callers can keep
+	// using DATABASE_URL=postgres://...
+	migrateURL := databaseURL
+	if strings.HasPrefix(migrateURL, "postgres://") {
+		migrateURL = "pgx5://" + strings.TrimPrefix(migrateURL, "postgres://")
+	} else if strings.HasPrefix(migrateURL, "postgresql://") {
+		migrateURL = "pgx5://" + strings.TrimPrefix(migrateURL, "postgresql://")
+	}
+	m, err := migrate.NewWithSourceInstance("iofs", src, migrateURL)
 	if err != nil {
 		return oops.Wrapf(err, "migrate new")
 	}
