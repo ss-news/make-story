@@ -15,7 +15,7 @@ truyện (.txt) ─► [1] LLM viết lại kịch bản ─► scenes.json
 
 ## Flow nhiều agent
 
-Kịch bản do model nào viết cũng theo một chuẩn `storyvid.scenes/1`, được kiểm tra bằng `python -m storyvid.check`. Asset thiếu thành `asset_requests.json` cho Codex vẽ vào `assets/bac-bo-stick/extra/`; Claude dựng video khi kịch bản và asset đều đạt. Chi tiết: [docs/pipeline.md](docs/pipeline.md). Schema: [schema/scenes.v1.schema.json](schema/scenes.v1.schema.json), mã asset dùng được: [schema/assets.catalog.json](schema/assets.catalog.json).
+Claude phân tích truyện và chia cảnh thành `scenes.json` (chuẩn `storyvid.scenes/1`). Codex sửa kịch bản và vẽ asset thiếu theo `asset_requests.json` vào `assets/bac-bo-stick/extra/`. Claude dựng video, kiểm định và ghi `review.json` (`pass` hoặc `fix`). Mọi file đều được kiểm tra bằng `python -m storyvid.check`. Chi tiết: [docs/pipeline.md](docs/pipeline.md). Schema: [schema/scenes.v1.schema.json](schema/scenes.v1.schema.json), mã asset dùng được: [schema/assets.catalog.json](schema/assets.catalog.json).
 
 ## Cài đặt
 

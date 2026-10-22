@@ -1,0 +1,23 @@
+{
+  "format": "storyvid.review/1",
+  "scenes_file": "examples/ma_da_bac_bo.scenes.json",
+  "verdict": "fix",
+  "issues": [
+    {
+      "scene": 0,
+      "area": "story",
+      "severity": "major",
+      "owner": "codex",
+      "problem": "Câu mở đầu chưa nói ma da là gì, người xem nước ngoài không hiểu luật của con ma.",
+      "fix": "Thêm một câu narrator giải thích ma da là hồn người chết đuối, kéo người khác xuống sông để được đầu thai."
+    },
+    {
+      "scene": 3,
+      "area": "staging",
+      "severity": "minor",
+      "owner": "codex",
+      "problem": "Cảnh nắm cổ chân không có đồ vật nào gợi bờ sông.",
+      "fix": "Thêm props fish_trap ở far_left."
+    }
+  ]
+}

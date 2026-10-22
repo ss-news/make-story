@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "storyvid.review/1",
+  "title": "storyvid review.json (QA report)",
+  "type": "object",
+  "required": [
+    "format",
+    "issues",
+    "scenes_file",
+    "verdict"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "storyvid.review/1"
+    },
+    "scenes_file": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fix"
+      ],
+      "description": "pass: ready to publish (minor issues only); fix: send back."
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "area",
+          "fix",
+          "owner",
+          "problem",
+          "scene",
+          "severity"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "scene": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "0-based scene index, null for the whole video."
+          },
+          "area": {
+            "type": "string",
+            "enum": [
+              "story",
+              "dialogue",
+              "staging",
+              "background",
+              "props",
+              "character",
+              "audio",
+              "subtitle",
+              "pacing",
+              "render"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "blocker",
+              "major",
+              "minor"
+            ]
+          },
+          "owner": {
+            "type": "string",
+            "enum": [
+              "codex",
+              "tool"
+            ],
+            "description": "Who fixes it: codex (scenes.json, assets) or tool (a bug in storyvid code)."
+          },
+          "problem": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fix": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

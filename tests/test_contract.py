@@ -66,9 +66,27 @@ class ScriptContractTest(unittest.TestCase):
             path.write_text(json.dumps(scenes(pose='x')))
             self.assertEqual(check.check_script(path), 1)
 
+    def test_review_report(self):
+        review = json.loads((ROOT / 'examples' / 'ma_da_bac_bo.review.json').read_text())
+        self.assertEqual(contract.validate_review(review, len(SAMPLE['scenes'])), [])
+        with redirect_stdout(StringIO()):
+            self.assertEqual(check.check_review(ROOT / 'examples' / 'ma_da_bac_bo.review.json'), 0)
+        bad = copy.deepcopy(review)
+        bad['verdict'] = 'pass'
+        bad['issues'][1]['scene'] = 99
+        bad['issues'][1]['owner'] = 'gemini'
+        errors = contract.validate_review(bad, len(SAMPLE['scenes']))
+        self.assertIn("$.verdict: 'pass' is not allowed with blocker or major issues", errors)
+        self.assertIn('$.issues[1].scene: must be null or a scene index (0-based)', errors)
+        self.assertIn("$.issues[1].owner: 'gemini' is not one of codex, tool", errors)
+        self.assertIn("$.verdict: 'fix' needs at least one issue",
+                      contract.validate_review({**review, 'issues': []}))
+
     def test_reference_files_are_up_to_date(self):
         self.assertEqual(json.loads(contract.SCHEMA_PATH.read_text()), json.loads(json.dumps(contract.json_schema())))
         self.assertEqual(json.loads(contract.CATALOG_PATH.read_text()), json.loads(json.dumps(contract.catalog())))
+        self.assertEqual(json.loads(contract.REVIEW_SCHEMA_PATH.read_text()),
+                         json.loads(json.dumps(contract.review_schema())))
 
 
 class ExtraAssetsTest(unittest.TestCase):

@@ -3,6 +3,7 @@
   python -m storyvid.check output/<id>/scenes.json   script: exit 0 ok, 1 errors, 2 assets missing
                                                       (writes asset_requests.json next to the script)
   python -m storyvid.check --assets                   asset pack, base + extra: exit 0 ok, 1 errors
+  python -m storyvid.check --review output/<id>/review.json   QA report: exit 0 ok, 1 errors
   python -m storyvid.check --write-schema             regenerate schema/*.json after changing the pack
 """
 import argparse
@@ -140,10 +141,26 @@ def check_assets() -> int:
     return 0
 
 
+def check_review(path: Path) -> int:
+    review = json.loads(path.read_text(encoding="utf-8"))
+    scenes_path = contract.ROOT / str(review.get("scenes_file", "")) if isinstance(review, dict) else None
+    count = None
+    if scenes_path and scenes_path.is_file():
+        count = len(json.loads(scenes_path.read_text(encoding="utf-8")).get("scenes", []))
+    errors = contract.validate_review(review, count)
+    for e in errors:
+        print(f"ERROR {e}")
+    if errors:
+        return 1
+    print(f"OK {path}: {review['verdict']}, {len(review['issues'])} issue(s)")
+    return 0
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("scenes", nargs="?", help="scenes.json to check")
     ap.add_argument("--assets", action="store_true", help="check the asset pack")
+    ap.add_argument("--review", help="review.json (QA report) to check")
     ap.add_argument("--write-schema", action="store_true", help="regenerate schema/*.json")
     args = ap.parse_args()
     if args.write_schema:
@@ -154,8 +171,10 @@ def main() -> None:
         code = max(code, check_assets())
     if args.scenes:
         code = max(code, check_script(Path(args.scenes)))
-    if not (args.scenes or args.assets or args.write_schema):
-        ap.error("give a scenes.json, --assets or --write-schema")
+    if args.review:
+        code = max(code, check_review(Path(args.review)))
+    if not (args.scenes or args.assets or args.review or args.write_schema):
+        ap.error("give a scenes.json, --assets, --review or --write-schema")
     sys.exit(code)
 
 

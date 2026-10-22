@@ -15,9 +15,11 @@ from .script import ACTIONS, CAMERAS, EXPRESSIONS, HOST, KINDS, LANG_NAMES, NARR
 
 FORMAT = "storyvid.scenes/1"
 REQUESTS_FORMAT = "storyvid.asset-requests/1"
+REVIEW_FORMAT = "storyvid.review/1"
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "schema" / "scenes.v1.schema.json"
 CATALOG_PATH = ROOT / "schema" / "assets.catalog.json"
+REVIEW_SCHEMA_PATH = ROOT / "schema" / "review.v1.schema.json"
 SLUG = r"^[a-z][a-z0-9_]*$"
 BG_SLUG = r"^[a-z][a-z0-9_]*_(day|night)$"
 MAX_ACTORS = 3
@@ -179,6 +181,75 @@ def validate(script) -> tuple[list[str], list[dict]]:
     return errors, list(requests.values())
 
 
+REVIEW_KEYS = {"format", "scenes_file", "verdict", "issues"}
+ISSUE_KEYS = {"scene", "area", "severity", "owner", "problem", "fix"}
+VERDICTS = ["pass", "fix"]
+AREAS = ["story", "dialogue", "staging", "background", "props", "character", "audio", "subtitle", "pacing",
+         "render"]
+SEVERITIES = ["blocker", "major", "minor"]
+OWNERS = ["codex", "tool"]
+
+
+def validate_review(review, scene_count: int | None = None) -> list[str]:
+    """Problems in a QA report (review.json). A "pass" may only carry minor issues; a "fix" needs at least one."""
+    errors: list[str] = []
+    if not _keys(review, REVIEW_KEYS, "$", errors):
+        return errors
+    if review["format"] != REVIEW_FORMAT:
+        errors.append(f"$.format: must be {REVIEW_FORMAT!r}")
+    _text(review["scenes_file"], "$.scenes_file", errors)
+    _enum(review["verdict"], VERDICTS, "$.verdict", errors)
+    issues = review["issues"] if isinstance(review["issues"], list) else []
+    if not isinstance(review["issues"], list):
+        errors.append("$.issues: must be a list")
+    for i, issue in enumerate(issues):
+        where = f"$.issues[{i}]"
+        if not _keys(issue, ISSUE_KEYS, where, errors):
+            continue
+        scene = issue["scene"]
+        if scene is not None and (not isinstance(scene, int) or isinstance(scene, bool) or scene < 0
+                                  or (scene_count is not None and scene >= scene_count)):
+            errors.append(f"{where}.scene: must be null or a scene index (0-based)")
+        _enum(issue["area"], AREAS, f"{where}.area", errors)
+        _enum(issue["severity"], SEVERITIES, f"{where}.severity", errors)
+        _enum(issue["owner"], OWNERS, f"{where}.owner", errors)
+        _text(issue["problem"], f"{where}.problem", errors)
+        _text(issue["fix"], f"{where}.fix", errors)
+    serious = [x for x in issues if isinstance(x, dict) and x.get("severity") in ("blocker", "major")]
+    if review["verdict"] == "pass" and serious:
+        errors.append("$.verdict: 'pass' is not allowed with blocker or major issues")
+    if review["verdict"] == "fix" and not issues:
+        errors.append("$.verdict: 'fix' needs at least one issue")
+    return errors
+
+
+def review_schema() -> dict:
+    enum = lambda values: {"type": "string", "enum": list(values)}  # noqa: E731
+    string = {"type": "string", "minLength": 1}
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": REVIEW_FORMAT,
+        "title": "storyvid review.json (QA report)",
+        "type": "object",
+        "required": sorted(REVIEW_KEYS),
+        "additionalProperties": False,
+        "properties": {
+            "format": {"const": REVIEW_FORMAT},
+            "scenes_file": string,
+            "verdict": {**enum(VERDICTS), "description": "pass: ready to publish (minor issues only); fix: send back."},
+            "issues": {"type": "array", "items": {
+                "type": "object", "required": sorted(ISSUE_KEYS), "additionalProperties": False,
+                "properties": {
+                    "scene": {"type": ["integer", "null"], "minimum": 0,
+                              "description": "0-based scene index, null for the whole video."},
+                    "area": enum(AREAS), "severity": enum(SEVERITIES),
+                    "owner": {**enum(OWNERS), "description": "Who fixes it: codex (scenes.json, assets) or "
+                                                              "tool (a bug in storyvid code)."},
+                    "problem": string, "fix": string}}},
+        },
+    }
+
+
 def request_file(requests: list[dict], scenes_path: Path) -> dict:
     """The asset_requests.json document handed to the asset agent."""
     items = []
@@ -250,3 +321,4 @@ def write_reference_files() -> None:
     SCHEMA_PATH.parent.mkdir(exist_ok=True)
     SCHEMA_PATH.write_text(json.dumps(json_schema(), ensure_ascii=False, indent=2) + "\n")
     CATALOG_PATH.write_text(json.dumps(catalog(), ensure_ascii=False, indent=2) + "\n")
+    REVIEW_SCHEMA_PATH.write_text(json.dumps(review_schema(), ensure_ascii=False, indent=2) + "\n")

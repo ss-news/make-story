@@ -1,35 +1,44 @@
 # Flow sản xuất video và hợp đồng giữa các agent
 
-Mục tiêu: model nào viết kịch bản (Claude, Codex, DeepSeek, Gemini…) và agent nào vẽ asset thì đầu ra cũng theo **một chuẩn**. Mọi thứ được kiểm tra bằng máy trước khi chuyển sang bước sau.
+Mục tiêu: model nào viết hay sửa kịch bản (Claude, Codex, DeepSeek, Gemini…) và agent nào vẽ asset thì đầu ra cũng theo **một chuẩn**. Mọi thứ được kiểm tra bằng máy trước khi chuyển sang bước sau.
 
 ## Vai trò
 
 | Ai | Làm | Không làm |
 |---|---|---|
-| **Claude** (đọc `CLAUDE.md`) | Viết và sửa `scenes.json`, chạy kiểm tra, dựng video, sửa code tool | Không vẽ asset trong `assets/` |
-| **Codex** (đọc `AGENTS.md`) | Vẽ asset thiếu theo `asset_requests.json`, đặt vào `assets/bac-bo-stick/extra/` | Không sửa `scenes.json`, code trong `storyvid/` hay bộ gốc `assets/bac-bo-stick/*` ngoài `extra/` |
-| Model khác (qua `--provider`) | Viết kịch bản | Đầu ra luôn được chuẩn hóa rồi kiểm tra như mọi kịch bản khác |
+| **Claude** (đọc `CLAUDE.md`) | Phân tích truyện, chia cảnh, viết **bản đầu tiên** của `scenes.json`. Kiểm định: chạy kiểm tra, dựng video, chấm kịch bản và video, ghi `review.json` | Không sửa `scenes.json` sau bản đầu tiên, không vẽ asset |
+| **Codex** (đọc `AGENTS.md`) | Sửa và hoàn thiện `scenes.json` (lời thoại, diễn xuất, đồ vật, các mục trong `review.json`). Vẽ asset theo `asset_requests.json` vào `assets/bac-bo-stick/extra/` | Không sửa code `storyvid/`, bộ asset gốc ngoài `extra/`, hay `review.json` |
+| Người dùng | Duyệt bản `pass`, xử lý các mục `owner: "tool"` (lỗi code) | |
+
+Mỗi file chỉ có một bên được ghi tại một thời điểm: `scenes.json` của Claude ở bản đầu, sau đó của Codex; `asset_requests.json` do máy sinh; asset trong `extra/` của Codex; `review.json` của Claude.
 
 ## Flow
 
 ```
-truyện ─► [1] viết kịch bản ─► output/<id>/scenes.json
-              │
-          [2] python -m storyvid.check output/<id>/scenes.json
-              ├─ exit 1: kịch bản sai chuẩn ─► người viết sửa lại, quay về [2]
-              ├─ exit 2: thiếu asset ─► output/<id>/asset_requests.json
-              │            │
-              │        [3] Codex vẽ asset vào assets/bac-bo-stick/extra/
-              │            python -m storyvid.check --assets   (phải exit 0)
-              │            rồi quay về [2]
-              └─ exit 0 ─► [4] python -m storyvid.cli --script output/<id>/scenes.json ─► video.mp4
+truyện
+  │
+[1] Claude: phân tích, chia cảnh ─► output/<id>/scenes.json (bản đầu)
+  │        python -m storyvid.check output/<id>/scenes.json   (0 hoặc 2)
+  ▼
+[2] Codex: hoàn thiện scenes.json
+  │        nếu check ra 2: vẽ asset theo asset_requests.json vào assets/bac-bo-stick/extra/
+  │        python -m storyvid.check --assets                  (phải 0)
+  │        python -m storyvid.check output/<id>/scenes.json   (phải 0)
+  ▼
+[3] Claude: kiểm định
+  │        python -m storyvid.cli --script output/<id>/scenes.json ─► video.mp4
+  │        xem kịch bản và video, ghi output/<id>/review.json
+  │        python -m storyvid.check --review output/<id>/review.json   (phải 0)
+  ▼
+verdict "fix" ─► quay lại [2], Codex sửa các mục owner "codex"
+verdict "pass" ─► người dùng duyệt và đăng
 ```
 
-Lệnh dựng video tự chạy bước [2] và dừng nếu chưa đạt. `--fallback` chỉ dùng để xem nháp: nền thiếu được thay bằng cảnh gần nhất, đồ vật thiếu bị bỏ.
+Lệnh dựng video tự kiểm tra kịch bản và dừng nếu chưa đạt. `--fallback` chỉ dùng để xem nháp: nền thiếu được thay bằng cảnh gần nhất, đồ vật thiếu bị bỏ.
 
-**Bước 1, hai cách viết kịch bản:**
-- Để tool gọi model: `python -m storyvid.cli story.txt --lang en --provider claude|openai|codex --script-only --out output/<id>`. Đầu ra của model được chuẩn hóa (cắt giá trị lạ về giá trị hợp lệ, gắn `format`, `lang`) rồi kiểm tra.
-- Agent viết thẳng file: theo `schema/scenes.v1.schema.json`. Mã asset dùng được nằm trong `schema/assets.catalog.json`.
+**Bước 1, chia cảnh:** Claude viết thẳng file theo `schema/scenes.v1.schema.json`, lấy mã asset trong `schema/assets.catalog.json`. Bản đầu cần đủ cảnh, nơi chốn, ai trên sân khấu và lời thoại; Codex sẽ trau chuốt sau. Cũng có thể để tool gọi model viết nháp (`python -m storyvid.cli story.txt --lang en --provider claude|openai|codex --script-only --out output/<id>`); đầu ra được chuẩn hóa (cắt giá trị lạ, gắn `format`, `lang`) rồi kiểm tra như mọi kịch bản khác.
+
+**Bước 3, Claude chấm những gì:** truyện (mở đầu có hook, giải thích luật của con ma, cao trào, kết), lời thoại (tự nhiên, đúng vai, đúng ngôn ngữ), dàn cảnh (ai đứng đâu, hướng nhìn, hành động khớp lời), nền và đồ vật (khớp nơi chốn và thời điểm), nhân vật, giọng đọc, phụ đề, nhịp (cảnh quá dài hay quá ngắn) và lỗi dựng hình.
 
 ## Hợp đồng kịch bản: `storyvid.scenes/1`
 
@@ -115,6 +124,32 @@ Asset mới **chỉ** nằm trong `assets/bac-bo-stick/extra/`. Lệnh build b�
 
 **Bàn giao:** `python -m storyvid.check --assets` phải exit 0. Lệnh này cũng cập nhật `schema/assets.catalog.json`. Sau đó chạy lại `python -m storyvid.check output/<id>/scenes.json`.
 
+## Báo cáo kiểm định: `storyvid.review/1`
+
+`output/<id>/review.json`, do Claude viết sau khi xem video. Schema: `schema/review.v1.schema.json`. Mẫu: `examples/ma_da_bac_bo.review.json`.
+
+```json
+{
+  "format": "storyvid.review/1",
+  "scenes_file": "output/<id>/scenes.json",
+  "verdict": "fix",
+  "issues": [{
+    "scene": 0, "area": "story", "severity": "major", "owner": "codex",
+    "problem": "Câu mở đầu chưa nói ma da là gì.",
+    "fix": "Thêm một câu narrator giải thích ma da là hồn người chết đuối."
+  }]
+}
+```
+
+| Trường | Giá trị |
+|---|---|
+| `verdict` | `pass`: đăng được, chỉ còn lỗi `minor`. `fix`: trả lại, phải có ít nhất một mục |
+| `scene` | chỉ số cảnh, đếm từ 0; `null` nếu là lỗi cả video |
+| `area` | `story`, `dialogue`, `staging`, `background`, `props`, `character`, `audio`, `subtitle`, `pacing`, `render` |
+| `severity` | `blocker` (không đăng được), `major` (phải sửa), `minor` (nên sửa) |
+| `owner` | `codex`: sửa `scenes.json` hoặc asset. `tool`: lỗi code, báo người dùng |
+| `problem`, `fix` | mô tả lỗi và cách sửa cụ thể, đủ để Codex làm mà không cần hỏi lại |
+
 ## Thư mục một dự án
 
 ```
@@ -123,6 +158,7 @@ output/<id>/
   meta.json             tên, ngôn ngữ, độ dài (web UI)
   scenes.json           kịch bản storyvid.scenes/1
   asset_requests.json   chỉ có khi thiếu asset; tự xóa khi đủ
+  review.json           báo cáo kiểm định của Claude
   backgrounds.json      ảnh nền đã raster cho từng bg_id
   audio/, narration.wav giọng đọc
   video.mp4             video
