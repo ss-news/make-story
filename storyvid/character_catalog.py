@@ -11,6 +11,15 @@ PRESETS = {
     'middle_man': {'label': 'Nam trung niên · Chú Ba', 'female': False, 'age': 'middle', 'scale': 1.0, 'skin': '#b9845e', 'hair': '#343732'},
     'middle_woman': {'label': 'Nữ trung niên · Cô Hạnh', 'female': True, 'age': 'middle', 'scale': .96, 'skin': '#c69873', 'hair': '#34332d'},
 }
+
+def _extra_presets():
+    """Characters an agent added under assets/bac-bo-stick/extra (see docs/pipeline.md)."""
+    from .pack import manifest
+    return {c['id']: {k: c[k] for k in ('label', 'female', 'age', 'scale', 'skin', 'hair')}
+            for c in manifest()['extra_characters']}
+
+
+PRESETS.update(_extra_presets())
 OUTFITS = {'earth': {'label': 'Áo nâu đất', 'color': '#88624a'}, 'indigo': {'label':'Áo chàm', 'color':'#45616a'}, 'moss': {'label':'Áo xanh rêu', 'color':'#727453'}, 'cream': {'label':'Áo màu mộc', 'color':'#d0b994'}}
 ACCESSORIES = {'none': 'Không phụ kiện', 'bag': 'Túi vải', 'scarf': 'Khăn rằn', 'flashlight': 'Đèn pin'}
 COLORS = ('skin_color', 'hair_color', 'shirt_color', 'outline_color')

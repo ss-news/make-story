@@ -12,6 +12,8 @@ import time
 from pathlib import Path
 
 from .backgrounds import make_backgrounds
+from .check import check_script
+from .contract import FORMAT
 from .render import Renderer
 from .script import write_script
 from .tts import narrate, tts_provider
@@ -44,7 +46,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("story", nargs="?", help="text file with the raw story (any language)")
     ap.add_argument("--script", help="skip the LLM and render an existing scenes.json")
-    ap.add_argument("--lang", default="en", help="narration language: en, vi, de, fr, es")
+    ap.add_argument("--lang", help="narration language: en, vi, de, fr, es (default: the script's lang, else en)")
     ap.add_argument("--minutes", type=float, default=2.0, help="target narration length")
     ap.add_argument("--provider", choices=["auto", "openai", "codex", "claude", "offline"], default="auto",
                     help="auto = LLM_PROVIDER from .env; openai = any OpenAI-compatible API; codex = Codex CLI; "
@@ -54,6 +56,8 @@ def main():
     ap.add_argument("--fps", type=int, default=30)
     ap.add_argument("--out", help="output folder (default: output/<story name>)")
     ap.add_argument("--script-only", action="store_true", help="stop after writing scenes.json")
+    ap.add_argument("--fallback", action="store_true",
+                    help="render even when assets are missing: nearest pack background, missing props skipped")
     args = ap.parse_args()
     if not args.story and not args.script:
         ap.error("give a story file or --script")
@@ -76,15 +80,25 @@ def main():
         print(f"[1/4] Writing script ({provider})...")
         previous_path = out_dir / "scenes.json"
         previous = json.loads(previous_path.read_text(encoding="utf-8")) if previous_path.exists() else {}
-        script = write_script(story, channel, args.lang, args.minutes, provider, previous.get("character"))
+        script = write_script(story, channel, args.lang or "en", args.minutes, provider, previous.get("character"))
         if "character" in previous:
             from .character_catalog import validate_selection
             script["character"] = validate_selection(previous["character"])
         (out_dir / "scenes.json").write_text(json.dumps(script, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"  {len(script['scenes'])} scenes -> {out_dir / 'scenes.json'}")
-        if args.script_only:
-            print(f"Done in {time.time() - started:.0f}s")
-            return
+
+    # every script, whoever wrote it, must follow the contract before anything is rendered
+    scenes_path = Path(args.script) if args.script else out_dir / "scenes.json"
+    code = check_script(scenes_path)
+    if code == 1:
+        raise SystemExit(f"{scenes_path} does not follow {FORMAT} (see docs/pipeline.md)")
+    if args.script_only:
+        print(f"Done in {time.time() - started:.0f}s")
+        return
+    if code == 2 and not args.fallback:
+        raise SystemExit(f"Assets missing: hand {scenes_path.parent / 'asset_requests.json'} to the asset agent, "
+                         "or rerun with --fallback")
+    args.lang = args.lang or script["lang"]
 
     out_dir.mkdir(parents=True, exist_ok=True)
     voice = channel["voices"].get(args.lang)

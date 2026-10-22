@@ -1,0 +1,230 @@
+{
+  "backgrounds": [
+    [
+      "courtyard_day",
+      "Sân nhà ba gian · ngày"
+    ],
+    [
+      "courtyard_night",
+      "Sân nhà ba gian · đêm"
+    ],
+    [
+      "pond_day",
+      "Ao làng cây đa · ngày"
+    ],
+    [
+      "pond_night",
+      "Ao làng cây đa · đêm"
+    ],
+    [
+      "rice_fields_day",
+      "Đồng lúa · ngày"
+    ],
+    [
+      "rice_fields_night",
+      "Đồng lúa · đêm"
+    ],
+    [
+      "village_path_day",
+      "Đường làng · ngày"
+    ],
+    [
+      "village_path_night",
+      "Đường làng · đêm"
+    ],
+    [
+      "communal_house_day",
+      "Sân đình · ngày"
+    ],
+    [
+      "communal_house_night",
+      "Sân đình · đêm"
+    ],
+    [
+      "market_day",
+      "Chợ quê · ngày"
+    ],
+    [
+      "market_night",
+      "Chợ quê · đêm"
+    ],
+    [
+      "river_day",
+      "Bến sông · ngày"
+    ],
+    [
+      "river_night",
+      "Bến sông · đêm"
+    ],
+    [
+      "interior_day",
+      "Trong nhà · ngày"
+    ],
+    [
+      "interior_night",
+      "Trong nhà · đêm"
+    ]
+  ],
+  "animals": [
+    [
+      "buffalo",
+      "Trâu"
+    ],
+    [
+      "cow",
+      "Bò"
+    ],
+    [
+      "pig",
+      "Lợn"
+    ],
+    [
+      "dog",
+      "Chó"
+    ],
+    [
+      "cat",
+      "Mèo"
+    ],
+    [
+      "rooster",
+      "Gà trống"
+    ],
+    [
+      "hen",
+      "Gà mái"
+    ],
+    [
+      "duck",
+      "Vịt"
+    ],
+    [
+      "stork",
+      "Cò"
+    ]
+  ],
+  "props": [
+    [
+      "conical_hat",
+      "Nón lá"
+    ],
+    [
+      "flat_palm_hat",
+      "Nón quai thao"
+    ],
+    [
+      "flute",
+      "Sáo trúc"
+    ],
+    [
+      "carrying_pole",
+      "Quang gánh"
+    ],
+    [
+      "basket",
+      "Thúng tre"
+    ],
+    [
+      "winnowing_tray",
+      "Nia tre"
+    ],
+    [
+      "water_jar",
+      "Chum nước"
+    ],
+    [
+      "oil_lamp",
+      "Đèn dầu"
+    ],
+    [
+      "hoe",
+      "Cuốc"
+    ],
+    [
+      "sickle",
+      "Liềm"
+    ],
+    [
+      "broom",
+      "Chổi rơm"
+    ],
+    [
+      "bamboo_fence",
+      "Hàng rào tre"
+    ],
+    [
+      "bamboo_stool",
+      "Ghế tre"
+    ],
+    [
+      "rice_bundle",
+      "Bó lúa"
+    ],
+    [
+      "lotus",
+      "Hoa sen"
+    ],
+    [
+      "tu_than_outfit",
+      "Áo tứ thân và yếm"
+    ],
+    [
+      "brown_tunic",
+      "Áo nâu"
+    ],
+    [
+      "mo_qua_scarf",
+      "Khăn mỏ quạ"
+    ],
+    [
+      "fish_trap",
+      "Đó tre"
+    ]
+  ],
+  "characters": [
+    [
+      "young_man",
+      "Nam trẻ · Tâm"
+    ],
+    [
+      "young_woman",
+      "Nữ trẻ · Mai"
+    ],
+    [
+      "elder_man",
+      "Ông · Ông Sáu"
+    ],
+    [
+      "elder_woman",
+      "Bà · Bà Tư"
+    ],
+    [
+      "boy",
+      "Bé trai · Tí"
+    ],
+    [
+      "girl",
+      "Bé gái · Na"
+    ],
+    [
+      "middle_man",
+      "Nam trung niên · Chú Ba"
+    ],
+    [
+      "middle_woman",
+      "Nữ trung niên · Cô Hạnh"
+    ]
+  ],
+  "outfits": [
+    "earth",
+    "indigo",
+    "moss",
+    "cream"
+  ],
+  "accessories": [
+    "none",
+    "bag",
+    "scarf",
+    "flashlight"
+  ]
+}

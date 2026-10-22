@@ -1,4 +1,9 @@
-"""The Bắc Bộ stick-figure asset pack: backgrounds, animals, props and effects as SVG."""
+"""The Bắc Bộ stick-figure asset pack: backgrounds, animals, props, effects and characters.
+
+Two manifests are merged: the generated base pack (assets/bac-bo-stick/manifest.json, rewritten by
+tools/build_bac_bo_assets.py) and hand-added assets (assets/bac-bo-stick/extra/manifest.json, never
+touched by the builder). Each entry points at an SVG ("svg") or a PNG ("png") relative to its manifest.
+"""
 import io
 import json
 import re
@@ -9,6 +14,8 @@ import resvg_py
 from PIL import Image
 
 PACK = Path(__file__).resolve().parents[1] / "assets" / "bac-bo-stick"
+EXTRA = PACK / "extra"
+GROUPS = ("backgrounds", "animals", "props", "effects")
 # Words in a bg_id / bg_prompt that point at one of the pack's places, checked in order
 PLACE_WORDS = [
     ("river", ("river", "song", "sông", "bến", "ben", "boat", "ferry", "ma_da")),
@@ -21,11 +28,36 @@ PLACE_WORDS = [
     ("village_path", ("path", "road", "village", "đường", "lane", "gate")),
 ]
 NIGHT_WORDS = ("night", "dark", "moon", "midnight", "dusk", "evening", "đêm", "dem", "tối", "khuya")
+# Which way the base pack's animals look (-1 left, 1 right); extra entries carry their own "facing"
+BASE_FACING = {"buffalo": -1, "cow": -1, "pig": -1, "dog": -1, "cat": -1,
+               "rooster": 1, "hen": 1, "duck": 1, "stork": 1}
 
 
 @lru_cache(maxsize=1)
 def manifest() -> dict:
-    return json.loads((PACK / "manifest.json").read_text())
+    """Base and extra manifests merged; every asset gets "root", the folder its paths are relative to."""
+    base = json.loads((PACK / "manifest.json").read_text())
+    assets = [{**a, "root": str(PACK)} for a in base["assets"]]
+    characters = []
+    extra_path = EXTRA / "manifest.json"
+    if extra_path.exists():
+        extra = json.loads(extra_path.read_text())
+        assets += [{**a, "root": str(EXTRA)} for a in extra.get("assets", [])]
+        characters = extra.get("characters", [])
+    return {**base, "assets": assets, "extra_characters": characters}
+
+
+def reload() -> None:
+    """Forget cached manifests and images, after an agent added assets."""
+    manifest.cache_clear()
+    _raster.cache_clear()
+
+
+def entry(asset_id: str) -> dict:
+    item = next((a for a in manifest()["assets"] if a["id"] == asset_id), None)
+    if item is None:
+        raise KeyError(f"Unknown pack asset '{asset_id}'")
+    return item
 
 
 def ids(*groups: str) -> list[str]:
@@ -36,11 +68,21 @@ def labels(*groups: str) -> list[list[str]]:
     return [[a["id"], a["label"]] for a in manifest()["assets"] if a["group"] in groups]
 
 
-def _svg(asset_id: str) -> str:
-    item = next((a for a in manifest()["assets"] if a["id"] == asset_id), None)
-    if item is None:
-        raise KeyError(f"Unknown pack asset '{asset_id}'")
-    return (PACK / item["svg"]).read_text()
+def facing(asset_id: str) -> int | None:
+    """-1 / 1 for animals (which way they look), None for objects that are never mirrored."""
+    item = entry(asset_id)
+    if "facing" in item:
+        return item["facing"]
+    return BASE_FACING.get(asset_id)
+
+
+def character_dir(preset: str) -> Path:
+    extra = EXTRA / "characters" / preset
+    return extra if extra.exists() else PACK / "characters" / preset
+
+
+def file_of(item: dict) -> Path:
+    return Path(item["root"]) / (item.get("svg") or item["png"])
 
 
 def match_background(bg_id: str, bg_prompt: str = "") -> str:
@@ -56,13 +98,18 @@ def match_background(bg_id: str, bg_prompt: str = "") -> str:
 
 
 def raster(asset_id: str, height: int) -> Image.Image:
-    """RGBA image of an asset, `height` pixels tall, keeping its viewBox aspect ratio."""
+    """RGBA image of an asset, `height` pixels tall, keeping its aspect ratio."""
     return _raster(asset_id, height).copy()
 
 
 @lru_cache(maxsize=256)
 def _raster(asset_id: str, height: int) -> Image.Image:
-    svg = _svg(asset_id)
+    item = entry(asset_id)
+    path = file_of(item)
+    if "png" in item:
+        img = Image.open(path).convert("RGBA")
+        return img.resize((round(img.width * height / img.height), height), Image.Resampling.LANCZOS)
+    svg = path.read_text()
     x0, y0, w, h = map(float, re.search(r'viewBox="([^"]+)"', svg).group(1).split())
     width = round(height * w / h)
     data = resvg_py.svg_to_bytes(svg_string=svg, width=width * 2, height=height * 2)

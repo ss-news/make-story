@@ -7,6 +7,7 @@ from xml.etree import ElementTree as ET
 import resvg_py
 from PIL import Image
 
+from . import pack
 from .character_catalog import PRESETS, resolve_character
 
 UNIT_W, UNIT_H = 480, 640
@@ -32,7 +33,7 @@ class Character:
     def __init__(self, host, height_px, *, asset_root=None):
         self.config = resolve_character(host)
         self.preset = self.config['preset']
-        self.folder = (Path(asset_root) if asset_root is not None else ASSETS) / self.preset
+        self.folder = Path(asset_root) / self.preset if asset_root is not None else pack.character_dir(self.preset)
         self.rig = json.loads((self.folder / 'rig.json').read_text())
         self.height = height_px
         self.width = round(height_px * UNIT_W / UNIT_H)

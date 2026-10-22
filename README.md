@@ -13,6 +13,10 @@ truyện (.txt) ─► [1] LLM viết lại kịch bản ─► scenes.json
                  [4] dựng khung hình: nền + máy quay + đồ vật + nhân vật + hiệu ứng + banner + phụ đề ─► video.mp4
 ```
 
+## Flow nhiều agent
+
+Kịch bản do model nào viết cũng theo một chuẩn `storyvid.scenes/1`, được kiểm tra bằng `python -m storyvid.check`. Asset thiếu thành `asset_requests.json` cho Codex vẽ vào `assets/bac-bo-stick/extra/`; Claude dựng video khi kịch bản và asset đều đạt. Chi tiết: [docs/pipeline.md](docs/pipeline.md). Schema: [schema/scenes.v1.schema.json](schema/scenes.v1.schema.json), mã asset dùng được: [schema/assets.catalog.json](schema/assets.catalog.json).
+
 ## Cài đặt
 
 ```bash
@@ -47,7 +51,7 @@ Mỗi dự án là một thư mục trong `output/<id>/`: `story.txt`, `meta.jso
 .venv/bin/python -m storyvid.cli --script output/ma_da/scenes.json --lang en    # dựng lại sau khi sửa
 ```
 
-Tùy chọn: `--provider auto|openai|codex|claude|offline`, `--res 480|720|1080`, `--fps`, `--out`.
+Tùy chọn: `--provider auto|openai|codex|claude|offline`, `--res 480|720|1080`, `--fps`, `--out`, `--fallback` (dựng nháp khi còn thiếu asset).
 
 ## `.env` — AI viết kịch bản và giọng đọc
 
@@ -126,7 +130,9 @@ Giọng nhân vật: giới tính lấy theo preset, cao độ và tốc độ c
 - `storyvid/llm.py`: provider chuẩn OpenAI và Codex CLI
 - `storyvid/tts.py`: edge-tts hoặc ElevenLabs, phụ đề có dấu câu
 - `storyvid/elevenlabs.py`: gọi ElevenLabs, chọn giọng, cache
-- `storyvid/pack.py`: đọc bộ assets Bắc Bộ, chọn cảnh nền, raster SVG
+- `storyvid/contract.py`: chuẩn kịch bản `storyvid.scenes/1`, bộ kiểm tra, yêu cầu asset, schema
+- `storyvid/check.py`: lệnh kiểm tra kịch bản và asset
+- `storyvid/pack.py`: đọc bộ assets Bắc Bộ (gốc + `extra/`), chọn cảnh nền, raster SVG/PNG
 - `storyvid/backgrounds.py`: raster cảnh nền của bộ, có cache
 - `storyvid/character.py`: ghép nhân vật từ mảnh SVG
 - `storyvid/render.py`: dựng khung hình, ffmpeg

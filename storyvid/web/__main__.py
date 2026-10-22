@@ -184,8 +184,8 @@ def get_project(pid):
     data["story"] = (d / "story.txt").read_text(encoding="utf-8") if (d / "story.txt").exists() else ""
     data["script"] = read_json(d / "scenes.json")
     if data["script"]:
-        try:  # older scripts (one host per scene) open in the cast editor; the file changes only on save
-            data["script"] = _normalize(data["script"])
+        try:  # clamp hand-edited files for the editor; the file changes only on save
+            data["script"] = _normalize(data["script"], data["meta"].get("lang"))
         except (RuntimeError, ValueError):
             pass
     bgs = read_json(d / "backgrounds.json", {})
@@ -208,7 +208,7 @@ def update_project(pid):
         (d / "story.txt").write_text(body["story"], encoding="utf-8")
     if "script" in body:
         try:
-            write_json(d / "scenes.json", _normalize(body["script"]))
+            write_json(d / "scenes.json", _normalize(body["script"], meta.get("lang")))
         except (RuntimeError, ValueError) as e:
             abort(400, str(e))
     return get_project(pid)

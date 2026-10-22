@@ -14,7 +14,7 @@ def make_backgrounds(script: dict, size: tuple[int, int], cache_dir: Path) -> di
         if bg_id in paths:
             continue
         name = pack.match_background(bg_id, scene.get("bg_prompt", ""))
-        digest = hashlib.sha1((pack.PACK / "backgrounds" / f"{name}.svg").read_bytes()).hexdigest()[:12]
+        digest = hashlib.sha1(pack.file_of(pack.entry(name)).read_bytes()).hexdigest()[:12]
         path = cache_dir / f"pack_{name}_{size[1]}_{digest}.png"
         if not path.exists():
             pack.raster(name, size[1]).convert("RGB").save(path)

@@ -139,8 +139,9 @@ def _slug(value, fallback):
     return re.sub(r"[^a-z0-9_]+", "_", text).strip("_") or fallback
 
 
-def _normalize(script: dict) -> dict:
-    """Models without strict schemas may invent values; clamp everything to what the renderer knows."""
+def _normalize(script: dict, lang: str | None = None) -> dict:
+    """Models without strict schemas may invent values; clamp them into the scenes.json contract
+    (storyvid/contract.py). Unknown prop ids are kept: they become asset requests, not silent drops."""
     from .character_catalog import ACCESSORIES, OUTFITS, PRESETS
     cast, ids = [], {HOST}
     for i, c in enumerate(script.get("cast") or []):
@@ -170,17 +171,20 @@ def _normalize(script: dict) -> dict:
             lines.append({"speaker": speaker if speaker in ids - {HOST} else NARRATOR, "text": text})
         if not lines:
             continue
-        props, valid = [], set(prop_ids())
+        props = []
         for pr in (s.get("props") or [])[:MAX_PROPS]:
-            if isinstance(pr, dict) and pr.get("id") in valid:
+            if isinstance(pr, dict) and re.fullmatch(r"[a-z][a-z0-9_]*", str(pr.get("id") or "")):
                 props.append({"id": pr["id"], "position": _pick(pr.get("position"), POSITIONS)})
-        scenes.append({"bg_id": re.sub(r"[^a-zA-Z0-9_-]+", "_", str(s.get("bg_id") or f"bg{i}")),
+        scenes.append({"bg_id": _slug(s.get("bg_id"), f"bg{i}"),
                        "bg_prompt": str(s.get("bg_prompt") or "misty village at dusk"),
                        "camera": _pick(s.get("camera"), CAMERAS), "actors": actors, "props": props,
                        "lines": lines})
     if not scenes:
         raise RuntimeError("Script has no scenes")
-    result = {"title": str(script.get("title") or "Untitled"), "cast": cast, "scenes": scenes}
+    from .contract import FORMAT
+    lang = lang if lang in LANG_NAMES else script.get("lang") if script.get("lang") in LANG_NAMES else "en"
+    result = {"format": FORMAT, "title": str(script.get("title") or "Untitled"), "lang": lang, "cast": cast,
+              "scenes": scenes}
     if "character" in script:
         from .character_catalog import validate_selection
         result["character"] = validate_selection(script["character"])
@@ -189,7 +193,7 @@ def _normalize(script: dict) -> dict:
 
 def write_script(story: str, channel: dict, lang: str, minutes: float, provider: str, character=None) -> dict:
     if provider == "offline":
-        return _normalize(_offline_script(story))
+        return _normalize(_offline_script(story), lang)
     system, user = build_prompt(story, channel, lang, minutes, character)
     if provider == "claude":
         script = _call_claude(system, user)
@@ -198,4 +202,4 @@ def write_script(story: str, channel: dict, lang: str, minutes: float, provider:
         script = (llm.openai_compatible if provider == "openai" else llm.codex)(system, user, SCENE_SCHEMA)
     else:
         raise ValueError(f"Unknown LLM provider: {provider}")
-    return _normalize(script)
+    return _normalize(script, lang)

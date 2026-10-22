@@ -22,13 +22,14 @@ class PackTest(unittest.TestCase):
             self.assertIn('courtyard_day', paths['yard'].name)
             self.assertTrue(all(p.exists() for p in paths.values()))
 
-    def test_props_are_validated(self):
+    def test_unknown_props_are_kept_for_asset_requests(self):
         scene = {'bg_id': 'pond_day', 'bg_prompt': '', 'camera': 'static', 'actors': [],
                  'lines': [{'speaker': 'narrator', 'text': 'Ao làng.'}],
                  'props': [{'id': 'buffalo', 'position': 'far_right'}, {'id': 'dragon', 'position': 'left'},
                            {'id': 'duck', 'position': 'nowhere'}]}
         props = _normalize({'scenes': [scene]})['scenes'][0]['props']
-        self.assertEqual(props, [{'id': 'buffalo', 'position': 'far_right'}, {'id': 'duck', 'position': 'center'}])
+        self.assertEqual(props, [{'id': 'buffalo', 'position': 'far_right'}, {'id': 'dragon', 'position': 'left'},
+                                 {'id': 'duck', 'position': 'center'}])
 
     def test_trimmed_asset_has_no_empty_border(self):
         img = pack.trimmed('buffalo', 300)

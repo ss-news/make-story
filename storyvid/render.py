@@ -29,9 +29,6 @@ PROP_HEIGHT = {"buffalo": 0.26, "cow": 0.25, "pig": 0.18, "dog": 0.16, "cat": 0.
                "bamboo_stool": 0.1, "basket": 0.11, "winnowing_tray": 0.12, "rice_bundle": 0.16, "broom": 0.24,
                "hoe": 0.26, "fish_trap": 0.16, "oil_lamp": 0.12, "lotus": 0.12}
 PROP_DEFAULT = 0.13
-# Which way each pack animal looks in its SVG; objects are never mirrored
-ANIMAL_FACING = {"buffalo": -1, "cow": -1, "pig": -1, "dog": -1, "cat": -1,
-                 "rooster": 1, "hen": 1, "duck": 1, "stork": 1}
 # Comic marks drawn around the head for an expression
 EXPRESSION_EFFECT = {"surprised": "surprise", "angry": "anger", "scared": "sweat"}
 
@@ -236,6 +233,7 @@ class Renderer:
         W, H, fps = self.W, self.H, self.fps
         self._setup_cast(script)
         scenes = script["scenes"]
+        prop_ids = set(pack.ids("animals", "props"))
         spans, cues = timeline["scenes"], timeline["cues"]
         total = timeline["duration"]
         n_frames = int(math.ceil(total * fps))
@@ -285,9 +283,12 @@ class Renderer:
                 talking = HOST if speaker == NARRATOR else speaker
 
                 for pr in scene.get("props", []):
+                    if pr["id"] not in prop_ids:
+                        continue  # a requested asset that does not exist yet (only with --fallback)
                     px = POS_X.get(pr["position"], 0.5)
                     toward_middle = 1 if px < 0.5 else -1  # animals look toward the middle of the frame
-                    img = self._prop(pr["id"], flip=ANIMAL_FACING.get(pr["id"], toward_middle) != toward_middle)
+                    looks = pack.facing(pr["id"])  # objects (None) are never mirrored
+                    img = self._prop(pr["id"], flip=looks is not None and looks != toward_middle)
                     left = min(max(0, int(px * W - img.width / 2)), W - img.width)  # keep it inside the frame
                     frame.paste(img, (left, int(char_bottom - img.height - H * 0.01)), img)
 

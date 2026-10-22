@@ -1,0 +1,255 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "storyvid.scenes/1",
+  "title": "storyvid scenes.json",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "storyvid.scenes/1"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lang": {
+      "type": "string",
+      "enum": [
+        "en",
+        "vi",
+        "de",
+        "fr",
+        "es"
+      ]
+    },
+    "character": {
+      "type": "object",
+      "description": "Optional look of the host (actor id 'host')."
+    },
+    "cast": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "not": {
+              "enum": [
+                "host",
+                "narrator"
+              ]
+            }
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "preset": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Character preset id; unknown ids become asset requests."
+          },
+          "outfit": {
+            "type": "string",
+            "enum": [
+              "earth",
+              "indigo",
+              "moss",
+              "cream"
+            ]
+          },
+          "accessory": {
+            "type": "string",
+            "enum": [
+              "none",
+              "bag",
+              "scarf",
+              "flashlight"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "human",
+              "ghost"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "preset",
+          "outfit",
+          "accessory",
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "bg_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*_(day|night)$",
+            "description": "Background id <place>_<day|night>; unknown ids become asset requests."
+          },
+          "bg_prompt": {
+            "type": "string",
+            "description": "English description of the place."
+          },
+          "camera": {
+            "type": "string",
+            "enum": [
+              "zoom_in",
+              "zoom_out",
+              "pan_left",
+              "pan_right",
+              "static"
+            ]
+          },
+          "actors": {
+            "type": "array",
+            "maxItems": 3,
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "A cast id, or 'host'."
+                },
+                "position": {
+                  "type": "string",
+                  "enum": [
+                    "center",
+                    "left",
+                    "right",
+                    "far_left",
+                    "far_right"
+                  ]
+                },
+                "pose": {
+                  "type": "string",
+                  "enum": [
+                    "idle",
+                    "talk",
+                    "point",
+                    "scared",
+                    "think",
+                    "shrug",
+                    "reach",
+                    "wave",
+                    "cower"
+                  ]
+                },
+                "expression": {
+                  "type": "string",
+                  "enum": [
+                    "neutral",
+                    "happy",
+                    "scared",
+                    "surprised",
+                    "sad",
+                    "angry",
+                    "smirk"
+                  ]
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "enter",
+                    "exit",
+                    "approach",
+                    "jump",
+                    "shake"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "position",
+                "pose",
+                "expression",
+                "action"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "props": {
+            "type": "array",
+            "maxItems": 3,
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$",
+                  "description": "Animal or prop id; unknown ids become asset requests."
+                },
+                "position": {
+                  "type": "string",
+                  "enum": [
+                    "center",
+                    "left",
+                    "right",
+                    "far_left",
+                    "far_right"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "position"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "lines": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 6,
+            "items": {
+              "type": "object",
+              "properties": {
+                "speaker": {
+                  "type": "string",
+                  "description": "'narrator' or a cast id on stage."
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "speaker",
+                "text"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "bg_id",
+          "bg_prompt",
+          "camera",
+          "actors",
+          "props",
+          "lines"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "format",
+    "title",
+    "lang",
+    "cast",
+    "scenes"
+  ],
+  "additionalProperties": false
+}
