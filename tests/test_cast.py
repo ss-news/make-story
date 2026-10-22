@@ -73,6 +73,35 @@ class CastRenderTest(unittest.TestCase):
             Renderer(CHANNEL, (320, 180), 10).render(script, timeline, {'river': bg}, folder / 'v.mp4')
             self.assertGreater((folder / 'v.mp4').stat().st_size, 0)
 
+    def test_short_renders_vertically(self):
+        from storyvid.render import ShortRenderer
+        from storyvid.ffmpeg import ffmpeg_exe
+        import subprocess
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            bg = folder / 'bg.png'
+            Image.new('RGB', (400, 240), '#556677').save(bg)
+            samples = (np.sin(np.arange(SAMPLE_RATE) / 8) * 8000).astype(np.int16)
+            audio = folder / 'a.wav'
+            with wave.open(str(audio), 'wb') as w:
+                w.setnchannels(1); w.setsampwidth(2); w.setframerate(SAMPLE_RATE); w.writeframes(samples.tobytes())
+            timeline = {'audio': audio, 'samples': samples, 'duration': 1.0,
+                        'scenes': [{'start': 0, 'end': 1.0, 'lines': [{'start': 0, 'end': 1.0, 'speaker': 'ba'}]}],
+                        'cues': [{'start': 0, 'end': 1.0, 'text': 'Buông ra!', 'speaker': 'Bà'}]}
+            script = _normalize({'cast': CAST, 'scenes': [SCENE]})
+            r = ShortRenderer(CHANNEL, 180, 10, 'Tiếng gọi từ sông', 'vi')
+            self.assertEqual(r.out_size, (180, 320))
+            r.render(script, timeline, {'river': bg}, folder / 's.mp4')
+            probe = subprocess.run([ffmpeg_exe(), '-i', str(folder / 's.mp4')], capture_output=True, text=True).stderr
+            self.assertIn('180x320', probe)
+
+    def test_short_scenes_default_to_the_opening(self):
+        from storyvid.cli import short_scenes
+        line = {'speaker': 'narrator', 'text': ' '.join(['word'] * 60)}  # about 23 s each
+        script = {'scenes': [{'lines': [line]} for _ in range(5)]}
+        self.assertEqual(short_scenes(script), [0, 1])
+        self.assertEqual(short_scenes({**script, 'short': {'scenes': [1, 4]}}), [1, 4])
+
     def test_thumbnail_api(self):
         from storyvid.web import __main__ as web
         c = web.app.test_client()

@@ -426,6 +426,7 @@ function renderJob(st) {
   const busy = s === "running";
   $("#writeScriptBtn").disabled = busy;
   $("#renderBtn").disabled = busy;
+  $("#renderShortBtn").disabled = busy;
 }
 
 function startPolling() {
@@ -467,10 +468,10 @@ async function writeScript() {
   startPolling();
 }
 
-async function renderVideoJob() {
+async function renderVideoJob(short = false) {
   if (state.dirty) await saveScript();
   await saveMeta();
-  renderJob(await api(`/api/projects/${state.current.id}/render`, { method: "POST", body: { res: $("#res").value } }));
+  renderJob(await api(`/api/projects/${state.current.id}/render`, { method: "POST", body: { res: $("#res").value, short } }));
   $("#logBox").open = true;
   startPolling();
 }
@@ -489,6 +490,18 @@ function renderVideo() {
   }
   player.classList.toggle("hidden", !p.has_video);
   dl.classList.toggle("hidden", !p.has_video);
+  const shortPlayer = $("#shortPlayer");
+  const shortDl = $("#downloadShortBtn");
+  if (p.short_mtime) {
+    const src = `/files/${p.id}/video_short.mp4?v=${p.short_mtime}`;
+    if (shortPlayer.getAttribute("src") !== src) shortPlayer.src = src;
+    shortDl.href = src;
+    shortDl.setAttribute("download", `${p.id}_short.mp4`);
+  } else {
+    shortPlayer.removeAttribute("src");
+  }
+  shortPlayer.classList.toggle("hidden", !p.short_mtime);
+  shortDl.classList.toggle("hidden", !p.short_mtime);
   const strip = $("#bgStrip");
   strip.innerHTML = "";
   for (const [k, url] of Object.entries(p.backgrounds || {})) {
@@ -607,7 +620,8 @@ async function init() {
     renderScript();
   };
   $("#addCastBtn").onclick = addCast;
-  $("#renderBtn").onclick = run(renderVideoJob);
+  $("#renderBtn").onclick = run(() => renderVideoJob(false));
+  $("#renderShortBtn").onclick = run(() => renderVideoJob(true));
   $("#stopBtn").onclick = run(() => api(`/api/projects/${state.current.id}/stop`, { method: "POST" }));
   $("#deleteBtn").onclick = run(async () => {
     if (!confirm(`Xóa dự án "${state.current.name}" và toàn bộ file của nó?`)) return;

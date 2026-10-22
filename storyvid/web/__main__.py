@@ -78,6 +78,7 @@ def summary(d: Path) -> dict:
         "scenes": len((scenes or {}).get("scenes", [])),
         "has_video": video.exists(),
         "video_mtime": int(video.stat().st_mtime) if video.exists() else None,
+        "short_mtime": int((d / "video_short.mp4").stat().st_mtime) if (d / "video_short.mp4").exists() else None,
         "updated": int(max((p.stat().st_mtime for p in d.iterdir()), default=d.stat().st_mtime)),
         "status": job_status(d.name, d),
     }
@@ -244,8 +245,10 @@ def run_render(pid):
     body = request.get_json(silent=True) or {}
     meta = read_json(d / "meta.json", {})
     res = body.get("res", "720") if body.get("res") in ("480", "720", "1080") else "720"
-    start_job(pid, d, "render", ["--script", str(d / "scenes.json"), "--out", str(d),
-                                 "--lang", meta.get("lang", "en"), "--res", res])
+    args = ["--script", str(d / "scenes.json"), "--out", str(d), "--lang", meta.get("lang", "en"), "--res", res]
+    if body.get("short"):
+        args.append("--short")
+    start_job(pid, d, "render", args)
     return jsonify(job_status(pid, d))
 
 
@@ -266,12 +269,12 @@ def get_log(pid):
     return jsonify(status=job_status(pid, d), log=log[-20000:])
 
 
-@app.get("/files/<pid>/video.mp4")
-def video_file(pid):
+@app.get("/files/<pid>/<name>.mp4")
+def video_file(pid, name):
     d = project_dir(pid)
-    if not (d / "video.mp4").exists():
+    if name not in ("video", "video_short") or not (d / f"{name}.mp4").exists():
         abort(404)
-    return send_file(d / "video.mp4", conditional=True)
+    return send_file(d / f"{name}.mp4", conditional=True)
 
 
 @app.get("/files/<pid>/bg/<bg_id>")

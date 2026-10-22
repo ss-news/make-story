@@ -66,6 +66,13 @@ class ScriptContractTest(unittest.TestCase):
             path.write_text(json.dumps(scenes(pose='x')))
             self.assertEqual(check.check_script(path), 1)
 
+    def test_short_scenes(self):
+        self.assertEqual(contract.validate({**SAMPLE, 'short': {'scenes': [0, 2, 3]}}), ([], []))
+        errors, _ = contract.validate({**SAMPLE, 'short': {'scenes': [3, 1, 99]}})
+        self.assertEqual(errors, ['$.short.scenes: must be a non-empty list of scene indices (0-5)'])
+        errors, _ = contract.validate({**SAMPLE, 'short': {'scenes': [3, 1]}})
+        self.assertEqual(errors, ['$.short.scenes: indices must be increasing, without repeats'])
+
     def test_review_report(self):
         review = json.loads((ROOT / 'examples' / 'ma_da_bac_bo.review.json').read_text())
         self.assertEqual(contract.validate_review(review, len(SAMPLE['scenes'])), [])

@@ -180,3 +180,5 @@ dialog form { display: flex; flex-direction: column; gap: 12px; }
 .character-editor .char-preview { display: block; width: 100%; margin-top: 14px; }
 .character-custom { margin-top: 14px; }
 .character-custom > label { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+
+.player.short { max-width: 360px; aspect-ratio: 9 / 16; display: block; margin-top: 12px; }

@@ -40,15 +40,56 @@ def _font(path, size):
         return ImageFont.load_default(size)
 
 
+def _vignette(img: Image.Image, strength: int) -> None:
+    """Darken the edges of img in place."""
+    W, H = img.size
+    vig = Image.new("L", (W, H), 0)
+    vd = ImageDraw.Draw(vig)
+    steps = 24
+    for i in range(steps):
+        a = int(strength * (1 - i / steps) ** 2)
+        inset = int(i * min(W, H) * 0.012)
+        vd.rectangle([inset, inset, W - inset, H - inset], outline=a, width=int(min(W, H) * 0.012) + 1)
+    img.paste((0, 0, 0, 255), (0, 0), vig)
+
+
+def _banner(d: ImageDraw.ImageDraw, channel: dict, W: int, top_h: int) -> None:
+    """Channel banner across the top: red slanted block + dark block."""
+    d.rectangle([0, 0, W, top_h], fill=(18, 18, 20, 255))
+    split = int(W * 0.52)
+    d.polygon([(0, 0), (split, 0), (split - top_h, top_h), (0, top_h)], fill=(178, 22, 30, 255))
+    f = _font(FONT_BANNER, int(top_h * 0.78))
+    y = top_h // 2
+    d.text((split - top_h * 1.4, y), channel["banner_left"], font=f, fill=(20, 20, 20), anchor="rm")
+    d.text((split + top_h * 0.4, y), channel["banner_right"], font=f, fill=(205, 30, 40), anchor="lm")
+
+
+def _wrap(text: str, font, max_w: float) -> list[str]:
+    lines, cur = [], ""
+    for w in text.split():
+        trial = f"{cur} {w}".strip()
+        if font.getlength(trial) > max_w and cur:
+            lines.append(cur)
+            cur = w
+        else:
+            cur = trial
+    return lines + [cur] if cur else lines
+
+
 def _ease(t):
     t = max(0.0, min(1.0, t))
     return t * t * (3 - 2 * t)
 
 
 class Renderer:
+    """16:9 video: the stage fills the frame, with the channel banner on top and subtitles in a bottom band."""
+    char_height = CHARACTER_HEIGHT  # of the stage height
+    spread = 1.0                    # 1 = positions use the whole stage width, less pulls them to the middle
+
     def __init__(self, channel: dict, size: tuple[int, int], fps: int):
         self.channel = channel
-        self.W, self.H = size
+        self.W, self.H = size  # the stage, where the scene is drawn
+        self.out_size = size   # the encoded frame
         self.fps = fps
         self.band_h = int(self.H * 0.11)
         self.top_h = int(self.H * 0.085)
@@ -63,23 +104,8 @@ class Renderer:
         W, H = self.W, self.H
         img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         d = ImageDraw.Draw(img)
-        # vignette
-        vig = Image.new("L", (W, H), 0)
-        vd = ImageDraw.Draw(vig)
-        steps = 24
-        for i in range(steps):
-            a = int(110 * (1 - i / steps) ** 2)
-            inset = int(i * min(W, H) * 0.012)
-            vd.rectangle([inset, inset, W - inset, H - inset], outline=a, width=int(min(W, H) * 0.012) + 1)
-        img.paste((0, 0, 0, 255), (0, 0), vig)
-        # top banner: red slanted block + dark block
-        d.rectangle([0, 0, W, self.top_h], fill=(18, 18, 20, 255))
-        split = int(W * 0.52)
-        d.polygon([(0, 0), (split, 0), (split - self.top_h, self.top_h), (0, self.top_h)], fill=(178, 22, 30, 255))
-        f = _font(FONT_BANNER, int(self.top_h * 0.78))
-        y = self.top_h // 2
-        d.text((split - self.top_h * 1.4, y), self.channel["banner_left"], font=f, fill=(20, 20, 20), anchor="rm")
-        d.text((split + self.top_h * 0.4, y), self.channel["banner_right"], font=f, fill=(205, 30, 40), anchor="lm")
+        _vignette(img, 110)
+        _banner(d, self.channel, W, self.top_h)
         # bottom subtitle band
         d.rectangle([0, H - self.band_h, W, H], fill=(10, 10, 12, 235))
         # round logo, top right
@@ -97,16 +123,7 @@ class Renderer:
         if key in self._sub_cache:
             return self._sub_cache[key]
         prefix = f"{speaker}: " if speaker else ""
-        max_w = self.W * 0.86
-        words, lines, cur = (prefix + text).split(), [], ""
-        for w in words:
-            trial = f"{cur} {w}".strip()
-            if self.sub_font.getlength(trial) > max_w and cur:
-                lines.append(cur)
-                cur = w
-            else:
-                cur = trial
-        lines.append(cur)
+        lines = _wrap(prefix + text, self.sub_font, self.W * 0.86) or [""]
         lh = int(self.sub_font.size * 1.2)
         img = Image.new("RGBA", (self.W, lh * len(lines) + 8), (0, 0, 0, 0))
         d = ImageDraw.Draw(img)
@@ -131,6 +148,16 @@ class Renderer:
             self._bg_cache[path] = img.crop((left, top, left + bw, top + bh))
         return self._bg_cache[path]
 
+    def _x(self, position: str) -> float:
+        return 0.5 + (POS_X.get(position, 0.5) - 0.5) * self.spread
+
+    def _finish(self, frame: Image.Image, cue: dict | None, t: float, total: float) -> Image.Image:
+        """Last step of a frame: the subtitle in the bottom band."""
+        if cue:
+            sub = self._subtitle(cue["text"], cue.get("speaker", ""))
+            frame.paste(sub, (0, self.H - self.band_h + (self.band_h - sub.height) // 2), sub)
+        return frame
+
     # ---------- per frame ----------
     def _camera(self, bg: Image.Image, camera: str, p: float) -> Image.Image:
         bw, bh = bg.size
@@ -145,7 +172,7 @@ class Renderer:
     # ---------- cast ----------
     def _setup_cast(self, script: dict) -> None:
         host = self.channel["host"]
-        height = int(self.H * CHARACTER_HEIGHT)
+        height = int(self.H * self.char_height)
         self.cast = {HOST: {"character": Character(resolve_character(host, script.get("character")), height),
                             "kind": "human", "name": host.get("name", "")}}
         for c in script.get("cast", []):
@@ -170,7 +197,7 @@ class Renderer:
         key = (prop_id, flip)
         if key not in self._prop_cache:
             img = pack.trimmed(prop_id, 900)
-            h = int(self.H * PROP_HEIGHT.get(prop_id, PROP_DEFAULT))
+            h = int(self.H * PROP_HEIGHT.get(prop_id, PROP_DEFAULT) * self.char_height / CHARACTER_HEIGHT)
             img = img.resize((max(1, round(img.width * h / img.height)), h), Image.LANCZOS)
             self._prop_cache[key] = img.transpose(Image.FLIP_LEFT_RIGHT) if flip else img
         return self._prop_cache[key]
@@ -210,7 +237,7 @@ class Renderer:
 
     def _actor_x(self, a: dict, prev_x: dict, since: float, dur: float, others: list) -> tuple[float, bool, int]:
         """Horizontal position at this moment, whether the actor is walking, and walk direction."""
-        target = POS_X[a["position"]]
+        target = self._x(a["position"])
         edge = -0.12 if target < 0.5 else 1.12
         start = prev_x.get(a["id"], edge if a["action"] == "enter" else target)
         move = ENTER_TIME if a["action"] == "enter" and a["id"] not in prev_x else MOVE_TIME
@@ -249,7 +276,8 @@ class Renderer:
         ref = np.percentile(rms, 95) or 1.0
         level = rms / ref
 
-        cmd = [ffmpeg_exe(), "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
+        cmd = [ffmpeg_exe(), "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
+               "-s", f"{self.out_size[0]}x{self.out_size[1]}",
                "-r", str(fps), "-i", "-", "-i", str(timeline["audio"]),
                "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
                "-c:a", "aac", "-b:a", "160k", "-shortest", "-movflags", "+faststart", str(out_path)]
@@ -285,7 +313,7 @@ class Renderer:
                 for pr in scene.get("props", []):
                     if pr["id"] not in prop_ids:
                         continue  # a requested asset that does not exist yet (only with --fallback)
-                    px = POS_X.get(pr["position"], 0.5)
+                    px = self._x(pr["position"])
                     toward_middle = 1 if px < 0.5 else -1  # animals look toward the middle of the frame
                     looks = pack.facing(pr["id"])  # objects (None) are never mirrored
                     img = self._prop(pr["id"], flip=looks is not None and looks != toward_middle)
@@ -293,7 +321,7 @@ class Renderer:
                     frame.paste(img, (left, int(char_bottom - img.height - H * 0.01)), img)
 
                 actors = [a for a in scene["actors"] if a["id"] in self.cast]
-                targets = {a["id"]: POS_X[a["position"]] for a in actors}
+                targets = {a["id"]: self._x(a["position"]) for a in actors}
                 placed = []
                 for idx, a in enumerate(actors):
                     others = [v for k, v in targets.items() if k != a["id"]]
@@ -340,9 +368,8 @@ class Renderer:
 
                 while ci < len(cues) and t > cues[ci]["end"]:
                     ci += 1
-                if ci < len(cues) and cues[ci]["start"] <= t:
-                    sub = self._subtitle(cues[ci]["text"], cues[ci].get("speaker", ""))
-                    frame.paste(sub, (0, H - self.band_h + (self.band_h - sub.height) // 2), sub)
+                cue = cues[ci] if ci < len(cues) and cues[ci]["start"] <= t else None
+                frame = self._finish(frame, cue, t, total)
 
                 ff.stdin.write(frame.tobytes())
                 if f % (fps * 10) == 0:
@@ -352,3 +379,69 @@ class Renderer:
             ff.wait()
         if ff.returncode != 0:
             raise RuntimeError("ffmpeg failed")
+
+
+# Call to action shown at the end of a Short, by narration language
+FULL_STORY = {"en": "Full story on the channel", "vi": "Xem bản đầy đủ trên kênh",
+              "de": "Ganze Geschichte auf dem Kanal", "fr": "Histoire complète sur la chaîne",
+              "es": "Historia completa en el canal"}
+END_CARD_TIME = 3.0  # seconds
+
+
+class ShortRenderer(Renderer):
+    """9:16 Short: channel banner and title on top, a square stage in the middle, big subtitles below."""
+    char_height = 0.5
+    spread = 0.85
+
+    def __init__(self, channel: dict, width: int, fps: int, title: str, lang: str):
+        super().__init__(channel, (width, width), fps)
+        self.out_size = (width, round(width * 16 / 9) // 2 * 2)
+        self.band_h = int(self.H * 0.03)  # the stage has no subtitle band: feet stand near its bottom edge
+        self.header_h = int(self.out_size[1] * 0.2)
+        self.sub_font = _font(FONT_BOLD, int(width * 0.06))
+        self.end_text = FULL_STORY.get(lang, FULL_STORY["en"])
+        self.canvas = self._canvas(title)
+
+    def _chrome(self) -> Image.Image:
+        img = Image.new("RGBA", (self.W, self.H), (0, 0, 0, 0))
+        _vignette(img, 70)
+        return img
+
+    def _canvas(self, title: str) -> Image.Image:
+        """Everything outside the stage, drawn once: banner, title, dark background."""
+        W, H = self.out_size
+        img = Image.new("RGBA", (W, H), (14, 14, 16, 255))
+        d = ImageDraw.Draw(img)
+        top_h = int(H * 0.05)
+        _banner(d, self.channel, W, top_h)
+        font = _font(FONT_BOLD, int(W * 0.065))
+        lines = _wrap(title, font, W * 0.88)[:2]
+        lh = int(font.size * 1.2)
+        y = top_h + (self.header_h - top_h - lh * len(lines)) / 2 + lh / 2
+        for i, ln in enumerate(lines):
+            d.text((W / 2, y + i * lh), ln, font=font, fill=(245, 240, 230), anchor="mm",
+                   stroke_width=2, stroke_fill=(0, 0, 0))
+        return img.convert("RGB")
+
+    def _finish(self, frame: Image.Image, cue: dict | None, t: float, total: float) -> Image.Image:
+        out = self.canvas.copy()
+        out.paste(frame, (0, self.header_h))
+        bottom = self.header_h + self.H
+        zone = self.out_size[1] - bottom
+        if cue:
+            sub = self._subtitle(cue["text"], cue.get("speaker", ""))
+            out.paste(sub, (0, bottom + int(zone * 0.12)), sub)
+        if t > total - END_CARD_TIME:
+            d = ImageDraw.Draw(out)
+            font = _font(FONT_BOLD, int(self.W * 0.05))
+            tri = font.size * 0.7  # play triangle after the text (the font has no ▶ glyph)
+            text_w = font.getlength(self.end_text)
+            w = text_w + tri * 1.6 + self.W * 0.08
+            cx, cy = self.W / 2, bottom + zone * 0.8
+            h = font.size * 1.6
+            d.rounded_rectangle([cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2], radius=h / 2, fill=(178, 22, 30))
+            x0 = cx - (text_w + tri * 1.6) / 2
+            d.text((x0, cy), self.end_text, font=font, fill=(255, 255, 255), anchor="lm")
+            tx = x0 + text_w + tri * 0.6
+            d.polygon([(tx, cy - tri / 2), (tx + tri * 0.9, cy), (tx, cy + tri / 2)], fill=(255, 255, 255))
+        return out

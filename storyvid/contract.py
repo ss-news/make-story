@@ -42,7 +42,7 @@ ASSET_SPECS = {
                             "with label, female, age (child|young|middle|elder), scale, skin, hair."},
 }
 TOP_KEYS = {"format", "title", "lang", "cast", "scenes"}
-OPTIONAL_TOP_KEYS = {"character"}
+OPTIONAL_TOP_KEYS = {"character", "short"}
 CAST_KEYS = {"id", "name", "preset", "outfit", "accessory", "kind"}
 SCENE_KEYS = {"bg_id", "bg_prompt", "camera", "actors", "props", "lines"}
 ACTOR_KEYS = {"id", "position", "pose", "expression", "action"}
@@ -103,6 +103,9 @@ def validate(script) -> tuple[list[str], list[dict]]:
             validate_selection(script["character"])
         except ValueError as e:
             errors.append(f"$.character: {e}")
+
+    if "short" in script:
+        _validate_short(script["short"], script["scenes"], errors)
 
     cast_ids = set()
     if not isinstance(script["cast"], list):
@@ -250,6 +253,19 @@ def review_schema() -> dict:
     }
 
 
+def _validate_short(short, scenes, errors: list) -> None:
+    """short.scenes: the scenes cut into the 9:16 Short, by index, in story order."""
+    if not _keys(short, {"scenes"}, "$.short", errors):
+        return
+    picked = short["scenes"]
+    count = len(scenes) if isinstance(scenes, list) else 0
+    if (not isinstance(picked, list) or not picked
+            or not all(isinstance(i, int) and not isinstance(i, bool) and 0 <= i < count for i in picked)):
+        errors.append(f"$.short.scenes: must be a non-empty list of scene indices (0-{count - 1})")
+    elif picked != sorted(set(picked)):
+        errors.append("$.short.scenes: indices must be increasing, without repeats")
+
+
 def request_file(requests: list[dict], scenes_path: Path) -> dict:
     """The asset_requests.json document handed to the asset agent."""
     items = []
@@ -279,6 +295,10 @@ def json_schema() -> dict:
             "title": string,
             "lang": enum(LANG_NAMES),
             "character": {"type": "object", "description": "Optional look of the host (actor id 'host')."},
+            "short": {"type": "object", "required": ["scenes"], "additionalProperties": False,
+                      "description": "Optional: scenes cut into the 9:16 Short (aim for 30-60 s, hook first).",
+                      "properties": {"scenes": {"type": "array", "minItems": 1, "uniqueItems": True,
+                                                "items": {"type": "integer", "minimum": 0}}}},
             "cast": {"type": "array", "items": obj({
                 "id": {"type": "string", "pattern": SLUG, "not": {"enum": [HOST, NARRATOR]}},
                 "name": string,
@@ -302,7 +322,7 @@ def json_schema() -> dict:
                     "speaker": {"type": "string", "description": "'narrator' or a cast id on stage."},
                     "text": string})},
             })},
-        }, optional=("character",)),
+        }, optional=("character", "short")),
     }
 
 

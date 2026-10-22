@@ -102,9 +102,12 @@
           </select></label>
           <span class="grow"></span>
           <a class="btn hidden" id="downloadBtn" download>Tải MP4</a>
+          <a class="btn hidden" id="downloadShortBtn" download>Tải Short</a>
+          <button class="btn" id="renderShortBtn">Dựng Short 9:16</button>
           <button class="btn primary" id="renderBtn">Dựng video</button>
         </div>
         <video id="player" class="player hidden" controls preload="metadata"></video>
+        <video id="shortPlayer" class="player short hidden" controls preload="metadata"></video>
         <div id="bgStrip" class="bg-strip"></div>
         <details class="logbox" id="logBox"><summary>Nhật ký chạy</summary><pre id="log"></pre></details>
       </div>

@@ -2,6 +2,7 @@
 
     python -m storyvid.cli examples/ma_da.txt --lang en
     python -m storyvid.cli --script output/ma_da/scenes.json      # re-render an edited script
+    python -m storyvid.cli --script output/ma_da/scenes.json --short   # 9:16 Short -> video_short.mp4
 """
 import argparse
 import json
@@ -14,12 +15,28 @@ from pathlib import Path
 from .backgrounds import make_backgrounds
 from .check import check_script
 from .contract import FORMAT
-from .render import Renderer
+from .render import Renderer, ShortRenderer
 from .script import write_script
 from .tts import narrate, tts_provider
 
 ROOT = Path(__file__).resolve().parent.parent
 RESOLUTIONS = {"480": (854, 480), "720": (1280, 720), "1080": (1920, 1080)}
+SHORT_TARGET = 55.0  # seconds; YouTube allows up to 3 minutes but 30-60 s works best
+WORDS_PER_SECOND = 2.6
+
+
+def short_scenes(script: dict) -> list[int]:
+    """The scenes of the Short: script["short"]["scenes"], else the opening scenes up to about SHORT_TARGET."""
+    if script.get("short"):
+        return script["short"]["scenes"]
+    picked, seconds = [], 0.0
+    for i, scene in enumerate(script["scenes"]):
+        words = sum(len(line["text"].split()) for line in scene["lines"])
+        seconds += words / WORDS_PER_SECOND + 0.4 * len(scene["lines"])
+        if picked and seconds > SHORT_TARGET:
+            break
+        picked.append(i)
+    return picked
 
 
 def _slug(text: str) -> str:
@@ -56,6 +73,8 @@ def main():
     ap.add_argument("--fps", type=int, default=30)
     ap.add_argument("--out", help="output folder (default: output/<story name>)")
     ap.add_argument("--script-only", action="store_true", help="stop after writing scenes.json")
+    ap.add_argument("--short", action="store_true",
+                    help="render the 9:16 Short (script's short.scenes, else the opening ~55 s) as video_short.mp4")
     ap.add_argument("--fallback", action="store_true",
                     help="render even when assets are missing: nearest pack background, missing props skipped")
     args = ap.parse_args()
@@ -105,6 +124,11 @@ def main():
     if not voice:
         raise SystemExit(f"No voice configured for '{args.lang}' in {args.channel}")
 
+    if args.short:
+        render_short(script, channel, voice, out_dir, args)
+        print(f"Done in {time.time() - started:.0f}s -> {out_dir / 'video_short.mp4'}")
+        return
+
     provider = tts_provider()
     print(f"[2/4] Narrating with {voice if provider == 'edge' else provider}...")
     timeline = narrate(script, voice, out_dir, args.lang)
@@ -120,6 +144,24 @@ def main():
     video = out_dir / "video.mp4"
     Renderer(channel, size, args.fps).render(script, timeline, bg_paths, video)
     print(f"Done in {time.time() - started:.0f}s -> {video}")
+
+
+def render_short(script: dict, channel: dict, voice: str, out_dir: Path, args) -> None:
+    picked = short_scenes(script)
+    short = {**script, "scenes": [script["scenes"][i] for i in picked]}
+    print(f"[short] scenes {picked}")
+    provider = tts_provider()
+    print(f"[2/4] Narrating with {voice if provider == 'edge' else provider}...")
+    timeline = narrate(short, voice, out_dir / "short", args.lang)
+    if timeline["duration"] > 60:
+        print(f"  warning: {timeline['duration']:.0f}s is longer than 60 s; pick fewer scenes in short.scenes")
+    width = RESOLUTIONS[args.res][1]  # 720 -> a 720x1280 Short
+    print("[3/4] Backgrounds...")
+    stage = int(width * 1.15)
+    bg_paths = make_backgrounds(short, (stage, stage), ROOT / "cache" / "backgrounds")
+    renderer = ShortRenderer(channel, width, args.fps, script["title"], args.lang)
+    print(f"[4/4] Rendering {timeline['duration']:.1f}s at {renderer.out_size[0]}x{renderer.out_size[1]}...")
+    renderer.render(short, timeline, bg_paths, out_dir / "video_short.mp4")
 
 
 if __name__ == "__main__":

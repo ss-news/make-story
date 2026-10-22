@@ -188,6 +188,11 @@ def _normalize(script: dict, lang: str | None = None) -> dict:
     if "character" in script:
         from .character_catalog import validate_selection
         result["character"] = validate_selection(script["character"])
+    picked = (script.get("short") or {}).get("scenes") if isinstance(script.get("short"), dict) else None
+    if isinstance(picked, list):
+        picked = sorted({i for i in picked if isinstance(i, int) and 0 <= i < len(scenes)})
+        if picked:
+            result["short"] = {"scenes": picked}
     return result
 
 

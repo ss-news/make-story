@@ -25,6 +25,25 @@
       "type": "object",
       "description": "Optional look of the host (actor id 'host')."
     },
+    "short": {
+      "type": "object",
+      "required": [
+        "scenes"
+      ],
+      "additionalProperties": false,
+      "description": "Optional: scenes cut into the 9:16 Short (aim for 30-60 s, hook first).",
+      "properties": {
+        "scenes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
     "cast": {
       "type": "array",
       "items": {
