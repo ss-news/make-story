@@ -4,7 +4,7 @@ The script remains in English. Scene numbers below are zero-based.
 
 ## Changes
 
-- Split 15 scenes into 31 shorter visual beats; updated short.scenes to [0, 2, 6, 7].
+- Split 15 scenes into 31 shorter visual beats; updated short.scenes to [0, 2, 3, 5, 6, 7] after review.
 - Added the claw handover and pre-transformation shot; replaced the unrelated rice bundle in the child-care scene.
 - Added separate egg growth, cracked shell, milk rock, bird and silk, archery setup/hit, pirate landing, colored stones/flowers, and sunset farewell scenes.
 - Separated the turtle departure, mountain origin explanation, and closing invitation.
@@ -39,3 +39,16 @@ The script remains in English. Scene numbers below are zero-based.
 - assets-added-preview.png: rasterized all 11 new SVGs using the project asset loader.
 - storyboard-preview.png: static placement sheet using the real renderer sprites, positions and prop sizing.
 - qa/storyboard-smoke.mp4: silent, one second per scene runtime smoke render; not a narrated final video.
+
+## Review follow-up
+
+- Restored every word of the approved story-en.txt in order across the 31 scenes (punctuation and dialogue attribution split between voices); retained the opening hook.
+- Added to scene 29 and both story text files: “Today, the Marble Mountains, known as Ngu Hanh Son, are in Da Nang, on the coast of central Vietnam.”
+- Location source: https://cttdt.danangportal.gov.vn/vi/web/dng/w/ron-rang-don-doan-khach-quoc-te-dau-tien-tham-quan-danh-thang-ngu-hanh-son-nam-2026
+- Villager now uses elder_woman / indigo / no scarf; messenger uses moss with the bag.
+- Confirmed scene 28 already has old_man position right and action exit toward the turtle.
+- Short selection now includes the Kim Quy setup; actual duration requires regenerated speech.
+- review.json remains unchanged with verdict fix, pending reviewer revalidation. Tool issues remain outside this change.
+- Refreshed storyboard-preview.png; the older silent smoke video is from before this review follow-up.
+
+- Current checkout includes upstream commit 70bbf29 (manifest-based prop sizing) and 3c88ddd (removed Bill voice fallback). The earlier PROP_DEFAULT sizing note describes the previous build; refreshed storyboards now use the updated sizing. No renderer or voice code was edited in this follow-up.

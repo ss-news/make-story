@@ -51,8 +51,8 @@
     {
       "id": "villager",
       "name": "Village woman",
-      "preset": "middle_woman",
-      "outfit": "earth",
+      "preset": "elder_woman",
+      "outfit": "indigo",
       "accessory": "none",
       "kind": "human"
     },
@@ -60,7 +60,7 @@
       "id": "messenger",
       "name": "Messenger",
       "preset": "middle_man",
-      "outfit": "indigo",
+      "outfit": "moss",
       "accessory": "bag",
       "kind": "human"
     }
@@ -109,7 +109,7 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "Long ago, near today's Da Nang, an old man lived alone in a thatched hut beside the sea."
+          "text": "Long ago, on the coast of Quang Nam, near today's Da Nang, an old man lived alone in a small thatched hut beside the sea."
         }
       ]
     },
@@ -131,7 +131,7 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "One stormy night, a sea dragon crawled ashore, laid an enormous egg, and vanished beneath the waves."
+          "text": "One stormy night, a giao long, a sea dragon, emerged from the crashing waves. It crawled onto the shore, laid an enormous egg in the sand, and disappeared beneath the dark water."
         }
       ]
     },
@@ -161,7 +161,7 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "At dawn, Kim Quy, the Golden Turtle Spirit, appeared. He buried the egg in the sand and asked the old man to guard it."
+          "text": "The next morning, Kim Quy, the Golden Turtle Spirit, appeared. He buried the egg beneath the sand and asked the old man to watch over it."
         }
       ]
     },
@@ -191,11 +191,23 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "He gave the old man a magical claw. It would protect him whenever danger came."
+          "text": "“Keep this egg safe,” the spirit said, giving him a magical claw. “If danger comes, this will protect you.”"
         },
         {
           "speaker": "old_man",
-          "text": "As long as I am here, no harm will come to the egg."
+          "text": "As long as I am here,"
+        },
+        {
+          "speaker": "narrator",
+          "text": "the old man promised,"
+        },
+        {
+          "speaker": "old_man",
+          "text": "no harm will come to it."
+        },
+        {
+          "speaker": "narrator",
+          "text": "One day, a soldier passing along the beach noticed the strange egg."
         }
       ]
     },
@@ -227,16 +239,28 @@
       ],
       "lines": [
         {
+          "speaker": "soldier",
+          "text": "What kind of egg grows this big?"
+        },
+        {
           "speaker": "narrator",
-          "text": "One day, a passing soldier noticed the egg."
+          "text": "he said."
         },
         {
           "speaker": "soldier",
-          "text": "What kind of egg grows this big? Let's break it open!"
+          "text": "Let’s break it open!"
         },
         {
           "speaker": "old_man",
-          "text": "Leave it alone! It is under the protection of the spirits!"
+          "text": "Leave it alone!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "the old man cried."
+        },
+        {
+          "speaker": "old_man",
+          "text": "It is under the protection of the spirits!"
         }
       ]
     },
@@ -269,7 +293,11 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "The soldier stepped closer. The old man raised the magical claw."
+          "text": "The soldier ignored him and stepped closer."
+        },
+        {
+          "speaker": "narrator",
+          "text": "The old man raised the magical claw."
         }
       ]
     },
@@ -299,11 +327,15 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "In an instant, the old man became a tiger. His roar thundered across the beach."
+          "text": "In an instant, he transformed into a fierce tiger. His roar thundered across the beach."
         },
         {
           "speaker": "soldier",
           "text": "A tiger!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "the soldier screamed, fleeing without another glance."
         }
       ]
     },
@@ -316,7 +348,7 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "The egg kept growing, pushing up the sand and lifting the old man's hut higher and higher."
+          "text": "As time passed, the egg continued to grow. It pushed up the sand around it, lifting the old man’s hut higher and higher."
         }
       ]
     },
@@ -337,7 +369,15 @@
       "lines": [
         {
           "speaker": "old_man",
-          "text": "Golden Turtle Spirit! Please help me!"
+          "text": "Golden Turtle Spirit!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "the old man called."
+        },
+        {
+          "speaker": "old_man",
+          "text": "Please help me!"
         }
       ]
     },
@@ -355,7 +395,11 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "A great crack echoed through the air. The shell split apart, becoming rocky walls and deep caves."
+          "text": "Then a great crack echoed through the air."
+        },
+        {
+          "speaker": "narrator",
+          "text": "The shell split apart, forming rocky walls and deep caves."
         }
       ]
     },
@@ -388,15 +432,23 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "A little girl stepped out of the broken egg."
+          "text": "From inside the egg, a little girl stepped into the sunlight."
+        },
+        {
+          "speaker": "narrator",
+          "text": "The old man stared in astonishment."
         },
         {
           "speaker": "old_man",
           "text": "Where did you come from, little one?"
         },
         {
+          "speaker": "narrator",
+          "text": "The girl looked up at him."
+        },
+        {
           "speaker": "little_girl",
-          "text": "Grandfather, I'm hungry."
+          "text": "Grandfather, I’m hungry."
         }
       ]
     },
@@ -429,7 +481,11 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "He raised her as his own granddaughter. Even the mountain helped: milk trickled from the rocks to feed her."
+          "text": "He took her into his home and raised her as his own granddaughter. And the mountain helped him care for her."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Milk trickled from the rocks to feed the child."
         }
       ]
     },
@@ -459,7 +515,7 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "Monkeys brought ripe fruit, and birds gathered silk for her clothes."
+          "text": "Monkeys brought her ripe fruit. Birds gathered silk to make her clothes."
         }
       ]
     },
@@ -480,7 +536,7 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "She grew with extraordinary speed. Soon, the child was a young woman."
+          "text": "She grew with extraordinary speed, soon becoming a young woman."
         }
       ]
     },
@@ -517,7 +573,7 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "The old man taught her to build a home and plant rice."
+          "text": "The old man taught her to build a home, plant rice, and shoot a bow."
         }
       ]
     },
@@ -553,12 +609,16 @@
       ],
       "lines": [
         {
+          "speaker": "old_man",
+          "text": "Pull the string back,"
+        },
+        {
           "speaker": "narrator",
-          "text": "He also taught her archery."
+          "text": "he told her."
         },
         {
           "speaker": "old_man",
-          "text": "Pull the string back. Eyes on the target. Now let go!"
+          "text": "Keep your eyes on the target. Now let go!"
         }
       ]
     },
@@ -584,11 +644,19 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "The arrow struck its mark."
+          "text": "The arrow flew straight and struck its mark."
         },
         {
           "speaker": "girl",
-          "text": "I did it, Grandfather! I hit it!"
+          "text": "I did it, Grandfather!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "she cried."
+        },
+        {
+          "speaker": "girl",
+          "text": "I hit it!"
         }
       ]
     },
@@ -606,7 +674,11 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "Word of the young woman spread. One night, pirates landed at the foot of the mountain."
+          "text": "For a time, they lived peacefully beside the sea."
+        },
+        {
+          "speaker": "narrator",
+          "text": "But word of the beautiful young woman spread, and one night, pirates landed at the foot of the mountain."
         }
       ]
     },
@@ -639,11 +711,27 @@
       "lines": [
         {
           "speaker": "pirate",
-          "text": "Seize the girl! This mountain belongs to us now!"
+          "text": "Seize the girl!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "their leader shouted."
+        },
+        {
+          "speaker": "pirate",
+          "text": "This mountain belongs to us now!"
         },
         {
           "speaker": "girl",
-          "text": "Grandfather! Pirates!"
+          "text": "Grandfather!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "she called."
+        },
+        {
+          "speaker": "girl",
+          "text": "Pirates!"
         }
       ]
     },
@@ -677,15 +765,23 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "Before they reached the hut, flames burst from the rocks, blocking their path."
+          "text": "Before the intruders could reach their home, flames burst from the rocks. Fire swept across their path, surrounding them in a blazing wall."
         },
         {
           "speaker": "pirate",
-          "text": "Fire! Get back!"
+          "text": "Fire!"
         },
         {
           "speaker": "narrator",
-          "text": "The pirates fled to their boats."
+          "text": "the pirates cried."
+        },
+        {
+          "speaker": "pirate",
+          "text": "Get back!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "Terrified, they fled to their boats."
         }
       ]
     },
@@ -713,11 +809,19 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "Later, a terrible fever swept through a nearby village. The villagers came to her for help."
+          "text": "The young woman’s kindness soon became as well known as her beauty. When a terrible fever swept through a nearby village, the villagers came to her for help."
         },
         {
           "speaker": "villager",
-          "text": "Please. Our families are growing weaker every day."
+          "text": "Please,"
+        },
+        {
+          "speaker": "narrator",
+          "text": "one woman begged."
+        },
+        {
+          "speaker": "villager",
+          "text": "Our families are growing weaker every day."
         }
       ]
     },
@@ -743,7 +847,7 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "She scattered brightly colored stones across a garden."
+          "text": "The young woman scattered brightly colored stones across a garden."
         }
       ]
     },
@@ -776,7 +880,11 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "Where each stone fell, a five-petaled flower appeared. In the legend, these magical flowers healed the sick."
+          "text": "Wherever a stone landed, a flower with five petals sprang from the earth."
+        },
+        {
+          "speaker": "narrator",
+          "text": "In the legend, these magical flowers healed the sick, and the people recovered."
         }
       ]
     },
@@ -811,11 +919,19 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "News reached the royal court. The king sent a messenger."
+          "text": "News of her deeds eventually reached the royal court. The king sent a messenger to the mountain."
         },
         {
           "speaker": "messenger",
-          "text": "His Majesty invites you to the capital. He wishes you to marry the prince."
+          "text": "His Majesty invites you to the capital,"
+        },
+        {
+          "speaker": "narrator",
+          "text": "the messenger announced."
+        },
+        {
+          "speaker": "messenger",
+          "text": "He wishes you to marry the prince."
         }
       ]
     },
@@ -848,7 +964,7 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "Kim Quy brought word that the Dragon King, her true father, had given his blessing."
+          "text": "The Golden Turtle Spirit returned with word that the Dragon King, her true father, had given his blessing."
         }
       ]
     },
@@ -881,7 +997,11 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "A palanquin arrived to carry her to the capital."
+          "text": "Soon, a palanquin arrived to carry the young woman to her new home."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Before leaving, she turned to the old man who had raised her."
         },
         {
           "speaker": "girl",
@@ -889,7 +1009,15 @@
         },
         {
           "speaker": "old_man",
-          "text": "Go, my child. My work here is done."
+          "text": "Go, my child,"
+        },
+        {
+          "speaker": "narrator",
+          "text": "he said gently."
+        },
+        {
+          "speaker": "old_man",
+          "text": "My work here is done."
         }
       ]
     },
@@ -919,7 +1047,7 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "After she left, the old man returned the magical claw to Kim Quy."
+          "text": "After she departed, the old man returned the magical claw to the Golden Turtle Spirit."
         }
       ]
     },
@@ -945,7 +1073,7 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "Then he climbed onto the great turtle's back, and together they vanished into the sea."
+          "text": "Then he climbed onto the great turtle’s back, and together they vanished into the sea."
         }
       ]
     },
@@ -966,11 +1094,15 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "The mountains remained, their caves preserving the memory of the egg and the child born within it."
+          "text": "The stone mountain remained, its caves preserving the memory of the enormous egg and the child born within it."
         },
         {
           "speaker": "narrator",
-          "text": "That is how the legend explains the Marble Mountains: Ngu Hanh Son."
+          "text": "And so, the story tells us, the Marble Mountains, Ngu Hanh Son, came to stand beside the sea."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Today, the Marble Mountains, known as Ngu Hanh Son, are in Da Nang, on the coast of central Vietnam."
         }
       ]
     },
@@ -991,7 +1123,7 @@
       "lines": [
         {
           "speaker": "narrator",
-          "text": "Join us next time for another place in Vietnam with a strange story behind it."
+          "text": "If you enjoyed this legend, stay with us. Next time, we will visit another place in Vietnam with a strange story hiding behind it."
         }
       ]
     }
@@ -1000,6 +1132,8 @@
     "scenes": [
       0,
       2,
+      3,
+      5,
       6,
       7
     ]
