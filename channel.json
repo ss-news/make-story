@@ -1,0 +1,24 @@
+{
+  "channel_name": "WEIRD VIETNAM",
+  "banner_left": "WEIRD",
+  "banner_right": "VIETNAM",
+  "host": {
+    "name": "Tam",
+    "personality": "a calm, slightly nervous village boy who tells old Vietnamese ghost stories he heard from his grandmother; dry humor, never gory",
+    "hair_color": "#292a28",
+    "skin_color": "#c89065",
+    "shirt_color": "#88624a",
+    "outline_color": "#34332e",
+    "preset": "young_man",
+    "outfit": "earth",
+    "accessory": "none"
+  },
+  "style_prompt": "misty atmospheric painterly illustration, rural Vietnam, muted desaturated colors, soft fog, cinematic wide shot, no people, no text",
+  "voices": {
+    "en": "en-US-AndrewNeural",
+    "vi": "vi-VN-NamMinhNeural",
+    "de": "de-DE-ConradNeural",
+    "fr": "fr-FR-HenriNeural",
+    "es": "es-ES-AlvaroNeural"
+  }
+}

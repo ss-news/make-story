@@ -1,0 +1,11 @@
+{
+  "title": "The Voice from the Red River",
+  "scenes": [
+    {"narration": "If you ever hear your mother calling your name from a river at dusk, do not answer. Especially if your mother is dead.", "bg_id": "river_dusk", "bg_prompt": "wide calm river at dusk, reeds on the bank, distant village", "pose": "point", "expression": "scared", "position": "left", "camera": "zoom_in"},
+    {"narration": "I'm Tam. My grandmother told me this story, and she swore every word of it was true.", "bg_id": "village_path", "bg_prompt": "old bamboo village path at dusk, wooden houses", "pose": "talk", "expression": "smirk", "position": "center", "camera": "pan_right"},
+    {"narration": "In Vietnam we call it ma da: the ghost of someone who drowned. It cannot move on until it pulls another person under to take its place.", "bg_id": "river_night", "bg_prompt": "dark river at night under a full moon, fog over the water", "pose": "think", "expression": "neutral", "position": "right", "camera": "zoom_out"},
+    {"narration": "So it waits. Ten years, twenty years. It is very, very patient.", "bg_id": "river_night", "bg_prompt": "dark river at night under a full moon, fog over the water", "pose": "shrug", "expression": "sad", "position": "right", "camera": "pan_left"},
+    {"narration": "One summer evening, a boy named Tu swam out alone. Then something ice cold grabbed his ankle.", "bg_id": "river_dusk", "bg_prompt": "wide calm river at dusk, reeds on the bank, distant village", "pose": "scared", "expression": "surprised", "position": "center", "camera": "zoom_in"},
+    {"narration": "Tu survived. But every evening at dusk, he still hears his mother calling him from the river. See you in the next story.", "bg_id": "village_path", "bg_prompt": "old bamboo village path at dusk, wooden houses", "pose": "idle", "expression": "neutral", "position": "left", "camera": "static"}
+  ]
+}

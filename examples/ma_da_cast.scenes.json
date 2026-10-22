@@ -1,0 +1,41 @@
+{
+  "title": "Tiếng gọi từ sông",
+  "character": {"preset": "young_man", "outfit": "earth", "accessory": "none"},
+  "cast": [
+    {"id": "tu", "name": "Tư", "preset": "boy", "outfit": "indigo", "accessory": "none", "kind": "human"},
+    {"id": "ba", "name": "Bà", "preset": "elder_woman", "outfit": "earth", "accessory": "scarf", "kind": "human"},
+    {"id": "ma_da", "name": "Ma da", "preset": "middle_woman", "outfit": "cream", "accessory": "none", "kind": "ghost"}
+  ],
+  "scenes": [
+    {"bg_id": "river_dusk", "bg_prompt": "wide calm river at dusk, reeds on the bank, distant village", "camera": "zoom_in",
+     "actors": [{"id": "host", "position": "center", "pose": "point", "expression": "scared", "action": "enter"}],
+     "lines": [{"speaker": "narrator", "text": "Nếu lúc chạng vạng bạn nghe người mẹ đã mất gọi tên mình từ dưới sông, đừng trả lời."}]},
+    {"bg_id": "village_path", "bg_prompt": "old bamboo village path at dusk, wooden houses", "camera": "pan_right",
+     "actors": [{"id": "ba", "position": "left", "pose": "point", "expression": "angry", "action": "none"},
+                {"id": "tu", "position": "right", "pose": "shrug", "expression": "smirk", "action": "enter"}],
+     "lines": [{"speaker": "ba", "text": "Tư! Trời tối rồi, không được ra sông nghe chưa?"},
+               {"speaker": "tu", "text": "Dạ, con biết rồi bà ơi."},
+               {"speaker": "narrator", "text": "Nhưng Tư không nghe lời."}]},
+    {"bg_id": "river_night", "bg_prompt": "dark river at night under a full moon, fog over the water", "camera": "zoom_out",
+     "actors": [{"id": "tu", "position": "left", "pose": "idle", "expression": "neutral", "action": "enter"},
+                {"id": "ma_da", "position": "far_right", "pose": "reach", "expression": "sad", "action": "enter"}],
+     "lines": [{"speaker": "ma_da", "text": "Tư ơi… lại đây với mẹ…"},
+               {"speaker": "tu", "text": "Mẹ? Là mẹ thật sao?"}]},
+    {"bg_id": "river_night", "bg_prompt": "dark river at night under a full moon, fog over the water", "camera": "static",
+     "actors": [{"id": "tu", "position": "center", "pose": "scared", "expression": "scared", "action": "shake"},
+                {"id": "ma_da", "position": "right", "pose": "reach", "expression": "smirk", "action": "approach"}],
+     "lines": [{"speaker": "narrator", "text": "Một bàn tay lạnh như băng nắm chặt lấy cổ chân cậu."},
+               {"speaker": "tu", "text": "Bà ơi! Cứu con!"}]},
+    {"bg_id": "river_night", "bg_prompt": "dark river at night under a full moon, fog over the water", "camera": "zoom_in",
+     "actors": [{"id": "ba", "position": "far_left", "pose": "point", "expression": "angry", "action": "enter"},
+                {"id": "tu", "position": "center", "pose": "cower", "expression": "scared", "action": "jump"},
+                {"id": "ma_da", "position": "right", "pose": "cower", "expression": "angry", "action": "exit"}],
+     "lines": [{"speaker": "ba", "text": "Buông cháu tao ra! Gạo muối đây!"},
+               {"speaker": "narrator", "text": "Bàn tay lạnh buốt buông ra, rồi biến mất dưới làn nước đen."}]},
+    {"bg_id": "village_path", "bg_prompt": "old bamboo village path at dusk, wooden houses", "camera": "static",
+     "actors": [{"id": "ba", "position": "left", "pose": "reach", "expression": "sad", "action": "none"},
+                {"id": "tu", "position": "right", "pose": "idle", "expression": "sad", "action": "none"}],
+     "lines": [{"speaker": "ba", "text": "Từ nay đừng bao giờ ra sông lúc chạng vạng nữa."},
+               {"speaker": "narrator", "text": "Tư không bao giờ bơi ở sông nữa. Nhưng mỗi chiều, cậu vẫn nghe tiếng mẹ gọi."}]}
+  ]
+}

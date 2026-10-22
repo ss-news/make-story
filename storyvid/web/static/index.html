@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Storyvid Studio</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">Storyvid <span>Studio</span></div>
+    <button class="btn primary block" id="newProjectBtn">+ Dự án mới</button>
+    <div class="side-label">Dự án</div>
+    <nav id="projectList" class="project-list"></nav>
+    <button class="btn ghost block settings-link" id="settingsBtn">⚙ Cài đặt</button>
+  </aside>
+
+  <main class="main" id="main">
+    <section class="empty" id="emptyView">
+      <h1>Chưa chọn dự án</h1>
+      <p>Tạo dự án mới, dán truyện vào, để AI viết lại kịch bản, rồi dựng thành video có nhân vật chính của kênh.</p>
+      <ol class="flow">
+        <li><b>Truyện</b> dán truyện gốc (tiếng Việt cũng được)</li>
+        <li><b>Kịch bản</b> AI viết lại thành từng cảnh, bạn sửa</li>
+        <li><b>Video</b> đọc giọng, tạo nền, dựng MP4</li>
+      </ol>
+    </section>
+
+    <section class="project hidden" id="projectView">
+      <header class="project-head">
+        <input id="pName" class="title-input" aria-label="Tên dự án">
+        <div class="head-controls">
+          <label>Ngôn ngữ <select id="pLang"></select></label>
+          <label>Độ dài <input id="pMinutes" type="number" min="0.5" max="30" step="0.5"> phút</label>
+          <button class="btn danger ghost" id="deleteBtn">Xóa</button>
+        </div>
+      </header>
+      <div class="jobbar hidden" id="jobBar"><span class="spinner"></span><span id="jobText"></span>
+        <button class="btn ghost small" id="stopBtn">Dừng</button></div>
+
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="story">1. Truyện</button>
+        <button class="tab" data-tab="script">2. Kịch bản <span class="count" id="sceneCount"></span></button>
+        <button class="tab" data-tab="video">3. Video</button>
+      </div>
+
+      <div class="tabpane" data-pane="story">
+        <textarea id="story" class="story" placeholder="Dán truyện gốc vào đây…"></textarea>
+        <div class="actions">
+          <label>Viết bằng <select id="provider">
+            <option value="">Theo cài đặt (.env)</option>
+            <option value="openai">OpenAI-compatible API</option>
+            <option value="codex">Codex CLI</option>
+            <option value="claude">Claude API</option>
+            <option value="offline">Offline (chỉ chia cảnh)</option>
+          </select></label>
+          <span class="grow"></span>
+          <button class="btn" id="saveStoryBtn">Lưu</button>
+          <button class="btn primary" id="writeScriptBtn">Viết kịch bản →</button>
+        </div>
+      </div>
+
+      <div class="tabpane hidden" data-pane="script">
+        <div class="card character-editor" id="characterEditor">
+          <div><h2>Người dẫn chuyện</h2><p class="muted">Host của kênh: đọc lời dẫn và xuất hiện trong cảnh khi có diễn viên “Người dẫn chuyện”.</p></div>
+          <div class="grid">
+            <label>Nhân vật <select id="videoCharacter" data-character="preset"></select></label>
+            <label>Trang phục <select id="videoOutfit" data-character="outfit"></select></label>
+            <label>Phụ kiện <select id="videoAccessory" data-character="accessory"></select></label>
+          </div>
+          <div class="character-custom"><label><input type="checkbox" id="customCharacterColors"> Tùy chỉnh màu riêng cho video</label>
+            <div class="colors hidden" id="videoColors">
+              <label>Da <input type="color" data-character-color="skin_color"></label>
+              <label>Tóc <input type="color" data-character-color="hair_color"></label>
+              <label>Áo <input type="color" data-character-color="shirt_color"></label>
+              <label>Viền <input type="color" data-character-color="outline_color"></label>
+            </div>
+          </div>
+          <img id="videoCharacterPreview" class="char-preview" alt="Các tư thế và biểu cảm của nhân vật đã chọn">
+          <p class="muted" id="characterPreviewStatus" aria-live="polite"></p>
+        </div>
+        <div class="card" id="castEditor">
+          <div class="cast-head"><div><h2>Nhân vật trong truyện</h2>
+            <p class="muted">Mỗi nhân vật có giọng riêng (theo giới tính và tuổi). Ma được vẽ mờ, trôi lơ lửng.</p></div>
+            <button class="btn" id="addCastBtn">+ Thêm nhân vật</button></div>
+          <div id="castList" class="cast-list"></div>
+        </div>
+        <div class="script-head">
+          <label class="grow">Tiêu đề video <input id="scriptTitle"></label>
+          <button class="btn" id="addSceneBtn">+ Thêm cảnh</button>
+          <button class="btn primary" id="saveScriptBtn">Lưu kịch bản</button>
+        </div>
+        <div id="scenes" class="scenes"></div>
+        <p class="muted" id="noScript">Chưa có kịch bản. Quay lại tab Truyện và bấm “Viết kịch bản”.</p>
+      </div>
+
+      <div class="tabpane hidden" data-pane="video">
+        <div class="actions">
+          <label>Độ phân giải <select id="res">
+            <option value="480">480p (nhanh)</option><option value="720" selected>720p</option><option value="1080">1080p</option>
+          </select></label>
+          <span class="grow"></span>
+          <a class="btn hidden" id="downloadBtn" download>Tải MP4</a>
+          <button class="btn primary" id="renderBtn">Dựng video</button>
+        </div>
+        <video id="player" class="player hidden" controls preload="metadata"></video>
+        <div id="bgStrip" class="bg-strip"></div>
+        <details class="logbox" id="logBox"><summary>Nhật ký chạy</summary><pre id="log"></pre></details>
+      </div>
+    </section>
+
+    <section class="settings hidden" id="settingsView">
+      <h1>Cài đặt</h1>
+      <div class="card">
+        <h2>AI viết kịch bản</h2>
+        <div class="grid">
+          <label>Provider <select data-env="LLM_PROVIDER">
+            <option value="offline">offline: không dùng AI</option>
+            <option value="openai">openai: API chuẩn OpenAI (OpenAI, DeepSeek, Gemini, OpenRouter)</option>
+            <option value="codex">codex: Codex CLI (gói ChatGPT, không cần key)</option>
+            <option value="claude">claude: Claude API</option>
+          </select></label>
+          <label>Base URL <input data-env="LLM_BASE_URL" placeholder="https://api.deepseek.com/v1" list="baseUrls"></label>
+          <datalist id="baseUrls">
+            <option value="https://api.openai.com/v1"><option value="https://api.deepseek.com/v1">
+            <option value="https://generativelanguage.googleapis.com/v1beta/openai"><option value="https://openrouter.ai/api/v1">
+          </datalist>
+          <label>Model <input data-env="LLM_MODEL" placeholder="deepseek-chat"></label>
+          <label>API key <input data-env="LLM_API_KEY" type="password" autocomplete="off"><small data-secret="LLM_API_KEY"></small></label>
+          <label>Lệnh Codex <input data-env="CODEX_BIN" placeholder="codex"></label>
+          <label>Model Codex (tùy chọn) <input data-env="CODEX_MODEL"></label>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Ảnh nền</h2>
+        <div class="grid">
+          <label>Provider <select data-env="IMAGE_PROVIDER">
+            <option value="procedural">procedural: vẽ bằng code (miễn phí)</option>
+            <option value="codex">codex: Codex $imagegen (gói ChatGPT)</option>
+            <option value="fal">fal: FLUX schnell (~$0.003/ảnh)</option>
+          </select></label>
+          <label>FAL key <input data-env="FAL_KEY" type="password" autocomplete="off"><small data-secret="FAL_KEY"></small></label>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Giọng đọc</h2>
+        <div class="grid">
+          <label>Provider <select data-env="TTS_PROVIDER">
+            <option value="edge">edge: giọng Edge (miễn phí, không chính thức)</option>
+            <option value="elevenlabs">elevenlabs: ElevenLabs API</option>
+          </select></label>
+          <label>ElevenLabs key <input data-env="ELEVENLABS_API_KEY" type="password" autocomplete="off"><small data-secret="ELEVENLABS_API_KEY"></small></label>
+          <label>Model ElevenLabs (tùy chọn) <input data-env="ELEVENLABS_MODEL" placeholder="eleven_multilingual_v2"></label>
+          <label>Giọng người dẫn chuyện (id hoặc tên, tùy chọn) <input data-env="ELEVENLABS_NARRATOR_VOICE"></label>
+        </div>
+        <p class="muted">Gói Free khoảng 10.000 ký tự/tháng và không được dùng cho kênh bật kiếm tiền. Mỗi câu đã đọc được lưu cache, dựng lại video không tốn thêm ký tự. Giọng theo ngôn ngữ ở dưới chỉ dùng cho edge.</p>
+      </div>
+      <div class="card">
+        <h2>Kênh & nhân vật chính</h2>
+        <div class="grid">
+          <label>Tên kênh <input data-ch="channel_name"></label>
+          <label>Banner trái <input data-ch="banner_left"></label>
+          <label>Banner phải <input data-ch="banner_right"></label>
+          <label>Tên nhân vật <input data-host="name"></label>
+          <label class="wide">Tính cách (đưa vào prompt) <textarea data-host="personality" rows="2"></textarea></label>
+          <label class="wide">Phong cách ảnh nền <textarea data-ch="style_prompt" rows="2"></textarea></label>
+        </div>
+        <div class="colors">
+          <label>Tóc <input type="color" data-host="hair_color"></label>
+          <label>Da <input type="color" data-host="skin_color"></label>
+          <label>Áo <input type="color" data-host="shirt_color"></label>
+          <label>Viền <input type="color" data-host="outline_color"></label>
+        </div>
+        <img id="charPreview" class="char-preview" alt="Xem trước nhân vật">
+        <h3>Giọng đọc</h3>
+        <div class="grid" id="voices"></div>
+      </div>
+      <div class="actions sticky">
+        <span class="muted" id="settingsMsg"></span><span class="grow"></span>
+        <button class="btn primary" id="saveSettingsBtn">Lưu cài đặt</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<dialog id="newDialog">
+  <form method="dialog" id="newForm">
+    <h2>Dự án mới</h2>
+    <label>Tên <input name="name" required placeholder="Ma da sông Hồng"></label>
+    <label>Ngôn ngữ video <select name="lang" id="newLang"></select></label>
+    <label>Độ dài mục tiêu (phút) <input name="minutes" type="number" value="2" min="0.5" max="30" step="0.5"></label>
+    <label>Truyện gốc <textarea name="story" rows="8" placeholder="Dán truyện vào đây (có thể để trống và dán sau)"></textarea></label>
+    <div class="actions"><span class="grow"></span>
+      <button class="btn" value="cancel" formnovalidate>Hủy</button>
+      <button class="btn primary" value="ok">Tạo</button></div>
+  </form>
+</dialog>
+<div class="toast" id="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

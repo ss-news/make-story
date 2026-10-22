@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+.venv/
+cache/
+/output/*
+!/output/bac-bo-stick/
+__pycache__/
+*.py[cod]
+.DS_Store
+*.blend1
+*.blend2
+.claude/
