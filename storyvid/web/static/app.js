@@ -225,8 +225,10 @@ function renderScenes() {
         <div class="lines"></div>
         <div class="sub-head"><b>Trên sân khấu</b><button class="btn ghost small" data-act="add-actor">+ Diễn viên</button></div>
         <div class="actors"></div>
+        <div class="sub-head"><b>Đồ vật, con vật</b><button class="btn ghost small" data-act="add-prop">+ Đồ vật</button></div>
+        <div class="props"></div>
         <div class="scene-bg">
-          <label>Mã nền <input data-scene="bg_id"></label>
+          <label>Mã nền <input data-scene="bg_id" list="packBackgrounds"></label>
           <label>Mô tả nền (tiếng Anh) <input data-scene="bg_prompt"></label>
           <label class="cam"></label>
         </div>
@@ -288,6 +290,22 @@ function renderScenes() {
       actorBox.appendChild(row);
     });
 
+    s.props = s.props || [];
+    const propBox = $(".props", el);
+    s.props.forEach((pr, j) => {
+      const row = document.createElement("div");
+      row.className = "prop-row";
+      row.append(select("id", pr.id, state.options.props), sceneSelect("position", pr.position));
+      const del = document.createElement("button");
+      del.className = "btn ghost small danger";
+      del.textContent = "✕";
+      del.title = "Bỏ khỏi cảnh";
+      del.onclick = () => { s.props.splice(j, 1); state.dirty = true; renderScenes(); };
+      row.appendChild(del);
+      row.addEventListener("change", (e) => { pr[e.target.dataset.field] = e.target.value; state.dirty = true; });
+      propBox.appendChild(row);
+    });
+
     const thumb = $(".scene-thumb", el);
     if (bgs[s.bg_id]) thumb.style.backgroundImage = `url("${bgs[s.bg_id]}")`;
     else thumb.textContent = "Ảnh nền tạo khi dựng video";
@@ -303,6 +321,12 @@ function renderScenes() {
       if (act === "up" && i > 0) [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
       if (act === "down" && i < arr.length - 1) [arr[i + 1], arr[i]] = [arr[i], arr[i + 1]];
       if (act === "add-line") s.lines.push({ speaker: s.actors.find((a) => a.id !== HOST_ID)?.id || NARRATOR_ID, text: "" });
+      if (act === "add-prop") {
+        if (s.props.length >= 3) return toast("Tối đa 3 đồ vật mỗi cảnh", true);
+        const taken = new Set([...s.actors, ...s.props].map((a) => a.position));
+        const pos = ["far_right", "far_left", "center", "right", "left"].find((p) => !taken.has(p)) || "far_right";
+        s.props.push({ id: state.options.props[0][0], position: pos });
+      }
       if (act === "add-actor") {
         const free = who.find(([id]) => !s.actors.some((a) => a.id === id));
         if (!free) return toast("Tất cả nhân vật đã có trong cảnh", true);
@@ -550,6 +574,10 @@ async function init() {
     for (const item of state.options[list]) $("#" + id).add(new Option(item.label, item.id));
   }
   for (const el of $$("[data-character], [data-character-color], #customCharacterColors")) el.addEventListener("change", updateVideoCharacter);
+  const bgList = document.createElement("datalist");
+  bgList.id = "packBackgrounds";
+  for (const [id, label] of state.options.backgrounds) bgList.appendChild(new Option(label, id));
+  document.body.appendChild(bgList);
   for (const sel of [$("#pLang"), $("#newLang")]) {
     for (const [k, v] of state.options.languages) sel.add(new Option(v, k));
   }

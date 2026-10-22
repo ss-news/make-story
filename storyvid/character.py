@@ -10,7 +10,7 @@ from PIL import Image
 from .character_catalog import PRESETS, resolve_character
 
 UNIT_W, UNIT_H = 480, 640
-ASSETS = Path(__file__).resolve().parents[1] / 'assets' / 'characters'
+ASSETS = Path(__file__).resolve().parents[1] / 'assets' / 'bac-bo-stick' / 'characters'
 # Rotation from vertically down, in degrees, at shoulder and elbow.
 ARM_POSES = {
     'idle': ((8, -5), (-8, 5)),
@@ -106,6 +106,16 @@ class Character:
         if flip:
             body = '<g transform="translate(400 0) scale(-1 1)">'+body+'</g>'
         return f'<svg xmlns="http://www.w3.org/2000/svg" width="{self.width}" height="{self.height}" viewBox="-40 0 480 640">{body}</svg>'
+
+    def head(self, flip=False):
+        """(x, y, radius) of the head in sprite pixels, for placing effects around it."""
+        hx,hy = self.rig['anchors']['head']
+        scale = self.rig['scale']
+        x, y = 200*(1-scale) + hx*scale, 608*(1-scale) + hy*scale
+        if flip:
+            x = 400 - x
+        radius = 90 * self.rig.get('head_scale', 1) * scale
+        return (x+40) * self.width/480, y * self.height/640, radius * self.height/640
 
     def sprite(self, pose, expression, mouth, blink, flip, step=None):
         key = (pose,expression,mouth,blink,flip,step)

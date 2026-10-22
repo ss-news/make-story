@@ -95,7 +95,8 @@ label > input, label > select, label > textarea { font-weight: 400; font-size: 1
 .line-row { display: grid; grid-template-columns: 150px 1fr auto; gap: 6px; align-items: start; }
 .line-row textarea { min-height: 0; }
 .actor-row { display: grid; grid-template-columns: 1.3fr repeat(4, 1fr) auto; gap: 6px; }
-.actor-row select, .line-row select { padding: 5px 6px; font-size: 13px; min-width: 0; }
+.prop-row { display: grid; grid-template-columns: 1.3fr 1fr auto; gap: 6px; max-width: 520px; }
+.actor-row select, .prop-row select, .line-row select { padding: 5px 6px; font-size: 13px; min-width: 0; }
 .muted.small { font-size: 12px; margin: 0; }
 .scene-bg { grid-template-columns: 120px 1fr 130px; }
 .cast-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
@@ -153,7 +154,8 @@ dialog form { display: flex; flex-direction: column; gap: 12px; }
 .line-row { display: grid; grid-template-columns: 150px 1fr auto; gap: 6px; align-items: start; }
 .line-row textarea { min-height: 0; }
 .actor-row { display: grid; grid-template-columns: 1.3fr repeat(4, 1fr) auto; gap: 6px; }
-.actor-row select, .line-row select { padding: 5px 6px; font-size: 13px; min-width: 0; }
+.prop-row { display: grid; grid-template-columns: 1.3fr 1fr auto; gap: 6px; max-width: 520px; }
+.actor-row select, .prop-row select, .line-row select { padding: 5px 6px; font-size: 13px; min-width: 0; }
 .muted.small { font-size: 12px; margin: 0; }
 .scene-bg { grid-template-columns: 120px 1fr 130px; }
 .cast-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }

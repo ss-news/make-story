@@ -1,4 +1,4 @@
-"""Step 3: one background image per bg_id (AI image if FAL_KEY is set, else a procedural misty scene)."""
+"""Step 3: one background image per bg_id (the asset pack by default, or an AI / procedural image)."""
 import hashlib
 import json
 import math
@@ -126,16 +126,15 @@ def _codex(prompt: str, path: Path) -> None:
 
 
 def _image_provider() -> str:
-    provider = os.environ.get("IMAGE_PROVIDER", "").strip().lower()
-    if provider:
-        return provider
-    return "fal" if os.environ.get("FAL_KEY") else "procedural"
+    return os.environ.get("IMAGE_PROVIDER", "").strip().lower() or "pack"
 
 
 def make_backgrounds(script: dict, style_prompt: str, size: tuple[int, int], cache_dir: Path) -> dict:
     """Returns {bg_id: path}. Images are cached by prompt hash so reruns cost nothing."""
     cache_dir.mkdir(parents=True, exist_ok=True)
     provider = _image_provider()
+    if provider == "pack":
+        return _pack_backgrounds(script, size, cache_dir)
     tag = provider if provider != "procedural" else f"proc{PROCEDURAL_VERSION}"
     paths = {}
     for scene in script["scenes"]:
@@ -158,5 +157,24 @@ def make_backgrounds(script: dict, style_prompt: str, size: tuple[int, int], cac
                 print(f"  background {bg_id}: {provider} failed ({e}), using procedural for this run")
                 path = cache_dir / f"{bg_id}_{digest}_fallback.png"
                 _procedural(prompt, digest, size).save(path)
+        paths[bg_id] = path
+    return paths
+
+
+def _pack_backgrounds(script: dict, size: tuple[int, int], cache_dir: Path) -> dict:
+    """Rasterize the asset-pack scene matching each bg_id (see pack.match_background)."""
+    from . import pack
+    paths = {}
+    for scene in script["scenes"]:
+        bg_id = scene["bg_id"]
+        if bg_id in paths:
+            continue
+        name = pack.match_background(bg_id, scene.get("bg_prompt", ""))
+        digest = hashlib.sha1((pack.PACK / "backgrounds" / f"{name}.svg").read_bytes()).hexdigest()[:12]
+        path = cache_dir / f"pack_{name}_{size[1]}_{digest}.png"
+        if not path.exists():
+            pack.raster(name, size[1]).convert("RGB").save(path)
+        if name != bg_id:
+            print(f"  background {bg_id}: pack {name}")
         paths[bg_id] = path
     return paths

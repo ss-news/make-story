@@ -14,6 +14,7 @@ from pathlib import Path
 from flask import Flask, abort, jsonify, request, send_file, send_from_directory
 from PIL import Image
 
+from .. import pack
 from ..character import ARM_POSES, Character
 from ..character_catalog import PRESETS, OUTFITS, ACCESSORIES, resolve_character, validate_selection
 from ..script import ACTIONS, CAMERAS, EXPRESSIONS, KINDS, LANG_NAMES, POSES, POSITIONS, _normalize
@@ -145,7 +146,8 @@ def options():
                    characters=[{"id":k, "label":v["label"], "colors":resolve_character(channel["host"], {"preset":k})} for k,v in PRESETS.items()],
                    outfits=[{"id":k, "label":v["label"], "color":v["color"]} for k,v in OUTFITS.items()],
                    accessories=[{"id":k, "label":v} for k,v in ACCESSORIES.items()],
-                   default_character=resolve_character(channel["host"]))
+                   default_character=resolve_character(channel["host"]),
+                   backgrounds=pack.labels("backgrounds"), props=pack.labels("animals", "props"))
 
 
 # ---------- projects ----------

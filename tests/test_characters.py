@@ -49,7 +49,7 @@ class CharactersTest(unittest.TestCase):
     def test_parts_have_editable_svg_and_joint_metadata(self):
         from storyvid.character_catalog import PRESETS
         for preset in PRESETS:
-            folder = ROOT / 'assets' / 'characters' / preset
+            folder = ROOT / 'assets' / 'bac-bo-stick' / 'characters' / preset
             rig = json.loads((folder / 'rig.json').read_text())
             for part in ('head', 'hair_front', 'torso', 'upper_arm', 'forearm', 'hand', 'thigh', 'shin', 'foot'):
                 self.assertIn(part, rig['parts'])

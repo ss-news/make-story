@@ -76,7 +76,9 @@ class CastRenderTest(unittest.TestCase):
                         'scenes': [{'start': 0, 'end': 1.0, 'lines': [{'start': 0, 'end': .5, 'speaker': 'ba'},
                                                                      {'start': .5, 'end': 1.0, 'speaker': 'narrator'}]}],
                         'cues': [{'start': 0, 'end': .5, 'text': 'Buông ra!', 'speaker': 'Bà'}]}
-            script = _normalize({'cast': CAST, 'scenes': [SCENE]})
+            props = [{'id': 'buffalo', 'position': 'far_right'}, {'id': 'oil_lamp', 'position': 'far_left'}]
+            script = _normalize({'cast': CAST, 'scenes': [{**SCENE, 'props': props}]})
+            self.assertEqual(script['scenes'][0]['props'], props)
             Renderer(CHANNEL, (320, 180), 10).render(script, timeline, {'river': bg}, folder / 'v.mp4')
             self.assertGreater((folder / 'v.mp4').stat().st_size, 0)
 

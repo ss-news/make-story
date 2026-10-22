@@ -12,7 +12,13 @@ ACTIONS = ["none", "enter", "exit", "approach", "jump", "shake"]
 KINDS = ["human", "ghost"]
 NARRATOR = "narrator"   # speaker id for off-screen narration (spoken by the host voice)
 HOST = "host"           # actor id of the channel host, whose look is script["character"]
+MAX_PROPS = 3           # animals / objects standing on the ground in one scene
 LANG_NAMES = {"en": "English", "vi": "Vietnamese", "de": "German", "fr": "French", "es": "Spanish"}
+
+
+def prop_ids() -> list[str]:
+    from . import pack
+    return pack.ids("animals", "props")
 
 
 def _schema() -> dict:
@@ -31,6 +37,7 @@ def _schema() -> dict:
             "actors": {"type": "array", "items": obj({
                 "id": string, "position": enum(POSITIONS), "pose": enum(POSES),
                 "expression": enum(EXPRESSIONS), "action": enum(ACTIONS)})},
+            "props": {"type": "array", "items": obj({"id": enum(prop_ids()), "position": enum(POSITIONS)})},
             "lines": {"type": "array", "items": obj({"speaker": string, "text": string})},
         })},
     })
@@ -63,8 +70,18 @@ Write the story in {LANG_NAMES.get(lang, lang)} as an acted scene-by-scene scrip
   Poses: talk, point, reach (reaching or grabbing toward someone), wave, scared, cower, think, shrug, idle.
 - Open with a hook, explain the folklore "rules" once for viewers who never heard of it (keep Vietnamese terms like ma da, ma lai), build tension, end with a twist or a chilling quiet line, then the narrator invites viewers to the next story.
 - Atmosphere over gore. About {words} words of spoken text in total.
-- bg_id: short slug per location, reused when the location repeats; bg_prompt: English description of the location only (no people, no text); camera: slow move for the background."""
+- props: 0-{MAX_PROPS} animals or objects standing in the scene ({", ".join(prop_ids())}), on positions no actor uses.
+- {_background_rule()} camera: slow move for the background."""
     return system, story
+
+
+def _background_rule() -> str:
+    if (os.environ.get("IMAGE_PROVIDER", "").strip().lower() or "pack") == "pack":
+        from . import pack
+        return (f"bg_id: one of {', '.join(pack.ids('backgrounds'))} (day or night version of each place); "
+                "bg_prompt: a short English description of the location.")
+    return ("bg_id: short slug per location, reused when the location repeats; "
+            "bg_prompt: English description of the location only (no people, no text);")
 
 
 def _call_claude(system: str, user: str) -> dict:
@@ -173,9 +190,14 @@ def _normalize(script: dict) -> dict:
             lines.append({"speaker": speaker if speaker in ids - {HOST} else NARRATOR, "text": text})
         if not lines:
             continue
+        props, valid = [], set(prop_ids())
+        for pr in (s.get("props") or [])[:MAX_PROPS]:
+            if isinstance(pr, dict) and pr.get("id") in valid:
+                props.append({"id": pr["id"], "position": _pick(pr.get("position"), POSITIONS)})
         scenes.append({"bg_id": re.sub(r"[^a-zA-Z0-9_-]+", "_", str(s.get("bg_id") or f"bg{i}")),
                        "bg_prompt": str(s.get("bg_prompt") or "misty village at dusk"),
-                       "camera": _pick(s.get("camera"), CAMERAS), "actors": actors, "lines": lines})
+                       "camera": _pick(s.get("camera"), CAMERAS), "actors": actors, "props": props,
+                       "lines": lines})
     if not scenes:
         raise RuntimeError("Script has no scenes")
     result = {"title": str(script.get("title") or "Untitled"), "cast": cast, "scenes": scenes}

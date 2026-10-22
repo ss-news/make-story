@@ -1,4 +1,4 @@
-"""Step 4: compose every frame (background + host + banner + subtitles) and encode with ffmpeg."""
+"""Step 4: compose every frame (background + props + cast + effects + banner + subtitles) and encode with ffmpeg."""
 import math
 import subprocess
 from pathlib import Path
@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
+from . import pack
 from .character import Character
 from .character_catalog import resolve_character
 from .script import HOST, NARRATOR, upgrade_scene
@@ -21,6 +22,18 @@ APPROACH_TIME = 1.6  # seconds for "approach"
 FADE_TIME = 0.35     # crossfade between different backgrounds
 POS_X = {"far_left": 0.13, "left": 0.3, "center": 0.5, "right": 0.7, "far_right": 0.87}
 GHOST_TINT = (205, 228, 238)
+CHARACTER_HEIGHT = 0.54  # of the frame height
+# Prop height as a share of the frame height (drawn part only); anything not listed uses the default
+PROP_HEIGHT = {"buffalo": 0.26, "cow": 0.25, "pig": 0.18, "dog": 0.16, "cat": 0.13, "rooster": 0.16, "hen": 0.13,
+               "duck": 0.12, "stork": 0.24, "bamboo_fence": 0.22, "water_jar": 0.17, "carrying_pole": 0.2,
+               "bamboo_stool": 0.1, "basket": 0.11, "winnowing_tray": 0.12, "rice_bundle": 0.16, "broom": 0.24,
+               "hoe": 0.26, "fish_trap": 0.16, "oil_lamp": 0.12, "lotus": 0.12}
+PROP_DEFAULT = 0.13
+# Which way each pack animal looks in its SVG; objects are never mirrored
+ANIMAL_FACING = {"buffalo": -1, "cow": -1, "pig": -1, "dog": -1, "cat": -1,
+                 "rooster": 1, "hen": 1, "duck": 1, "stork": 1}
+# Comic marks drawn around the head for an expression
+EXPRESSION_EFFECT = {"surprised": "surprise", "angry": "anger", "scared": "sweat"}
 
 
 def _font(path, size):
@@ -135,7 +148,7 @@ class Renderer:
     # ---------- cast ----------
     def _setup_cast(self, script: dict) -> None:
         host = self.channel["host"]
-        height = int(self.H * 0.5)
+        height = int(self.H * CHARACTER_HEIGHT)
         self.cast = {HOST: {"character": Character(resolve_character(host, script.get("character")), height),
                             "kind": "human", "name": host.get("name", "")}}
         for c in script.get("cast", []):
@@ -143,6 +156,7 @@ class Renderer:
             self.cast[c["id"]] = {"character": Character(resolve_character(host, choice), height),
                                   "kind": c.get("kind", "human"), "name": c.get("name", c["id"])}
         self._ghost_cache = {}
+        self._prop_cache = {}
 
     def _ghostly(self, aid: str, sprite: Image.Image, key) -> Image.Image:
         """Pale, see-through version that fades out toward the feet."""
@@ -154,6 +168,48 @@ class Renderer:
             arr[..., 3] *= 0.62 * fade[:, None]
             self._ghost_cache[(aid, key)] = Image.fromarray(arr.astype(np.uint8), "RGBA")
         return self._ghost_cache[(aid, key)]
+
+    def _prop(self, prop_id: str, flip: bool) -> Image.Image:
+        key = (prop_id, flip)
+        if key not in self._prop_cache:
+            img = pack.trimmed(prop_id, 900)
+            h = int(self.H * PROP_HEIGHT.get(prop_id, PROP_DEFAULT))
+            img = img.resize((max(1, round(img.width * h / img.height)), h), Image.LANCZOS)
+            self._prop_cache[key] = img.transpose(Image.FLIP_LEFT_RIGHT) if flip else img
+        return self._prop_cache[key]
+
+    def _effect(self, effect_id: str, height: int) -> Image.Image:
+        key = (effect_id, height)
+        if key not in self._prop_cache:
+            self._prop_cache[key] = pack.raster(effect_id, height)
+        return self._prop_cache[key]
+
+    def _draw_effects(self, frame, a, info, sprite_pos, facing_left, since, walking, direction):
+        """Surprise lines, sweat or anger marks at the head; dust behind walking feet."""
+        name = "surprise" if a["action"] == "jump" and since < 1.2 else EXPRESSION_EFFECT.get(a["expression"])
+        if info["kind"] == "ghost":
+            name = None
+        cx, cy = sprite_pos
+        hx, hy, r = info["character"].head(facing_left)
+        if name:
+            pulse = 1 + 0.06 * math.sin(since * 2 * math.pi * 1.6)
+            h = int(r * (3.2 if name == "surprise" else 1.5) * pulse)
+            img = self._effect(name, h)
+            if name == "surprise":  # lines spread on both sides of the head
+                x, y = cx + hx - img.width / 2, cy + hy - img.height * 0.55
+            else:  # a small mark beside the head, on the side away from where they look
+                side = -1 if not facing_left else 1
+                x, y = cx + hx - side * r * 1.15 - img.width / 2, cy + hy - r * 1.3 - img.height / 2
+                if name == "sweat":
+                    y += math.sin(since * math.pi) * r * 0.1
+            frame.paste(img, (int(x), int(y)), img)
+        if walking and info["kind"] != "ghost" and a["action"] in ("enter", "exit", "approach"):
+            h = int(self.H * 0.06)
+            img = self._effect("dust", h)
+            sprite = info["character"]
+            x = cx + sprite.width / 2 - direction * sprite.width * 0.35 - img.width / 2
+            y = cy + sprite.height - img.height * 0.75
+            frame.paste(img, (int(x), int(y)), img)
 
     def _actor_x(self, a: dict, prev_x: dict, since: float, dur: float, others: list) -> tuple[float, bool, int]:
         """Horizontal position at this moment, whether the actor is walking, and walk direction."""
@@ -228,6 +284,13 @@ class Renderer:
                 speaker = next((ln["speaker"] for ln in lines if ln["start"] <= t < ln["end"]), None)
                 talking = HOST if speaker == NARRATOR else speaker
 
+                for pr in scene.get("props", []):
+                    px = POS_X.get(pr["position"], 0.5)
+                    toward_middle = 1 if px < 0.5 else -1  # animals look toward the middle of the frame
+                    img = self._prop(pr["id"], flip=ANIMAL_FACING.get(pr["id"], toward_middle) != toward_middle)
+                    left = min(max(0, int(px * W - img.width / 2)), W - img.width)  # keep it inside the frame
+                    frame.paste(img, (left, int(char_bottom - img.height - H * 0.01)), img)
+
                 actors = [a for a in scene["actors"] if a["id"] in self.cast]
                 targets = {a["id"]: POS_X[a["position"]] for a in actors}
                 placed = []
@@ -271,6 +334,7 @@ class Renderer:
                     cx = int(x * W - sprite.width / 2 + dx)
                     cy = int(char_bottom - sprite.height + bob)
                     frame.paste(sprite, (cx, cy), sprite)
+                    self._draw_effects(frame, a, info, (cx - dx, cy), facing_left, since, walking, direction)
                 frame.paste(self.overlay, (0, 0), self.overlay)
 
                 while ci < len(cues) and t > cues[ci]["end"]:
