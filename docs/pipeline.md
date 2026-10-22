@@ -27,6 +27,7 @@ truyện
   ▼
 [3] Claude: kiểm định
   │        python -m storyvid.cli --script output/<id>/scenes.json ─► video.mp4
+  │        python -m storyvid.cli --script output/<id>/scenes.json --short ─► video_short.mp4 (9:16)
   │        xem kịch bản và video, ghi output/<id>/review.json
   │        python -m storyvid.check --review output/<id>/review.json   (phải 0)
   ▼
@@ -36,7 +37,7 @@ verdict "pass" ─► người dùng duyệt và đăng
 
 Lệnh dựng video tự kiểm tra kịch bản và dừng nếu chưa đạt. `--fallback` chỉ dùng để xem nháp: nền thiếu được thay bằng cảnh gần nhất, đồ vật thiếu bị bỏ.
 
-**Bước 1, chia cảnh:** Claude viết thẳng file theo `schema/scenes.v1.schema.json`, lấy mã asset trong `schema/assets.catalog.json`. Bản đầu cần đủ cảnh, nơi chốn, ai trên sân khấu và lời thoại; Codex sẽ trau chuốt sau. Cũng có thể để tool gọi model viết nháp (`python -m storyvid.cli story.txt --lang en --provider claude|openai|codex --script-only --out output/<id>`); đầu ra được chuẩn hóa (cắt giá trị lạ, gắn `format`, `lang`) rồi kiểm tra như mọi kịch bản khác.
+**Bước 1, chia cảnh:** Claude viết thẳng file theo `schema/scenes.v1.schema.json`, lấy mã asset trong `schema/assets.catalog.json`. Bản đầu cần đủ cảnh, nơi chốn, ai trên sân khấu, lời thoại và `short.scenes` (các cảnh đưa vào Short); Codex sẽ trau chuốt sau. Cũng có thể để tool gọi model viết nháp (`python -m storyvid.cli story.txt --lang en --provider claude|openai|codex --script-only --out output/<id>`); đầu ra được chuẩn hóa (cắt giá trị lạ, gắn `format`, `lang`) rồi kiểm tra như mọi kịch bản khác.
 
 **Bước 3, Claude chấm những gì:** truyện (mở đầu có hook, giải thích luật của con ma, cao trào, kết), lời thoại (tự nhiên, đúng vai, đúng ngôn ngữ), dàn cảnh (ai đứng đâu, hướng nhìn, hành động khớp lời), nền và đồ vật (khớp nơi chốn và thời điểm), nhân vật, giọng đọc, phụ đề, nhịp (cảnh quá dài hay quá ngắn) và lỗi dựng hình.
 
@@ -61,7 +62,8 @@ Nguồn chuẩn duy nhất là `storyvid/contract.py`. File `schema/scenes.v1.sc
 ```
 
 Quy tắc (bộ kiểm tra báo lỗi kèm đường dẫn, ví dụ `$.scenes[2].actors[0].pose`):
-- Đủ các trường, **không thêm trường lạ**. Chỉ `character` là tùy chọn.
+- Đủ các trường, **không thêm trường lạ**. Chỉ `character` và `short` là tùy chọn.
+- `short.scenes`: chỉ số các cảnh (đếm từ 0, tăng dần) cắt vào Short 9:16. Nên mở bằng cảnh hook, tổng 30–60 giây, kết lửng. Không có trường này thì Short lấy các cảnh đầu truyện tới khoảng 55 giây.
 - Mọi id là chữ thường không dấu: `^[a-z][a-z0-9_]*$`. `bg_id` có đuôi `_day` hoặc `_night`.
 - `host` và `narrator` là id dành riêng. `host` là người dẫn chuyện đứng trên sân khấu; `narrator` là giọng kể.
 - Mỗi cảnh: 0–3 diễn viên, 0–3 đồ vật, 1–6 câu thoại. Diễn viên là id trong `cast` hoặc `host`, không lặp trong một cảnh.
@@ -161,7 +163,9 @@ output/<id>/
   review.json           báo cáo kiểm định của Claude
   backgrounds.json      ảnh nền đã raster cho từng bg_id
   audio/, narration.wav giọng đọc
-  video.mp4             video
+  video.mp4             video 16:9
+  short/                giọng đọc riêng của Short
+  video_short.mp4       Short 9:16 (1080x1920 với --res 1080)
   log.txt               nhật ký lần chạy gần nhất (web UI)
 ```
 

@@ -51,7 +51,7 @@ Mỗi dự án là một thư mục trong `output/<id>/`: `story.txt`, `meta.jso
 .venv/bin/python -m storyvid.cli --script output/ma_da/scenes.json --lang en    # dựng lại sau khi sửa
 ```
 
-Tùy chọn: `--provider auto|openai|codex|claude|offline`, `--res 480|720|1080`, `--fps`, `--out`, `--fallback` (dựng nháp khi còn thiếu asset).
+Tùy chọn: `--provider auto|openai|codex|claude|offline`, `--res 480|720|1080`, `--fps`, `--out`, `--fallback` (dựng nháp khi còn thiếu asset), `--short` (dựng Short 9:16 ra `video_short.mp4`).
 
 ## `.env` — AI viết kịch bản và giọng đọc
 
