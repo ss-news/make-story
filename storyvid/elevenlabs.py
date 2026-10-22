@@ -54,7 +54,6 @@ def _request(path: str, body: dict | None = None) -> dict:
 DEFAULT_VOICES = [
     ("nPczCjzI2devNBz1zQrb", "Brian", "male", "middle_aged"),
     ("JBFqnCBsd6RMkjVDRZzb", "George", "male", "middle_aged"),
-    ("pqHfZKP75CyOlORrdoKx", "Bill", "male", "old"),
     ("TX3LPaxmHKxFdv7VOQHJ", "Liam", "male", "young"),
     ("bIHbv24MWmeRgasZH58o", "Will", "male", "young"),
     ("onwK4e9ZLuTAKqWW03F9", "Daniel", "male", "middle_aged"),
