@@ -66,6 +66,12 @@ def asset_problems() -> list[str]:
             problems.append(f"{where}: missing label")
         if item["group"] == "animals" and pack.facing(item["id"]) not in (-1, 1):
             problems.append(f"{where}: animals need facing -1 (looks left) or 1 (looks right)")
+        if item["group"] in ("animals", "props") and Path(item["root"]) == pack.EXTRA:
+            low, high = pack.HEIGHT_RANGE
+            h = item.get("height")
+            if not isinstance(h, (int, float)) or isinstance(h, bool) or not low <= h <= high:
+                problems.append(f"{where}: needs height between {low} and {high} (share of the frame height; "
+                                "a character is 0.54)")
         if ("svg" in item) == ("png" in item):
             problems.append(f"{where}: give exactly one of svg or png")
             continue

@@ -23,12 +23,6 @@ FADE_TIME = 0.35     # crossfade between different backgrounds
 POS_X = {"far_left": 0.13, "left": 0.3, "center": 0.5, "right": 0.7, "far_right": 0.87}
 GHOST_TINT = (205, 228, 238)
 CHARACTER_HEIGHT = 0.54  # of the frame height
-# Prop height as a share of the frame height (drawn part only); anything not listed uses the default
-PROP_HEIGHT = {"buffalo": 0.26, "cow": 0.25, "pig": 0.18, "dog": 0.16, "cat": 0.13, "rooster": 0.16, "hen": 0.13,
-               "duck": 0.12, "stork": 0.24, "bamboo_fence": 0.22, "water_jar": 0.17, "carrying_pole": 0.2,
-               "bamboo_stool": 0.1, "basket": 0.11, "winnowing_tray": 0.12, "rice_bundle": 0.16, "broom": 0.24,
-               "hoe": 0.26, "fish_trap": 0.16, "oil_lamp": 0.12, "lotus": 0.12}
-PROP_DEFAULT = 0.13
 # Comic marks drawn around the head for an expression
 EXPRESSION_EFFECT = {"surprised": "surprise", "angry": "anger", "scared": "sweat"}
 
@@ -197,7 +191,7 @@ class Renderer:
         key = (prop_id, flip)
         if key not in self._prop_cache:
             img = pack.trimmed(prop_id, 900)
-            h = int(self.H * PROP_HEIGHT.get(prop_id, PROP_DEFAULT) * self.char_height / CHARACTER_HEIGHT)
+            h = int(self.H * pack.height(prop_id) * self.char_height / CHARACTER_HEIGHT)
             img = img.resize((max(1, round(img.width * h / img.height)), h), Image.LANCZOS)
             self._prop_cache[key] = img.transpose(Image.FLIP_LEFT_RIGHT) if flip else img
         return self._prop_cache[key]

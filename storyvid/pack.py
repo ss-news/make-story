@@ -32,6 +32,15 @@ NIGHT_WORDS = ("night", "dark", "moon", "midnight", "dusk", "evening", "đêm", 
 BASE_FACING = {"buffalo": -1, "cow": -1, "pig": -1, "dog": -1, "cat": -1,
                "rooster": 1, "hen": 1, "duck": 1, "stork": 1}
 
+# On-screen height of the base pack's props and animals, as a share of the frame height (drawn part only,
+# next to characters 0.54 tall); extra entries carry their own "height"
+BASE_HEIGHT = {"buffalo": 0.26, "cow": 0.25, "pig": 0.18, "dog": 0.16, "cat": 0.13, "rooster": 0.16, "hen": 0.13,
+               "duck": 0.12, "stork": 0.24, "bamboo_fence": 0.22, "water_jar": 0.17, "carrying_pole": 0.2,
+               "bamboo_stool": 0.1, "basket": 0.11, "winnowing_tray": 0.12, "rice_bundle": 0.16, "broom": 0.24,
+               "hoe": 0.26, "fish_trap": 0.16, "oil_lamp": 0.12, "lotus": 0.12}
+DEFAULT_HEIGHT = 0.13
+HEIGHT_RANGE = (0.03, 0.9)
+
 
 @lru_cache(maxsize=1)
 def manifest() -> dict:
@@ -74,6 +83,12 @@ def facing(asset_id: str) -> int | None:
     if "facing" in item:
         return item["facing"]
     return BASE_FACING.get(asset_id)
+
+
+def height(asset_id: str) -> float:
+    """On-screen height of a prop or animal as a share of the frame height."""
+    item = entry(asset_id)
+    return item.get("height") or BASE_HEIGHT.get(asset_id, DEFAULT_HEIGHT)
 
 
 def character_dir(preset: str) -> Path:

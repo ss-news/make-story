@@ -33,7 +33,9 @@ ASSET_SPECS = {
                              "lower third. Night versions use the same layout as the day version."},
     "props": {"file": "assets/bac-bo-stick/extra/props/{id}.svg", "viewBox": "0 0 480 360",
               "png_alternative": "assets/bac-bo-stick/extra/props/{id}.png, 960x720 RGBA, transparent",
-              "rules": "Transparent background, object standing on its base, centred. If it is an animal, "
+              "rules": "Transparent background, object standing on its base, centred. Set 'height' in the "
+                       "manifest: on-screen height as a share of the frame height (a character is 0.54, a buffalo "
+                       "0.26, an oil lamp 0.12). If it is an animal, "
                        "use group 'animals', file assets/bac-bo-stick/extra/animals/{id}.svg, and set "
                        "'facing' (-1 looks left, 1 looks right)."},
     "characters": {"file": "assets/bac-bo-stick/extra/characters/{id}/rig.json + one SVG per part",

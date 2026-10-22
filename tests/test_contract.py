@@ -121,18 +121,22 @@ class ExtraAssetsTest(unittest.TestCase):
         (self.extra / 'props' / 'goat.svg').write_text(PROP_SVG.replace('480 360', '400 300'))
         (self.extra / 'backgrounds' / 'bamboo_forest_night.svg').write_text(BG_SVG)
         self.add([
-            {'id': 'coffin', 'label': 'Quan tài', 'group': 'props', 'svg': 'props/coffin.svg'},
+            {'id': 'coffin', 'label': 'Quan tài', 'group': 'props', 'svg': 'props/coffin.svg', 'height': 0.3},
             {'id': 'goat', 'label': 'Dê', 'group': 'animals', 'svg': 'props/goat.svg'},
             {'id': 'bamboo_forest_night', 'label': 'Rừng tre · đêm', 'group': 'backgrounds',
              'svg': 'backgrounds/bamboo_forest_night.svg'},
         ])
         problems = check.asset_problems()
         self.assertEqual(problems, ["animals/goat: animals need facing -1 (looks left) or 1 (looks right)",
+                                    "animals/goat: needs height between 0.03 and 0.9 (share of the frame height; "
+                                    "a character is 0.54)",
                                     "animals/goat: viewBox must be '0 0 480 360', got '0 0 400 300'"])
         script = scenes(bg_id='bamboo_forest_night', props=[{'id': 'coffin', 'position': 'left'}])
         self.assertEqual(contract.validate(script), ([], []))
         self.assertEqual(pack.raster('coffin', 90).size, (120, 90))
         self.assertIsNone(pack.facing('coffin'))
+        self.assertEqual(pack.height('coffin'), 0.3)
+        self.assertEqual(pack.height('buffalo'), pack.BASE_HEIGHT['buffalo'])
 
 
 if __name__ == '__main__':

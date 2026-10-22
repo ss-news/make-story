@@ -30,107 +30,124 @@
       "label": "Giao long",
       "group": "animals",
       "svg": "animals/sea_dragon.svg",
-      "facing": 1
+      "facing": 1,
+      "height": 0.36
     },
     {
       "id": "golden_turtle",
       "label": "Thần Kim Quy",
       "group": "animals",
       "svg": "animals/golden_turtle.svg",
-      "facing": -1
+      "facing": -1,
+      "height": 0.3
     },
     {
       "id": "tiger",
       "label": "Hổ gầm",
       "group": "animals",
       "svg": "animals/tiger.svg",
-      "facing": 1
+      "facing": 1,
+      "height": 0.3
     },
     {
       "id": "monkey",
       "label": "Khỉ ôm trái cây",
       "group": "animals",
       "svg": "animals/monkey.svg",
-      "facing": -1
+      "facing": -1,
+      "height": 0.16
     },
     {
       "id": "giant_egg",
       "label": "Trứng thần khổng lồ",
       "group": "props",
-      "svg": "props/giant_egg.svg"
+      "svg": "props/giant_egg.svg",
+      "height": 0.45
     },
     {
       "id": "wildfire",
       "label": "Lửa bùng từ đá",
       "group": "props",
-      "svg": "props/wildfire.svg"
+      "svg": "props/wildfire.svg",
+      "height": 0.28
     },
     {
       "id": "medicine_flower",
       "label": "Hoa thuốc năm cánh",
       "group": "props",
-      "svg": "props/medicine_flower.svg"
+      "svg": "props/medicine_flower.svg",
+      "height": 0.16
     },
     {
       "id": "palanquin",
       "label": "Kiệu có mái che",
       "group": "props",
-      "svg": "props/palanquin.svg"
+      "svg": "props/palanquin.svg",
+      "height": 0.38
     },
     {
       "id": "magical_claw",
       "label": "Móng thần Kim Quy",
       "group": "props",
-      "svg": "props/magical_claw.svg"
+      "svg": "props/magical_claw.svg",
+      "height": 0.09
     },
     {
       "id": "cracked_egg",
       "label": "Vỏ trứng thần nứt",
       "group": "props",
-      "svg": "props/cracked_egg.svg"
+      "svg": "props/cracked_egg.svg",
+      "height": 0.32
     },
     {
       "id": "milk_rock",
       "label": "Đá rỉ sữa",
       "group": "props",
-      "svg": "props/milk_rock.svg"
+      "svg": "props/milk_rock.svg",
+      "height": 0.2
     },
     {
       "id": "silk_bird",
       "label": "Chim mang tơ",
       "group": "animals",
       "svg": "animals/silk_bird.svg",
-      "facing": -1
+      "facing": -1,
+      "height": 0.12
     },
     {
       "id": "bow_arrow",
       "label": "Cung và tên",
       "group": "props",
-      "svg": "props/bow_arrow.svg"
+      "svg": "props/bow_arrow.svg",
+      "height": 0.16
     },
     {
       "id": "archery_target",
       "label": "Bia tập bắn",
       "group": "props",
-      "svg": "props/archery_target.svg"
+      "svg": "props/archery_target.svg",
+      "height": 0.22
     },
     {
       "id": "archery_target_hit",
       "label": "Bia trúng tên",
       "group": "props",
-      "svg": "props/archery_target_hit.svg"
+      "svg": "props/archery_target_hit.svg",
+      "height": 0.22
     },
     {
       "id": "pirate_boat",
       "label": "Thuyền cướp biển",
       "group": "props",
-      "svg": "props/pirate_boat.svg"
+      "svg": "props/pirate_boat.svg",
+      "height": 0.32
     },
     {
       "id": "colored_stones",
       "label": "Đá ngũ sắc",
       "group": "props",
-      "svg": "props/colored_stones.svg"
+      "svg": "props/colored_stones.svg",
+      "height": 0.07
     },
     {
       "id": "egg_mound_day",

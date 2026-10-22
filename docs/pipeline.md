@@ -99,8 +99,8 @@ Asset mới **chỉ** nằm trong `assets/bac-bo-stick/extra/`. Lệnh build b�
   "format": "storyvid.extra-assets/1",
   "assets": [
     {"id": "bamboo_forest_night", "label": "Rừng tre · đêm", "group": "backgrounds", "svg": "backgrounds/bamboo_forest_night.svg"},
-    {"id": "coffin", "label": "Quan tài", "group": "props", "svg": "props/coffin.svg"},
-    {"id": "goat", "label": "Dê", "group": "animals", "svg": "animals/goat.svg", "facing": -1}
+    {"id": "coffin", "label": "Quan tài", "group": "props", "svg": "props/coffin.svg", "height": 0.22},
+    {"id": "goat", "label": "Dê", "group": "animals", "svg": "animals/goat.svg", "facing": -1, "height": 0.2}
   ],
   "characters": [
     {"id": "monk", "label": "Sư thầy", "female": false, "age": "elder", "scale": 0.94, "skin": "#c49a7a", "hair": "#2b2a28"}
@@ -111,8 +111,8 @@ Asset mới **chỉ** nằm trong `assets/bac-bo-stick/extra/`. Lệnh build b�
 | Nhóm | File | Khung | Ghi chú |
 |---|---|---|---|
 | `backgrounds` | `extra/backgrounds/<id>.svg` | `viewBox="0 0 1600 900"` | Không người, không chữ. Mặt đất ở y = 500–560. Bản `_night` giữ bố cục bản `_day` |
-| `props` | `extra/props/<id>.svg` | `viewBox="0 0 480 360"` | Nền trong suốt, vật đứng trên đáy, ở giữa khung |
-| `animals` | `extra/animals/<id>.svg` | `viewBox="0 0 480 360"` | Như `props`, thêm `"facing"`: `-1` nhìn trái, `1` nhìn phải |
+| `props` | `extra/props/<id>.svg` | `viewBox="0 0 480 360"` | Nền trong suốt, vật đứng trên đáy, ở giữa khung. Bắt buộc `"height"`: chiều cao trên màn hình, tính theo tỉ lệ chiều cao khung (nhân vật là 0.54; ví dụ đèn dầu 0.12, chum nước 0.17, trâu 0.26, quả trứng thần 0.45) |
+| `animals` | `extra/animals/<id>.svg` | `viewBox="0 0 480 360"` | Như `props` (có `"height"`), thêm `"facing"`: `-1` nhìn trái, `1` nhìn phải |
 | `effects` | `extra/effects/<id>.svg` | `viewBox="0 0 480 360"` | Ký hiệu truyện tranh, nền trong suốt |
 | `characters` | `extra/characters/<id>/rig.json` + mảnh SVG | như bộ gốc | Chép thư mục nhân vật gốc gần nhất, giữ tên mọi file mảnh và các điểm neo trong `rig.json`, rồi vẽ lại |
 
