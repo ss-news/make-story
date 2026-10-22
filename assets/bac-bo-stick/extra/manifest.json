@@ -1,5 +1,82 @@
 {
   "format": "storyvid.extra-assets/1",
-  "assets": [],
+  "assets": [
+    {
+      "id": "beach_day",
+      "label": "Bãi biển · ngày",
+      "group": "backgrounds",
+      "svg": "backgrounds/beach_day.svg"
+    },
+    {
+      "id": "beach_night",
+      "label": "Bãi biển · đêm giông",
+      "group": "backgrounds",
+      "svg": "backgrounds/beach_night.svg"
+    },
+    {
+      "id": "marble_mountain_day",
+      "label": "Núi Ngũ Hành · ngày",
+      "group": "backgrounds",
+      "svg": "backgrounds/marble_mountain_day.svg"
+    },
+    {
+      "id": "marble_mountain_night",
+      "label": "Núi Ngũ Hành · đêm",
+      "group": "backgrounds",
+      "svg": "backgrounds/marble_mountain_night.svg"
+    },
+    {
+      "id": "sea_dragon",
+      "label": "Giao long",
+      "group": "animals",
+      "svg": "animals/sea_dragon.svg",
+      "facing": 1
+    },
+    {
+      "id": "golden_turtle",
+      "label": "Thần Kim Quy",
+      "group": "animals",
+      "svg": "animals/golden_turtle.svg",
+      "facing": -1
+    },
+    {
+      "id": "tiger",
+      "label": "Hổ gầm",
+      "group": "animals",
+      "svg": "animals/tiger.svg",
+      "facing": 1
+    },
+    {
+      "id": "monkey",
+      "label": "Khỉ ôm trái cây",
+      "group": "animals",
+      "svg": "animals/monkey.svg",
+      "facing": -1
+    },
+    {
+      "id": "giant_egg",
+      "label": "Trứng thần khổng lồ",
+      "group": "props",
+      "svg": "props/giant_egg.svg"
+    },
+    {
+      "id": "wildfire",
+      "label": "Lửa bùng từ đá",
+      "group": "props",
+      "svg": "props/wildfire.svg"
+    },
+    {
+      "id": "medicine_flower",
+      "label": "Hoa thuốc năm cánh",
+      "group": "props",
+      "svg": "props/medicine_flower.svg"
+    },
+    {
+      "id": "palanquin",
+      "label": "Kiệu có mái che",
+      "group": "props",
+      "svg": "props/palanquin.svg"
+    }
+  ],
   "characters": []
 }

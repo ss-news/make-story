@@ -63,6 +63,22 @@
     [
       "interior_night",
       "Trong nhà · đêm"
+    ],
+    [
+      "beach_day",
+      "Bãi biển · ngày"
+    ],
+    [
+      "beach_night",
+      "Bãi biển · đêm giông"
+    ],
+    [
+      "marble_mountain_day",
+      "Núi Ngũ Hành · ngày"
+    ],
+    [
+      "marble_mountain_night",
+      "Núi Ngũ Hành · đêm"
     ]
   ],
   "animals": [
@@ -101,6 +117,22 @@
     [
       "stork",
       "Cò"
+    ],
+    [
+      "sea_dragon",
+      "Giao long"
+    ],
+    [
+      "golden_turtle",
+      "Thần Kim Quy"
+    ],
+    [
+      "tiger",
+      "Hổ gầm"
+    ],
+    [
+      "monkey",
+      "Khỉ ôm trái cây"
     ]
   ],
   "props": [
@@ -179,6 +211,22 @@
     [
       "fish_trap",
       "Đó tre"
+    ],
+    [
+      "giant_egg",
+      "Trứng thần khổng lồ"
+    ],
+    [
+      "wildfire",
+      "Lửa bùng từ đá"
+    ],
+    [
+      "medicine_flower",
+      "Hoa thuốc năm cánh"
+    ],
+    [
+      "palanquin",
+      "Kiệu có mái che"
     ]
   ],
   "characters": [
