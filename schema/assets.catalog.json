@@ -79,6 +79,14 @@
     [
       "marble_mountain_night",
       "Núi Ngũ Hành · đêm"
+    ],
+    [
+      "egg_mound_day",
+      "Trứng đội cát và lều · ngày"
+    ],
+    [
+      "marble_sunset_day",
+      "Núi Ngũ Hành · hoàng hôn"
     ]
   ],
   "animals": [
@@ -133,6 +141,10 @@
     [
       "monkey",
       "Khỉ ôm trái cây"
+    ],
+    [
+      "silk_bird",
+      "Chim mang tơ"
     ]
   ],
   "props": [
@@ -227,6 +239,38 @@
     [
       "palanquin",
       "Kiệu có mái che"
+    ],
+    [
+      "magical_claw",
+      "Móng thần Kim Quy"
+    ],
+    [
+      "cracked_egg",
+      "Vỏ trứng thần nứt"
+    ],
+    [
+      "milk_rock",
+      "Đá rỉ sữa"
+    ],
+    [
+      "bow_arrow",
+      "Cung và tên"
+    ],
+    [
+      "archery_target",
+      "Bia tập bắn"
+    ],
+    [
+      "archery_target_hit",
+      "Bia trúng tên"
+    ],
+    [
+      "pirate_boat",
+      "Thuyền cướp biển"
+    ],
+    [
+      "colored_stones",
+      "Đá ngũ sắc"
     ]
   ],
   "characters": [

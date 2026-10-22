@@ -1,0 +1,1007 @@
+{
+  "format": "storyvid.scenes/1",
+  "title": "The Legend of the Marble Mountains",
+  "lang": "en",
+  "character": {
+    "preset": "young_man",
+    "outfit": "earth",
+    "accessory": "none"
+  },
+  "cast": [
+    {
+      "id": "old_man",
+      "name": "Old man",
+      "preset": "elder_man",
+      "outfit": "earth",
+      "accessory": "none",
+      "kind": "human"
+    },
+    {
+      "id": "little_girl",
+      "name": "Little girl",
+      "preset": "girl",
+      "outfit": "cream",
+      "accessory": "none",
+      "kind": "human"
+    },
+    {
+      "id": "girl",
+      "name": "Young woman",
+      "preset": "young_woman",
+      "outfit": "cream",
+      "accessory": "scarf",
+      "kind": "human"
+    },
+    {
+      "id": "soldier",
+      "name": "Soldier",
+      "preset": "middle_man",
+      "outfit": "indigo",
+      "accessory": "none",
+      "kind": "human"
+    },
+    {
+      "id": "pirate",
+      "name": "Pirate leader",
+      "preset": "middle_man",
+      "outfit": "moss",
+      "accessory": "scarf",
+      "kind": "human"
+    },
+    {
+      "id": "villager",
+      "name": "Village woman",
+      "preset": "middle_woman",
+      "outfit": "earth",
+      "accessory": "none",
+      "kind": "human"
+    },
+    {
+      "id": "messenger",
+      "name": "Messenger",
+      "preset": "middle_man",
+      "outfit": "indigo",
+      "accessory": "bag",
+      "kind": "human"
+    }
+  ],
+  "scenes": [
+    {
+      "bg_id": "marble_mountain_day",
+      "bg_prompt": "five limestone peaks above the sandy coast, caves, trees and a small hut",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "host",
+          "position": "left",
+          "pose": "point",
+          "expression": "surprised",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "giant_egg",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "These stone mountains beside the sea began as something extraordinary: a single egg."
+        }
+      ]
+    },
+    {
+      "bg_id": "beach_day",
+      "bg_prompt": "quiet central Vietnamese beach, calm sea, a small thatched hut",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "old_man",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Long ago, near today's Da Nang, an old man lived alone in a thatched hut beside the sea."
+        }
+      ]
+    },
+    {
+      "bg_id": "beach_night",
+      "bg_prompt": "same beach and hut at night, storm clouds and crashing waves",
+      "camera": "pan_right",
+      "actors": [],
+      "props": [
+        {
+          "id": "sea_dragon",
+          "position": "right"
+        },
+        {
+          "id": "giant_egg",
+          "position": "left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "One stormy night, a sea dragon crawled ashore, laid an enormous egg, and vanished beneath the waves."
+        }
+      ]
+    },
+    {
+      "bg_id": "beach_day",
+      "bg_prompt": "quiet central Vietnamese beach, calm sea, a small thatched hut",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "old_man",
+          "position": "left",
+          "pose": "talk",
+          "expression": "surprised",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "giant_egg",
+          "position": "center"
+        },
+        {
+          "id": "golden_turtle",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "At dawn, Kim Quy, the Golden Turtle Spirit, appeared. He buried the egg in the sand and asked the old man to guard it."
+        }
+      ]
+    },
+    {
+      "bg_id": "beach_day",
+      "bg_prompt": "quiet central Vietnamese beach, calm sea, a small thatched hut",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "old_man",
+          "position": "left",
+          "pose": "reach",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "magical_claw",
+          "position": "center"
+        },
+        {
+          "id": "golden_turtle",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "He gave the old man a magical claw. It would protect him whenever danger came."
+        },
+        {
+          "speaker": "old_man",
+          "text": "As long as I am here, no harm will come to the egg."
+        }
+      ]
+    },
+    {
+      "bg_id": "beach_day",
+      "bg_prompt": "quiet central Vietnamese beach, calm sea, a small thatched hut",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "old_man",
+          "position": "left",
+          "pose": "reach",
+          "expression": "angry",
+          "action": "none"
+        },
+        {
+          "id": "soldier",
+          "position": "right",
+          "pose": "point",
+          "expression": "smirk",
+          "action": "enter"
+        }
+      ],
+      "props": [
+        {
+          "id": "giant_egg",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "One day, a passing soldier noticed the egg."
+        },
+        {
+          "speaker": "soldier",
+          "text": "What kind of egg grows this big? Let's break it open!"
+        },
+        {
+          "speaker": "old_man",
+          "text": "Leave it alone! It is under the protection of the spirits!"
+        }
+      ]
+    },
+    {
+      "bg_id": "beach_day",
+      "bg_prompt": "quiet central Vietnamese beach, calm sea, a small thatched hut",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "old_man",
+          "position": "left",
+          "pose": "reach",
+          "expression": "angry",
+          "action": "none"
+        },
+        {
+          "id": "soldier",
+          "position": "right",
+          "pose": "idle",
+          "expression": "surprised",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "magical_claw",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The soldier stepped closer. The old man raised the magical claw."
+        }
+      ]
+    },
+    {
+      "bg_id": "beach_day",
+      "bg_prompt": "quiet central Vietnamese beach, calm sea, a small thatched hut",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "soldier",
+          "position": "right",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "exit"
+        }
+      ],
+      "props": [
+        {
+          "id": "tiger",
+          "position": "left"
+        },
+        {
+          "id": "giant_egg",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "In an instant, the old man became a tiger. His roar thundered across the beach."
+        },
+        {
+          "speaker": "soldier",
+          "text": "A tiger!"
+        }
+      ]
+    },
+    {
+      "bg_id": "egg_mound_day",
+      "bg_prompt": "an enormous egg pushing a sandy mound and a thatched hut upward beside the sea",
+      "camera": "zoom_out",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The egg kept growing, pushing up the sand and lifting the old man's hut higher and higher."
+        }
+      ]
+    },
+    {
+      "bg_id": "egg_mound_day",
+      "bg_prompt": "an enormous egg pushing a sandy mound and a thatched hut upward beside the sea",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "old_man",
+          "position": "left",
+          "pose": "scared",
+          "expression": "surprised",
+          "action": "jump"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "old_man",
+          "text": "Golden Turtle Spirit! Please help me!"
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_mountain_day",
+      "bg_prompt": "five limestone peaks above the sandy coast, caves, trees and a small hut",
+      "camera": "zoom_out",
+      "actors": [],
+      "props": [
+        {
+          "id": "cracked_egg",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "A great crack echoed through the air. The shell split apart, becoming rocky walls and deep caves."
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_mountain_day",
+      "bg_prompt": "five limestone peaks above the sandy coast, caves, trees and a small hut",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "old_man",
+          "position": "left",
+          "pose": "shrug",
+          "expression": "surprised",
+          "action": "none"
+        },
+        {
+          "id": "little_girl",
+          "position": "right",
+          "pose": "wave",
+          "expression": "happy",
+          "action": "enter"
+        }
+      ],
+      "props": [
+        {
+          "id": "cracked_egg",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "A little girl stepped out of the broken egg."
+        },
+        {
+          "speaker": "old_man",
+          "text": "Where did you come from, little one?"
+        },
+        {
+          "speaker": "little_girl",
+          "text": "Grandfather, I'm hungry."
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_mountain_day",
+      "bg_prompt": "five limestone peaks above the sandy coast, caves, trees and a small hut",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "old_man",
+          "position": "left",
+          "pose": "talk",
+          "expression": "happy",
+          "action": "none"
+        },
+        {
+          "id": "little_girl",
+          "position": "right",
+          "pose": "idle",
+          "expression": "happy",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "milk_rock",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "He raised her as his own granddaughter. Even the mountain helped: milk trickled from the rocks to feed her."
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_mountain_day",
+      "bg_prompt": "five limestone peaks above the sandy coast, caves, trees and a small hut",
+      "camera": "pan_left",
+      "actors": [
+        {
+          "id": "little_girl",
+          "position": "center",
+          "pose": "idle",
+          "expression": "happy",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "monkey",
+          "position": "far_left"
+        },
+        {
+          "id": "silk_bird",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Monkeys brought ripe fruit, and birds gathered silk for her clothes."
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_mountain_day",
+      "bg_prompt": "five limestone peaks above the sandy coast, caves, trees and a small hut",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "girl",
+          "position": "center",
+          "pose": "wave",
+          "expression": "happy",
+          "action": "enter"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "She grew with extraordinary speed. Soon, the child was a young woman."
+        }
+      ]
+    },
+    {
+      "bg_id": "rice_fields_day",
+      "bg_prompt": "rice fields beside a rural house",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "old_man",
+          "position": "left",
+          "pose": "point",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "girl",
+          "position": "right",
+          "pose": "reach",
+          "expression": "happy",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "hoe",
+          "position": "far_left"
+        },
+        {
+          "id": "rice_bundle",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The old man taught her to build a home and plant rice."
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_mountain_day",
+      "bg_prompt": "five limestone peaks above the sandy coast, caves, trees and a small hut",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "old_man",
+          "position": "far_left",
+          "pose": "point",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "girl",
+          "position": "left",
+          "pose": "reach",
+          "expression": "happy",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "bow_arrow",
+          "position": "center"
+        },
+        {
+          "id": "archery_target",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "He also taught her archery."
+        },
+        {
+          "speaker": "old_man",
+          "text": "Pull the string back. Eyes on the target. Now let go!"
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_mountain_day",
+      "bg_prompt": "five limestone peaks above the sandy coast, caves, trees and a small hut",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "girl",
+          "position": "left",
+          "pose": "point",
+          "expression": "happy",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "archery_target_hit",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The arrow struck its mark."
+        },
+        {
+          "speaker": "girl",
+          "text": "I did it, Grandfather! I hit it!"
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_mountain_night",
+      "bg_prompt": "same five limestone peaks, caves, trees and hut at night",
+      "camera": "pan_right",
+      "actors": [],
+      "props": [
+        {
+          "id": "pirate_boat",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Word of the young woman spread. One night, pirates landed at the foot of the mountain."
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_mountain_night",
+      "bg_prompt": "same five limestone peaks, caves, trees and hut at night",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "pirate",
+          "position": "right",
+          "pose": "point",
+          "expression": "angry",
+          "action": "enter"
+        },
+        {
+          "id": "girl",
+          "position": "left",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "pirate_boat",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "pirate",
+          "text": "Seize the girl! This mountain belongs to us now!"
+        },
+        {
+          "speaker": "girl",
+          "text": "Grandfather! Pirates!"
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_mountain_night",
+      "bg_prompt": "same five limestone peaks, caves, trees and hut at night",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "pirate",
+          "position": "right",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "exit"
+        }
+      ],
+      "props": [
+        {
+          "id": "wildfire",
+          "position": "center"
+        },
+        {
+          "id": "wildfire",
+          "position": "far_left"
+        },
+        {
+          "id": "pirate_boat",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Before they reached the hut, flames burst from the rocks, blocking their path."
+        },
+        {
+          "speaker": "pirate",
+          "text": "Fire! Get back!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "The pirates fled to their boats."
+        }
+      ]
+    },
+    {
+      "bg_id": "village_path_day",
+      "bg_prompt": "a village path and small houses",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "villager",
+          "position": "left",
+          "pose": "reach",
+          "expression": "sad",
+          "action": "enter"
+        },
+        {
+          "id": "girl",
+          "position": "right",
+          "pose": "talk",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Later, a terrible fever swept through a nearby village. The villagers came to her for help."
+        },
+        {
+          "speaker": "villager",
+          "text": "Please. Our families are growing weaker every day."
+        }
+      ]
+    },
+    {
+      "bg_id": "village_path_day",
+      "bg_prompt": "a village path and small houses",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "girl",
+          "position": "right",
+          "pose": "reach",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "colored_stones",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "She scattered brightly colored stones across a garden."
+        }
+      ]
+    },
+    {
+      "bg_id": "village_path_day",
+      "bg_prompt": "a village path and small houses",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "villager",
+          "position": "left",
+          "pose": "wave",
+          "expression": "happy",
+          "action": "none"
+        },
+        {
+          "id": "girl",
+          "position": "right",
+          "pose": "talk",
+          "expression": "happy",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "medicine_flower",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Where each stone fell, a five-petaled flower appeared. In the legend, these magical flowers healed the sick."
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_mountain_day",
+      "bg_prompt": "five limestone peaks above the sandy coast, caves, trees and a small hut",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "messenger",
+          "position": "right",
+          "pose": "talk",
+          "expression": "happy",
+          "action": "enter"
+        },
+        {
+          "id": "girl",
+          "position": "center",
+          "pose": "think",
+          "expression": "surprised",
+          "action": "none"
+        },
+        {
+          "id": "old_man",
+          "position": "left",
+          "pose": "idle",
+          "expression": "happy",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "News reached the royal court. The king sent a messenger."
+        },
+        {
+          "speaker": "messenger",
+          "text": "His Majesty invites you to the capital. He wishes you to marry the prince."
+        }
+      ]
+    },
+    {
+      "bg_id": "beach_day",
+      "bg_prompt": "quiet central Vietnamese beach, calm sea, a small thatched hut",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "girl",
+          "position": "left",
+          "pose": "talk",
+          "expression": "happy",
+          "action": "none"
+        },
+        {
+          "id": "old_man",
+          "position": "center",
+          "pose": "idle",
+          "expression": "happy",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "golden_turtle",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Kim Quy brought word that the Dragon King, her true father, had given his blessing."
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_sunset_day",
+      "bg_prompt": "five limestone peaks and a hut beside the sea at sunset",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "girl",
+          "position": "left",
+          "pose": "wave",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "old_man",
+          "position": "right",
+          "pose": "wave",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "palanquin",
+          "position": "far_left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "A palanquin arrived to carry her to the capital."
+        },
+        {
+          "speaker": "girl",
+          "text": "Please take care of yourself, Grandfather."
+        },
+        {
+          "speaker": "old_man",
+          "text": "Go, my child. My work here is done."
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_sunset_day",
+      "bg_prompt": "five limestone peaks and a hut beside the sea at sunset",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "old_man",
+          "position": "left",
+          "pose": "reach",
+          "expression": "happy",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "magical_claw",
+          "position": "center"
+        },
+        {
+          "id": "golden_turtle",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "After she left, the old man returned the magical claw to Kim Quy."
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_sunset_day",
+      "bg_prompt": "five limestone peaks and a hut beside the sea at sunset",
+      "camera": "zoom_out",
+      "actors": [
+        {
+          "id": "old_man",
+          "position": "right",
+          "pose": "wave",
+          "expression": "happy",
+          "action": "exit"
+        }
+      ],
+      "props": [
+        {
+          "id": "golden_turtle",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Then he climbed onto the great turtle's back, and together they vanished into the sea."
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_mountain_day",
+      "bg_prompt": "five limestone peaks above the sandy coast, caves, trees and a small hut",
+      "camera": "zoom_out",
+      "actors": [
+        {
+          "id": "host",
+          "position": "left",
+          "pose": "point",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The mountains remained, their caves preserving the memory of the egg and the child born within it."
+        },
+        {
+          "speaker": "narrator",
+          "text": "That is how the legend explains the Marble Mountains: Ngu Hanh Son."
+        }
+      ]
+    },
+    {
+      "bg_id": "marble_mountain_day",
+      "bg_prompt": "five limestone peaks above the sandy coast, caves, trees and a small hut",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "host",
+          "position": "center",
+          "pose": "talk",
+          "expression": "happy",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Join us next time for another place in Vietnam with a strange story behind it."
+        }
+      ]
+    }
+  ],
+  "short": {
+    "scenes": [
+      0,
+      2,
+      6,
+      7
+    ]
+  }
+}

@@ -76,6 +76,73 @@
       "label": "Kiệu có mái che",
       "group": "props",
       "svg": "props/palanquin.svg"
+    },
+    {
+      "id": "magical_claw",
+      "label": "Móng thần Kim Quy",
+      "group": "props",
+      "svg": "props/magical_claw.svg"
+    },
+    {
+      "id": "cracked_egg",
+      "label": "Vỏ trứng thần nứt",
+      "group": "props",
+      "svg": "props/cracked_egg.svg"
+    },
+    {
+      "id": "milk_rock",
+      "label": "Đá rỉ sữa",
+      "group": "props",
+      "svg": "props/milk_rock.svg"
+    },
+    {
+      "id": "silk_bird",
+      "label": "Chim mang tơ",
+      "group": "animals",
+      "svg": "animals/silk_bird.svg",
+      "facing": -1
+    },
+    {
+      "id": "bow_arrow",
+      "label": "Cung và tên",
+      "group": "props",
+      "svg": "props/bow_arrow.svg"
+    },
+    {
+      "id": "archery_target",
+      "label": "Bia tập bắn",
+      "group": "props",
+      "svg": "props/archery_target.svg"
+    },
+    {
+      "id": "archery_target_hit",
+      "label": "Bia trúng tên",
+      "group": "props",
+      "svg": "props/archery_target_hit.svg"
+    },
+    {
+      "id": "pirate_boat",
+      "label": "Thuyền cướp biển",
+      "group": "props",
+      "svg": "props/pirate_boat.svg"
+    },
+    {
+      "id": "colored_stones",
+      "label": "Đá ngũ sắc",
+      "group": "props",
+      "svg": "props/colored_stones.svg"
+    },
+    {
+      "id": "egg_mound_day",
+      "label": "Trứng đội cát và lều · ngày",
+      "group": "backgrounds",
+      "svg": "backgrounds/egg_mound_day.svg"
+    },
+    {
+      "id": "marble_sunset_day",
+      "label": "Núi Ngũ Hành · hoàng hôn",
+      "group": "backgrounds",
+      "svg": "backgrounds/marble_sunset_day.svg"
     }
   ],
   "characters": []
