@@ -141,7 +141,6 @@ def narrate(script: dict, voice: str, work_dir: Path, lang: str = "") -> dict:
 
     Returns {"audio", "samples", "duration", "scenes": [{start, end, lines: [{start, end, speaker}]}], "cues": [...]}
     """
-    from .script import upgrade_scene
     provider = tts_provider()
     if provider == "elevenlabs":
         voices = cast_voices_elevenlabs(script)
@@ -156,8 +155,7 @@ def narrate(script: dict, voice: str, work_dir: Path, lang: str = "") -> dict:
     audio_dir.mkdir(parents=True, exist_ok=True)
     silence = lambda sec: np.zeros(int(sec * SAMPLE_RATE), dtype=np.int16)  # noqa: E731
     pieces, timeline, cues, t = [], [], [], 0.0
-    for i, raw in enumerate(script["scenes"]):
-        scene = upgrade_scene(raw)
+    for i, scene in enumerate(script["scenes"]):
         scene_start, spans = t, []
         for j, line in enumerate(scene["lines"]):
             speaker = line["speaker"] if line["speaker"] in voices else "narrator"

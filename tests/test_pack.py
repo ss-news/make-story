@@ -1,8 +1,6 @@
-import os
 import tempfile
 import unittest
 from pathlib import Path
-from unittest import mock
 
 from storyvid import pack
 from storyvid.backgrounds import make_backgrounds
@@ -16,10 +14,10 @@ class PackTest(unittest.TestCase):
         self.assertEqual(pack.match_background('cho', 'busy village market'), 'market_day')
         self.assertEqual(pack.match_background('x', 'somewhere'), 'village_path_day')
 
-    def test_pack_is_the_default_background_provider(self):
+    def test_backgrounds_are_rasterized_from_the_pack(self):
         script = {'scenes': [{'bg_id': 'river_night', 'bg_prompt': ''}, {'bg_id': 'yard', 'bg_prompt': 'courtyard'}]}
-        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(os.environ, {'IMAGE_PROVIDER': ''}):
-            paths = make_backgrounds(script, '', (320, 180), Path(tmp))
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = make_backgrounds(script, (320, 180), Path(tmp))
             self.assertEqual(set(paths), {'river_night', 'yard'})
             self.assertIn('courtyard_day', paths['yard'].name)
             self.assertTrue(all(p.exists() for p in paths.values()))

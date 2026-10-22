@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 from . import pack
 from .character import Character
 from .character_catalog import resolve_character
-from .script import HOST, NARRATOR, upgrade_scene
+from .script import HOST, NARRATOR
 from .ffmpeg import ffmpeg_exe
 from .tts import SAMPLE_RATE
 
@@ -235,7 +235,7 @@ class Renderer:
     def render(self, script: dict, timeline: dict, bg_paths: dict, out_path: Path) -> None:
         W, H, fps = self.W, self.H, self.fps
         self._setup_cast(script)
-        scenes = [upgrade_scene(s) for s in script["scenes"]]
+        scenes = script["scenes"]
         spans, cues = timeline["scenes"], timeline["cues"]
         total = timeline["duration"]
         n_frames = int(math.ceil(total * fps))

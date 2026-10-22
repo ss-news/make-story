@@ -47,6 +47,7 @@ SCENE_SCHEMA = _schema()
 
 
 def build_prompt(story: str, channel: dict, lang: str, minutes: float, character=None) -> tuple[str, str]:
+    from . import pack
     from .character_catalog import PRESETS, resolve_character
     host = dict(channel["host"])
     choice = resolve_character(host, character)
@@ -71,17 +72,9 @@ Write the story in {LANG_NAMES.get(lang, lang)} as an acted scene-by-scene scrip
 - Open with a hook, explain the folklore "rules" once for viewers who never heard of it (keep Vietnamese terms like ma da, ma lai), build tension, end with a twist or a chilling quiet line, then the narrator invites viewers to the next story.
 - Atmosphere over gore. About {words} words of spoken text in total.
 - props: 0-{MAX_PROPS} animals or objects standing in the scene ({", ".join(prop_ids())}), on positions no actor uses.
-- {_background_rule()} camera: slow move for the background."""
+- bg_id: one of {", ".join(pack.ids("backgrounds"))} (day or night version of each place); bg_prompt: a short English description of the location; camera: slow move for the background."""
     return system, story
 
-
-def _background_rule() -> str:
-    if (os.environ.get("IMAGE_PROVIDER", "").strip().lower() or "pack") == "pack":
-        from . import pack
-        return (f"bg_id: one of {', '.join(pack.ids('backgrounds'))} (day or night version of each place); "
-                "bg_prompt: a short English description of the location.")
-    return ("bg_id: short slug per location, reused when the location repeats; "
-            "bg_prompt: English description of the location only (no people, no text);")
 
 
 def _call_claude(system: str, user: str) -> dict:
@@ -127,8 +120,8 @@ def _offline_script(story: str) -> dict:
                 break
         n = len(scenes)
         scenes.append({
-            "bg_id": f"bg{n // 3}",
-            "bg_prompt": "foggy river village at night" if n % 2 else "old bamboo village path at dusk",
+            "bg_id": ("village_path_night", "river_night")[n // 3 % 2],
+            "bg_prompt": "",
             "camera": CAMERAS[n % 4],
             "actors": [{"id": HOST, "position": POSITIONS[n % 3], "pose": pose, "expression": expr, "action": action}],
             "lines": [{"speaker": NARRATOR, "text": text}],
@@ -146,18 +139,6 @@ def _slug(value, fallback):
     return re.sub(r"[^a-z0-9_]+", "_", text).strip("_") or fallback
 
 
-def upgrade_scene(scene: dict) -> dict:
-    """Old scripts had one host per scene (narration/pose/expression/position); map them to actors + lines."""
-    if "lines" in scene or "actors" in scene:
-        return scene
-    return {
-        "bg_id": scene.get("bg_id"), "bg_prompt": scene.get("bg_prompt"), "camera": scene.get("camera"),
-        "actors": [{"id": HOST, "position": scene.get("position"), "pose": scene.get("pose"),
-                    "expression": scene.get("expression"), "action": "none"}],
-        "lines": [{"speaker": NARRATOR, "text": scene.get("narration", "")}],
-    }
-
-
 def _normalize(script: dict) -> dict:
     """Models without strict schemas may invent values; clamp everything to what the renderer knows."""
     from .character_catalog import ACCESSORIES, OUTFITS, PRESETS
@@ -171,8 +152,7 @@ def _normalize(script: dict) -> dict:
                      "preset": _pick(c.get("preset"), list(PRESETS)), "outfit": _pick(c.get("outfit"), list(OUTFITS)),
                      "accessory": _pick(c.get("accessory"), list(ACCESSORIES)), "kind": _pick(c.get("kind"), KINDS)})
     scenes = []
-    for i, raw in enumerate(script.get("scenes", [])):
-        s = upgrade_scene(raw)
+    for i, s in enumerate(script.get("scenes", [])):
         actors, seen = [], set()
         for a in s.get("actors") or []:
             aid = _slug(a.get("id"), "")

@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from storyvid.script import _normalize, upgrade_scene
+from storyvid.script import _normalize
 from storyvid.tts import SAMPLE_RATE, cast_voices
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,15 +24,6 @@ SCENE = {'bg_id': 'river', 'bg_prompt': 'river', 'camera': 'static',
 
 
 class CastScriptTest(unittest.TestCase):
-    def test_legacy_scene_becomes_host_and_narration(self):
-        legacy = {'narration': 'Xưa kia.', 'bg_id': 'v', 'bg_prompt': 'v', 'pose': 'talk', 'expression': 'sad',
-                  'position': 'left', 'camera': 'static'}
-        scene = _normalize({'scenes': [legacy]})['scenes'][0]
-        self.assertEqual(scene['actors'], [{'id': 'host', 'position': 'left', 'pose': 'talk', 'expression': 'sad',
-                                            'action': 'none'}])
-        self.assertEqual(scene['lines'], [{'speaker': 'narrator', 'text': 'Xưa kia.'}])
-        self.assertIs(upgrade_scene(SCENE), SCENE)
-
     def test_unknown_actors_and_speakers_are_dropped_or_narrated(self):
         script = _normalize({'cast': CAST, 'scenes': [{**SCENE,
             'actors': SCENE['actors'] + [{'id': 'stranger'}, {'id': 'ba'}],

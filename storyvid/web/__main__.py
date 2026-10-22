@@ -24,9 +24,9 @@ OUTPUT = ROOT / "output"
 ENV_PATH = ROOT / ".env"
 CHANNEL_PATH = ROOT / "channel.json"
 ENV_KEYS = ["LLM_PROVIDER", "LLM_BASE_URL", "LLM_MODEL", "LLM_API_KEY", "CODEX_BIN", "CODEX_MODEL",
-            "IMAGE_PROVIDER", "FAL_KEY", "TTS_PROVIDER", "ELEVENLABS_API_KEY", "ELEVENLABS_MODEL",
+            "TTS_PROVIDER", "ELEVENLABS_API_KEY", "ELEVENLABS_MODEL",
             "ELEVENLABS_NARRATOR_VOICE"]
-SECRET_KEYS = {"LLM_API_KEY", "FAL_KEY", "ELEVENLABS_API_KEY"}
+SECRET_KEYS = {"LLM_API_KEY", "ELEVENLABS_API_KEY"}
 
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 app.json.sort_keys = False  # keep channel.json and language lists in their written order

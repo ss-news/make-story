@@ -33,9 +33,9 @@ Mở http://127.0.0.1:8765. Server chỉ nghe trên máy bạn, không mở ra m
 
 - **Dự án**: tạo, đổi tên, đổi ngôn ngữ và độ dài, xóa.
 - **1. Truyện**: dán truyện gốc, chọn AI viết kịch bản (hoặc theo `.env`).
-- **2. Kịch bản**: chọn người dẫn chuyện; quản lý **nhân vật trong truyện** (tên, preset, trang phục, phụ kiện, người hay ma); mỗi cảnh sửa **lời thoại** (ai nói câu nào) và **diễn viên trên sân khấu** (vị trí, tư thế, biểu cảm, hành động), ảnh nền và máy quay; thêm, xóa, đổi thứ tự cảnh.
+- **2. Kịch bản**: chọn người dẫn chuyện; quản lý **nhân vật trong truyện** (tên, preset, trang phục, phụ kiện, người hay ma); mỗi cảnh sửa **lời thoại** (ai nói câu nào) và **diễn viên trên sân khấu** (vị trí, tư thế, biểu cảm, hành động), **đồ vật, con vật**, cảnh nền và máy quay; thêm, xóa, đổi thứ tự cảnh.
 - **3. Video**: chọn độ phân giải, dựng video, xem nhật ký chạy trực tiếp, xem và tải MP4.
-- **Cài đặt**: provider AI và key (key được che, để trống thì giữ nguyên key cũ), tên kênh, banner, màu nhân vật (có xem trước), phong cách ảnh nền, giọng đọc.
+- **Cài đặt**: provider AI và key (key được che, để trống thì giữ nguyên key cũ), tên kênh, banner, màu nhân vật (có xem trước), giọng đọc.
 
 Mỗi dự án là một thư mục trong `output/<id>/`: `story.txt`, `meta.json`, `scenes.json`, `video.mp4`, `log.txt`.
 
@@ -49,23 +49,19 @@ Mỗi dự án là một thư mục trong `output/<id>/`: `story.txt`, `meta.jso
 
 Tùy chọn: `--provider auto|openai|codex|claude|offline`, `--res 480|720|1080`, `--fps`, `--out`.
 
-## `.env` — AI viết kịch bản và ảnh nền
+## `.env` — AI viết kịch bản và giọng đọc
 
 | Biến | Ý nghĩa |
 |---|---|
 | `LLM_PROVIDER` | `openai`: mọi API theo chuẩn OpenAI (OpenAI, DeepSeek, Gemini, OpenRouter); `codex`: Codex CLI; `offline`: không dùng AI |
 | `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY` | Dùng cho `openai`. Ví dụ DeepSeek: `https://api.deepseek.com/v1`, model `deepseek-chat` |
 | `CODEX_BIN`, `CODEX_MODEL` | Dùng cho `codex` (mặc định lệnh `codex`) |
-| `IMAGE_PROVIDER` | `pack` (mặc định): cảnh nền của bộ Bắc Bộ, miễn phí; `procedural`: vẽ bằng code; `codex`: skill `$imagegen` của Codex; `fal`: FLUX schnell |
-| `FAL_KEY` | Dùng cho `fal` |
 | `TTS_PROVIDER` | `edge`: giọng Edge miễn phí (không chính thức, giọng đặt theo ngôn ngữ trong `channel.json`); `elevenlabs`: ElevenLabs API |
 | `ELEVENLABS_API_KEY` | Dùng cho `elevenlabs` |
 | `ELEVENLABS_MODEL` | Tùy chọn. Mặc định `eleven_multilingual_v2`; tiếng Việt dùng `eleven_flash_v2_5` vì v2 không có tiếng Việt |
 | `ELEVENLABS_NARRATOR_VOICE` | Tùy chọn. Id hoặc tên giọng người dẫn chuyện; để trống thì chọn một giọng nam trung niên trong tài khoản |
 
 Với ElevenLabs, mỗi nhân vật được chọn một giọng riêng trong tài khoản theo giới tính và tuổi. ElevenLabs không chỉnh được cao độ, nên tuổi và ma chỉ làm chậm tốc độ đọc. Mỗi câu đã đọc được lưu trong `cache/tts/`, nên dựng lại video không tốn thêm ký tự. Gói Free có khoảng 10.000 ký tự/tháng và **không được dùng cho kênh bật kiếm tiền**.
-
-Nếu bước tạo ảnh lỗi (mạng, hết hạn mức), tool tự dùng ảnh vẽ bằng code cho lần chạy đó, không làm hỏng cả video. Ảnh tạo thành công được cache theo prompt, nên chạy lại không tốn thêm.
 
 ### Dùng Codex (tính vào gói ChatGPT, không cần API key)
 
@@ -74,11 +70,11 @@ npm install -g @openai/codex   # bản cài hiện tại trên máy đang hỏng
 codex login                    # đăng nhập bằng tài khoản ChatGPT
 ```
 
-Sau đó đặt `LLM_PROVIDER=codex` và/hoặc `IMAGE_PROVIDER=codex`. Ảnh được tạo bằng `codex exec '$imagegen …'`. Codex lưu ảnh vào `~/.codex/generated_images/` và tool lấy ảnh mới nhất trong đó. Theo tài liệu bên thứ ba, cần gói Plus trở lên, và mỗi lần tạo ảnh dùng hạn mức nhanh hơn chat thường khoảng 3–5 lần.
+Sau đó đặt `LLM_PROVIDER=codex`.
 
 ## Kênh — `channel.json`
 
-Gồm tên kênh, banner, nhân vật chính (tên, tính cách đưa vào prompt, màu tóc, da, áo, viền), phong cách ảnh nền và giọng đọc theo ngôn ngữ. Sửa được trong trang Cài đặt.
+Gồm tên kênh, banner, nhân vật chính (tên, tính cách đưa vào prompt, màu tóc, da, áo, viền) và giọng đọc theo ngôn ngữ. Sửa được trong trang Cài đặt.
 
 ## Kịch bản — `scenes.json`
 
@@ -124,8 +120,6 @@ Tự động khi dựng:
 
 Giọng nhân vật: giới tính lấy theo preset, cao độ và tốc độ chỉnh theo tuổi (trẻ con cao hơn, người già trầm và chậm hơn). Tiếng Việt chỉ có 2 giọng gốc (NamMinh, HoaiMy), nên các nhân vật được phân biệt bằng cao độ.
 
-Kịch bản kiểu cũ (`narration`, `pose`… ở cấp cảnh) vẫn dựng được. Khi mở trong web UI, kịch bản cũ được tự chuyển sang định dạng mới; file chỉ thay đổi khi bạn bấm Lưu.
-
 ## Cấu trúc code
 
 - `storyvid/script.py`: prompt, schema, chuẩn hóa kịch bản, chế độ offline
@@ -133,7 +127,7 @@ Kịch bản kiểu cũ (`narration`, `pose`… ở cấp cảnh) vẫn dựng �
 - `storyvid/tts.py`: edge-tts hoặc ElevenLabs, phụ đề có dấu câu
 - `storyvid/elevenlabs.py`: gọi ElevenLabs, chọn giọng, cache
 - `storyvid/pack.py`: đọc bộ assets Bắc Bộ, chọn cảnh nền, raster SVG
-- `storyvid/backgrounds.py`: cảnh nền của bộ, hoặc procedural, Codex, fal
+- `storyvid/backgrounds.py`: raster cảnh nền của bộ, có cache
 - `storyvid/character.py`: ghép nhân vật từ mảnh SVG
 - `storyvid/render.py`: dựng khung hình, ffmpeg
 - `storyvid/cli.py`: các bước dòng lệnh, đọc `.env`

@@ -97,7 +97,7 @@ def main():
 
     size = RESOLUTIONS[args.res]
     print("[3/4] Backgrounds...")
-    bg_paths = make_backgrounds(script, channel["style_prompt"], (int(size[0] * 1.15), int(size[1] * 1.15)),
+    bg_paths = make_backgrounds(script, (int(size[0] * 1.15), int(size[1] * 1.15)),
                                 ROOT / "cache" / "backgrounds")
     (out_dir / "backgrounds.json").write_text(
         json.dumps({k: str(v) for k, v in bg_paths.items()}, indent=2), encoding="utf-8")

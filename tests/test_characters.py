@@ -9,7 +9,9 @@ from storyvid.script import _normalize
 
 ROOT = Path(__file__).resolve().parents[1]
 HOST = json.loads((ROOT / 'channel.json').read_text())['host']
-SCENE = {'narration': 'Một câu chuyện.', 'bg_id': 'village', 'bg_prompt': 'village', 'pose': 'talk', 'expression': 'neutral', 'position': 'center', 'camera': 'static'}
+SCENE = {'bg_id': 'village_path_day', 'bg_prompt': '', 'camera': 'static',
+         'actors': [{'id': 'host', 'position': 'center', 'pose': 'talk', 'expression': 'neutral', 'action': 'none'}],
+         'lines': [{'speaker': 'narrator', 'text': 'Một câu chuyện.'}]}
 
 class CharactersTest(unittest.TestCase):
     def test_video_selection_survives_normalization(self):
@@ -20,7 +22,7 @@ class CharactersTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             _normalize({'character': {'preset': '../../bad'}, 'scenes': [SCENE]})
 
-    def test_legacy_script_does_not_gain_an_override(self):
+    def test_script_without_character_does_not_gain_an_override(self):
         self.assertNotIn('character', _normalize({'scenes': [SCENE]}))
 
     def test_variants_are_independent(self):
@@ -131,7 +133,7 @@ class RenderTest(unittest.TestCase):
             channel=json.loads((ROOT/'channel.json').read_text())
             with warnings.catch_warnings():
                 warnings.simplefilter('error',RuntimeWarning)
-                Renderer(channel,(320,180),10).render({'scenes':[SCENE],'character':{'preset':'girl'}},timeline,{'village':bg},folder/'test.mp4')
+                Renderer(channel,(320,180),10).render({'scenes':[SCENE],'character':{'preset':'girl'}},timeline,{'village_path_day':bg},folder/'test.mp4')
             self.assertGreater((folder/'test.mp4').stat().st_size,0)
 
 class ScriptIdentityTest(unittest.TestCase):
