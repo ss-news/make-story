@@ -3,8 +3,7 @@
 !.env.example
 .venv/
 cache/
-/output/*
-!/output/bac-bo-stick/
+/output/
 __pycache__/
 *.py[cod]
 .DS_Store
