@@ -163,7 +163,7 @@ Asset mới **chỉ** nằm trong `assets/bac-bo-stick/extra/`. Lệnh build b�
 ```
 
 - `kind`: `music`, `ambience` hoặc `sfx`. `license`: `CC0`, `CC-BY-4.0` (bắt buộc kèm `attribution`), `YouTube Audio Library` hoặc `Mixkit Free License`. Có thể thêm `gain_db` để chỉnh to nhỏ riêng một file.
-- Tool tự cân âm lượng mọi file về cùng mức trung bình, rồi đặt nhạc thấp hơn giọng khoảng 14–16 dB và nhỏ thêm 6 dB khi có người nói.
+- Tool tự cân âm lượng: nhạc và âm nền theo âm lượng trung bình, hiệu ứng theo đỉnh sóng. Sau đó toàn bộ phần nền bị ép thấp hơn giọng khoảng 9 dB khi có người nói, và không vượt -24 dBFS lúc im lặng, nên giọng đọc luôn nổi rõ.
 - Video dùng âm thanh CC-BY thì lệnh dựng ghi dòng ghi công vào `credits.txt` trong thư mục dự án; chép vào mô tả video.
 - File âm thanh **không** được đưa vào git (điều khoản YouTube Audio Library cấm phát tán lại file). Chỉ manifest được lưu; tải lại theo `source` khi cần.
 - Chỉ người dùng hoặc Claude (khi người dùng đồng ý tải) thêm file mới. `python -m storyvid.check --assets` kiểm tra cả manifest âm thanh.

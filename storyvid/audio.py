@@ -19,10 +19,14 @@ from .tts import SAMPLE_RATE
 AUDIO = Path(__file__).resolve().parents[1] / "assets" / "audio"
 KINDS = ("sfx", "ambience", "music")
 LICENSES = ("CC0", "CC-BY-4.0", "YouTube Audio Library", "Mixkit Free License")
-TARGET_RMS = 0.1    # every sound is levelled to this average loudness (-20 dBFS) before its gain
-# Gains relative to that level; the narration sits around -24 dBFS, so music stays ~10 dB under the voice
-DEFAULT_GAIN_DB = {"sfx": -4.0, "ambience": -10.0, "music": -8.0}
+TARGET_RMS = 0.1    # music and ambience are levelled to this average loudness (-20 dBFS) before their gain;
+                    # sfx are levelled by peak instead, since a short hit in a mostly silent file would be boosted
+# Gains after levelling. The narration sits around -24 dBFS: music ends ~10 dB under it (~16 dB while ducked),
+# ambience ~16 dB under it, and sfx peak around -10 dBFS so a hit is heard without forcing the limiter.
+DEFAULT_GAIN_DB = {"sfx": -10.0, "ambience": -20.0, "music": -14.0}
 DUCK_DB = -6.0      # extra music cut while the voice is speaking
+UNDER_VOICE_DB = -9.0  # the whole bed (music + ambience + sfx) is held this far under the voice while it speaks
+BED_CEILING_DB = -24.0  # and never above this level (dBFS) in the pauses
 FADE = 0.6          # seconds of fade at the edges of an ambience loop or the music bed
 
 
@@ -70,15 +74,21 @@ def attributions(script: dict) -> list[str]:
 
 @lru_cache(maxsize=64)
 def _decoded(sound_id: str) -> np.ndarray:
-    """Mono float32 samples at the narration sample rate, levelled to TARGET_RMS (music has a wide dynamic
-    range, so levelling by peak would leave most of a track far too quiet)."""
+    """Mono float32 samples at the narration sample rate. Music and ambience are levelled to TARGET_RMS (a
+    track has a wide dynamic range, so levelling by peak would leave most of it far too quiet); sfx are
+    levelled to a peak of 1.0."""
     path = AUDIO / entry(sound_id)["file"]
     raw = subprocess.run(
         [ffmpeg_exe(), "-v", "error", "-i", str(path), "-f", "f32le", "-ac", "1", "-ar", str(SAMPLE_RATE), "-"],
         check=True, capture_output=True,
     ).stdout
     data = np.frombuffer(raw, dtype=np.float32).copy()
-    rms = float(np.sqrt(np.mean(data ** 2))) if len(data) else 0.0
+    if not len(data):
+        return data
+    if entry(sound_id).get("kind") == "sfx":
+        peak = float(np.abs(data).max())
+        return data / peak if peak > 0 else data
+    rms = float(np.sqrt(np.mean(data ** 2)))
     return data * (TARGET_RMS / rms) if rms > 0 else data
 
 
@@ -115,6 +125,21 @@ def _voice_envelope(voice: np.ndarray) -> np.ndarray:
     return np.repeat(smooth, hop)[:len(voice)]
 
 
+def _limit_bed(bed: np.ndarray, voice: np.ndarray) -> np.ndarray:
+    """Keep the bed under the voice: tracks swell and stingers hit, the narration must stay in front."""
+    hop = SAMPLE_RATE // 10
+    frames = len(bed) // hop + 1
+    pad = lambda x: np.pad(x, (0, frames * hop - len(x))).reshape(frames, hop)  # noqa: E731
+    bed_rms = np.sqrt((pad(bed) ** 2).mean(axis=1)) + 1e-9
+    voice_rms = np.sqrt((pad(voice) ** 2).mean(axis=1))
+    ceiling = np.where(voice_rms > 0.01, voice_rms * 10 ** (UNDER_VOICE_DB / 20), 10 ** (BED_CEILING_DB / 20))
+    gain = np.minimum(1.0, ceiling / bed_rms)
+    # take the lowest gain around each frame, then smooth, so the bed dips just before a loud moment
+    gain = np.array([gain[max(0, i - 2):i + 3].min() for i in range(frames)], dtype=np.float32)
+    gain = np.convolve(gain, np.ones(4, dtype=np.float32) / 4, mode="same")
+    return bed * np.repeat(gain, hop)[:len(bed)]
+
+
 def has_sound(script: dict) -> bool:
     return bool(script.get("music")) or any(s.get("ambience") or s.get("sfx") for s in script["scenes"])
 
@@ -138,7 +163,7 @@ def mix(script: dict, timeline: dict, out_path: Path) -> Path:
         duck = 10 ** (DUCK_DB / 20)
         music = _fade(_loop(_decoded(music_id), total), FADE * 3) * _gain(music_id)
         bed += music * (1 - (1 - duck) * _voice_envelope(voice))
-    out = voice + bed
+    out = voice + _limit_bed(bed, voice)
     peak = float(np.abs(out).max())
     if peak > 0.98:
         out *= 0.98 / peak
