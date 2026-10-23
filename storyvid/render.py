@@ -14,7 +14,10 @@ from .ffmpeg import ffmpeg_exe
 from .tts import SAMPLE_RATE
 
 FONT_BOLD = "/System/Library/Fonts/Supplemental/Arial Bold.ttf"
-FONT_BANNER = "/System/Library/Fonts/Supplemental/Impact.ttf"
+FONT_BRAND = ("/System/Library/Fonts/Supplemental/ChalkboardSE.ttc", 2)  # (file, face index): Chalkboard SE Bold
+ROOT = Path(__file__).resolve().parents[1]
+INK = (36, 33, 31)
+CREAM = (255, 253, 247)
 OVERSCAN = 1.15      # background is larger than the frame so the camera can move
 MOVE_TIME = 0.9      # seconds to walk to a new position between scenes
 ENTER_TIME = 1.3     # seconds to walk in from / out to the edge of the frame
@@ -27,11 +30,17 @@ CHARACTER_HEIGHT = 0.54  # of the frame height
 EXPRESSION_EFFECT = {"surprised": "surprise", "angry": "anger", "scared": "sweat"}
 
 
-def _font(path, size):
+def _font(path, size, index=0):
     try:
-        return ImageFont.truetype(path, size)
+        return ImageFont.truetype(path, size, index=index)
     except OSError:
         return ImageFont.load_default(size)
+
+
+def _brand_font(size):
+    path, index = FONT_BRAND
+    font = _font(path, size, index)
+    return font if isinstance(font, ImageFont.FreeTypeFont) else _font(FONT_BOLD, size)
 
 
 def _vignette(img: Image.Image, strength: int) -> None:
@@ -47,15 +56,30 @@ def _vignette(img: Image.Image, strength: int) -> None:
     img.paste((0, 0, 0, 255), (0, 0), vig)
 
 
-def _banner(d: ImageDraw.ImageDraw, channel: dict, W: int, top_h: int) -> None:
-    """Channel banner across the top: red slanted block + dark block."""
-    d.rectangle([0, 0, W, top_h], fill=(18, 18, 20, 255))
-    split = int(W * 0.52)
-    d.polygon([(0, 0), (split, 0), (split - top_h, top_h), (0, top_h)], fill=(178, 22, 30, 255))
-    f = _font(FONT_BANNER, int(top_h * 0.78))
-    y = top_h // 2
-    d.text((split - top_h * 1.4, y), channel["banner_left"], font=f, fill=(20, 20, 20), anchor="rm")
-    d.text((split + top_h * 0.4, y), channel["banner_right"], font=f, fill=(205, 30, 40), anchor="lm")
+def _badge(img: Image.Image, channel: dict, x: float, y: float, size: int, center: bool = False) -> None:
+    """Channel badge drawn in place: round logo, then the channel name and tagline in hand lettering.
+    (x, y) is the top-left corner, or the top-centre when center is True; size is the logo diameter."""
+    d = ImageDraw.Draw(img)
+    name_font, tag_font = _brand_font(int(size * 0.48)), _brand_font(int(size * 0.23))
+    name, tagline = channel.get("channel_name", ""), channel.get("tagline", "")
+    gap = size * 0.15
+    width = size + gap + max(name_font.getlength(name), tag_font.getlength(tagline) if tagline else 0)
+    left = x - width / 2 if center else x
+    logo_path = ROOT / channel["logo"] if channel.get("logo") else None
+    if logo_path and logo_path.exists():
+        logo = Image.open(logo_path).convert("RGBA").resize((size, size), Image.LANCZOS)
+        mask = Image.new("L", (size, size), 0)
+        ImageDraw.Draw(mask).ellipse([0, 0, size - 1, size - 1], fill=255)
+        img.paste(logo, (int(left), int(y)), mask)
+    else:
+        gap, left = 0, left + size / 2  # no logo: text only, roughly centred where the logo would be
+    tx = left + size + gap
+    style = dict(fill=CREAM, stroke_fill=INK, anchor="lm")
+    if tagline:
+        d.text((tx, y + size * 0.36), name, font=name_font, stroke_width=max(2, size // 24), **style)
+        d.text((tx + size * 0.03, y + size * 0.78), tagline, font=tag_font, stroke_width=max(1, size // 40), **style)
+    else:
+        d.text((tx, y + size / 2), name, font=name_font, stroke_width=max(2, size // 24), **style)
 
 
 def _wrap(text: str, font, max_w: float) -> list[str]:
@@ -76,7 +100,7 @@ def _ease(t):
 
 
 class Renderer:
-    """16:9 video: the stage fills the frame, with the channel banner on top and subtitles in a bottom band."""
+    """16:9 video: the stage fills the frame, with the channel badge top left and subtitles in a bottom band."""
     char_height = CHARACTER_HEIGHT  # of the stage height
     spread = 1.0                    # 1 = positions use the whole stage width, less pulls them to the middle
 
@@ -86,7 +110,6 @@ class Renderer:
         self.out_size = size   # the encoded frame
         self.fps = fps
         self.band_h = int(self.H * 0.11)
-        self.top_h = int(self.H * 0.085)
         self.overlay = self._chrome()
         self.sub_font = _font(FONT_BOLD, int(self.H * 0.045))
         self._sub_cache = {}
@@ -94,22 +117,13 @@ class Renderer:
 
     # ---------- static layers ----------
     def _chrome(self) -> Image.Image:
-        """Top banner, bottom subtitle band, logo and a vignette, drawn once."""
+        """Vignette, channel badge and bottom subtitle band, drawn once."""
         W, H = self.W, self.H
         img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         d = ImageDraw.Draw(img)
         _vignette(img, 110)
-        _banner(d, self.channel, W, self.top_h)
-        # bottom subtitle band
+        _badge(img, self.channel, H * 0.035, H * 0.033, int(H * 0.11))
         d.rectangle([0, H - self.band_h, W, H], fill=(10, 10, 12, 235))
-        # round logo, top right
-        r = int(H * 0.065)
-        cx, cy = W - r - int(W * 0.02), self.top_h + r + int(H * 0.02)
-        d.ellipse([cx - r - 4, cy - r - 4, cx + r + 4, cy + r + 4], fill=(20, 20, 20, 255))
-        d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(160, 18, 26, 255))
-        lf = _font(FONT_BANNER, int(r * 0.42))
-        d.text((cx, cy - r * 0.22), self.channel["banner_left"], font=lf, fill=(240, 230, 220), anchor="mm")
-        d.text((cx, cy + r * 0.26), self.channel["banner_right"], font=lf, fill=(240, 230, 220), anchor="mm")
         return img
 
     def _subtitle(self, text: str, speaker: str = "") -> Image.Image:
@@ -383,7 +397,7 @@ END_CARD_TIME = 3.0  # seconds
 
 
 class ShortRenderer(Renderer):
-    """9:16 Short: channel banner and title on top, a square stage in the middle, big subtitles below."""
+    """9:16 Short: channel badge and title on top, a square stage in the middle, big subtitles below."""
     char_height = 0.5
     spread = 0.85
 
@@ -402,12 +416,13 @@ class ShortRenderer(Renderer):
         return img
 
     def _canvas(self, title: str) -> Image.Image:
-        """Everything outside the stage, drawn once: banner, title, dark background."""
+        """Everything outside the stage, drawn once: channel badge, title, dark background."""
         W, H = self.out_size
         img = Image.new("RGBA", (W, H), (14, 14, 16, 255))
         d = ImageDraw.Draw(img)
-        top_h = int(H * 0.05)
-        _banner(d, self.channel, W, top_h)
+        logo = int(W * 0.1)
+        _badge(img, self.channel, W / 2, H * 0.02, logo, center=True)
+        top_h = int(H * 0.03 + logo)
         font = _font(FONT_BOLD, int(W * 0.065))
         lines = _wrap(title, font, W * 0.88)[:2]
         lh = int(font.size * 1.2)

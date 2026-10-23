@@ -1,7 +1,7 @@
 {
   "channel_name": "Chamlore",
-  "banner_left": "CHAM",
-  "banner_right": "LORE",
+  "tagline": "Stories of Vietnam",
+  "logo": "assets/branding/chamlore-logo.png",
   "host": {
     "name": "Tam",
     "personality": "a calm, slightly nervous village boy who tells old Vietnamese ghost stories he heard from his grandmother; dry humor, never gory",
