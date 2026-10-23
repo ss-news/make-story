@@ -99,6 +99,10 @@
     [
       "gate_light_night",
       "Cổng gỗ dưới bóng đèn · đêm"
+    ],
+    [
+      "dark_path_night",
+      "Đường đất ven mương và hàng chuối · đêm tối"
     ]
   ],
   "animals": [

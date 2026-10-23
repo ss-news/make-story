@@ -241,6 +241,12 @@
       "group": "props",
       "svg": "props/upturned_bowl.svg",
       "height": 0.05
+    },
+    {
+      "id": "dark_path_night",
+      "label": "Đường đất ven mương và hàng chuối · đêm tối",
+      "group": "backgrounds",
+      "svg": "backgrounds/dark_path_night.svg"
     }
   ],
   "characters": []
