@@ -160,6 +160,87 @@
       "label": "Núi Ngũ Hành · hoàng hôn",
       "group": "backgrounds",
       "svg": "backgrounds/marble_sunset_day.svg"
+    },
+    {
+      "id": "graveyard_field_night",
+      "label": "Đồng mộ sau hàng chuối · đêm",
+      "group": "backgrounds",
+      "svg": "backgrounds/graveyard_field_night.svg"
+    },
+    {
+      "id": "graveyard_field_day",
+      "label": "Đồng mộ sau hàng chuối · sáng",
+      "group": "backgrounds",
+      "svg": "backgrounds/graveyard_field_day.svg"
+    },
+    {
+      "id": "gate_light_night",
+      "label": "Cổng gỗ dưới bóng đèn · đêm",
+      "group": "backgrounds",
+      "svg": "backgrounds/gate_light_night.svg"
+    },
+    {
+      "id": "milk_can",
+      "label": "Lon sữa bóc nhãn và điếu thuốc",
+      "group": "props",
+      "svg": "props/milk_can.svg",
+      "height": 0.08
+    },
+    {
+      "id": "incense_sticks",
+      "label": "Ba cây nhang cắm đất",
+      "group": "props",
+      "svg": "props/incense_sticks.svg",
+      "height": 0.14
+    },
+    {
+      "id": "candies",
+      "label": "Ba viên kẹo trên giấy tập",
+      "group": "props",
+      "svg": "props/candies.svg",
+      "height": 0.05
+    },
+    {
+      "id": "candy_wrappers",
+      "label": "Ba giấy kẹo gấp vuông",
+      "group": "props",
+      "svg": "props/candy_wrappers.svg",
+      "height": 0.04
+    },
+    {
+      "id": "black_thread",
+      "label": "Sợi chỉ đen có đầu xơ đứt",
+      "group": "props",
+      "svg": "props/black_thread.svg",
+      "height": 0.04
+    },
+    {
+      "id": "generator",
+      "label": "Máy phát điện nhỏ",
+      "group": "props",
+      "svg": "props/generator.svg",
+      "height": 0.14
+    },
+    {
+      "id": "plastic_stool",
+      "label": "Ghế nhựa thấp",
+      "group": "props",
+      "svg": "props/plastic_stool.svg",
+      "height": 0.1
+    },
+    {
+      "id": "broken_vase",
+      "label": "Bình sứt cắm hoa khô",
+      "group": "props",
+      "svg": "props/broken_vase.svg",
+      "height": 0.11
+    },
+    {
+      "id": "upturned_bowl",
+      "label": "Chén sành úp",
+      "group": "props",
+      "svg": "props/upturned_bowl.svg",
+      "height": 0.05
     }
   ],
   "characters": []

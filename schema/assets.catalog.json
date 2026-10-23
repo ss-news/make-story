@@ -87,6 +87,18 @@
     [
       "marble_sunset_day",
       "Núi Ngũ Hành · hoàng hôn"
+    ],
+    [
+      "graveyard_field_night",
+      "Đồng mộ sau hàng chuối · đêm"
+    ],
+    [
+      "graveyard_field_day",
+      "Đồng mộ sau hàng chuối · sáng"
+    ],
+    [
+      "gate_light_night",
+      "Cổng gỗ dưới bóng đèn · đêm"
     ]
   ],
   "animals": [
@@ -271,6 +283,42 @@
     [
       "colored_stones",
       "Đá ngũ sắc"
+    ],
+    [
+      "milk_can",
+      "Lon sữa bóc nhãn và điếu thuốc"
+    ],
+    [
+      "incense_sticks",
+      "Ba cây nhang cắm đất"
+    ],
+    [
+      "candies",
+      "Ba viên kẹo trên giấy tập"
+    ],
+    [
+      "candy_wrappers",
+      "Ba giấy kẹo gấp vuông"
+    ],
+    [
+      "black_thread",
+      "Sợi chỉ đen có đầu xơ đứt"
+    ],
+    [
+      "generator",
+      "Máy phát điện nhỏ"
+    ],
+    [
+      "plastic_stool",
+      "Ghế nhựa thấp"
+    ],
+    [
+      "broken_vase",
+      "Bình sứt cắm hoa khô"
+    ],
+    [
+      "upturned_bowl",
+      "Chén sành úp"
     ]
   ],
   "characters": [
