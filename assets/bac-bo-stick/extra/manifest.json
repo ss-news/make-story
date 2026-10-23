@@ -247,7 +247,23 @@
       "label": "Đường đất ven mương và hàng chuối · đêm tối",
       "group": "backgrounds",
       "svg": "backgrounds/dark_path_night.svg"
+    },
+    {
+      "id": "veranda_night",
+      "label": "Hiên nhà với đèn dầu và mùng ngủ · đêm",
+      "group": "backgrounds",
+      "svg": "backgrounds/veranda_night.svg"
     }
   ],
-  "characters": []
+  "characters": [
+    {
+      "id": "small_boy",
+      "label": "Bé trai nhỏ · Út",
+      "female": false,
+      "age": "child",
+      "scale": 0.6,
+      "skin": "#d3a075",
+      "hair": "#30302c"
+    }
+  ]
 }

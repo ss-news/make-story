@@ -50,8 +50,11 @@ class CharactersTest(unittest.TestCase):
 
     def test_parts_have_editable_svg_and_joint_metadata(self):
         from storyvid.character_catalog import PRESETS
+        extra = ROOT / 'assets' / 'bac-bo-stick' / 'extra'
+        extra_ids = {c['id'] for c in json.loads((extra / 'manifest.json').read_text())['characters']}
         for preset in PRESETS:
-            folder = ROOT / 'assets' / 'bac-bo-stick' / 'characters' / preset
+            pack_root = extra if preset in extra_ids else ROOT / 'assets' / 'bac-bo-stick'
+            folder = pack_root / 'characters' / preset
             rig = json.loads((folder / 'rig.json').read_text())
             for part in ('head', 'hair_front', 'torso', 'upper_arm', 'forearm', 'hand', 'thigh', 'shin', 'foot'):
                 self.assertIn(part, rig['parts'])
@@ -62,7 +65,13 @@ class CharactersTest(unittest.TestCase):
         from storyvid.web.__main__ import app
         client = app.test_client()
         options = client.get('/api/options').get_json()
-        self.assertEqual(len(options.get('characters', [])), 8)
+        pack_root = ROOT / 'assets' / 'bac-bo-stick'
+        expected = {p.parent.name for p in (pack_root / 'characters').glob('*/rig.json')}
+        extra = json.loads((pack_root / 'extra' / 'manifest.json').read_text())
+        expected.update(c['id'] for c in extra['characters'])
+        characters = options.get('characters', [])
+        self.assertEqual(len(characters), len(expected))
+        self.assertEqual({c['id'] for c in characters}, expected)
         response = client.post('/api/character-preview', json={'host': HOST, 'character': {'preset':'girl', 'outfit':'earth', 'accessory':'bag'}})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Image.open(io.BytesIO(response.data)).format, 'PNG')
