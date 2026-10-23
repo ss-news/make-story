@@ -385,6 +385,64 @@
       "Night Hunt — Jimena Contreras (tense)"
     ]
   ],
-  "ambience": [],
-  "sfx": []
+  "ambience": [
+    [
+      "generator_engine",
+      "Big diesel engine idling (generator)"
+    ],
+    [
+      "wind_trees",
+      "Wind in the trees"
+    ],
+    [
+      "pond_crickets",
+      "Pond ambience with crickets (night)"
+    ],
+    [
+      "swamp_crickets",
+      "Night crickets near the swamp"
+    ],
+    [
+      "forest_frogs",
+      "Forest ambience with croaking frogs"
+    ]
+  ],
+  "sfx": [
+    [
+      "can_clack",
+      "Tin can drop (short clack)"
+    ],
+    [
+      "can_clack_2",
+      "Tin can falling (short)"
+    ],
+    [
+      "can_drops",
+      "Tin can falling and rolling (1 min, several takes)"
+    ],
+    [
+      "mosquito",
+      "Annoying mosquito buzz"
+    ],
+    [
+      "running_forest",
+      "Running through the forest"
+    ],
+    [
+      "water_splash",
+      "Small water splash"
+    ],
+    [
+      "terror_transition",
+      "Terror transition (horror sting)"
+    ],
+    [
+      "terror_sweep",
+      "Terror sweep of darkness (horror swell)"
+    ],
+    [
+      "metal_hit",
+      "Metal hammer hit (can clack alternative)"
+    ]
+  ]
 }

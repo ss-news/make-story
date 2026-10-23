@@ -36,6 +36,132 @@
       "license": "YouTube Audio Library",
       "source": "YouTube Audio Library (YouTube Studio > Audio Library)",
       "author": "Jimena Contreras"
+    },
+    {
+      "id": "can_clack",
+      "label": "Tin can drop (short clack)",
+      "kind": "sfx",
+      "file": "sfx/can_clack.mp3",
+      "license": "CC0",
+      "source": "https://bigsoundbank.com/tin-1-s0246.html",
+      "author": "Joseph Sardin (BigSoundBank)"
+    },
+    {
+      "id": "can_clack_2",
+      "label": "Tin can falling (short)",
+      "kind": "sfx",
+      "file": "sfx/can_clack_2.mp3",
+      "license": "CC0",
+      "source": "https://bigsoundbank.com/tin-can-4-s0249.html",
+      "author": "Joseph Sardin (BigSoundBank)"
+    },
+    {
+      "id": "can_drops",
+      "label": "Tin can falling and rolling (1 min, several takes)",
+      "kind": "sfx",
+      "file": "sfx/can_drops.mp3",
+      "license": "CC0",
+      "source": "https://bigsoundbank.com/tin-can-5-s0667.html",
+      "author": "Joseph Sardin (BigSoundBank)"
+    },
+    {
+      "id": "generator_engine",
+      "label": "Big diesel engine idling (generator)",
+      "kind": "ambience",
+      "file": "ambience/generator_engine.mp3",
+      "license": "CC0",
+      "source": "https://bigsoundbank.com/big-diesel-engine-s0967.html",
+      "author": "Joseph Sardin (BigSoundBank)"
+    },
+    {
+      "id": "wind_trees",
+      "label": "Wind in the trees",
+      "kind": "ambience",
+      "file": "ambience/wind_trees.mp3",
+      "license": "CC0",
+      "source": "https://bigsoundbank.com/forest-wind-in-the-trees-s0904.html",
+      "author": "Joseph Sardin (BigSoundBank)"
+    },
+    {
+      "id": "pond_crickets",
+      "label": "Pond ambience with crickets (night)",
+      "kind": "ambience",
+      "file": "ambience/pond_crickets.wav",
+      "license": "Mixkit Free License",
+      "source": "https://mixkit.co/free-sound-effects/crickets/ (item 1783)",
+      "author": "Mixkit"
+    },
+    {
+      "id": "swamp_crickets",
+      "label": "Night crickets near the swamp",
+      "kind": "ambience",
+      "file": "ambience/swamp_crickets.wav",
+      "license": "Mixkit Free License",
+      "source": "https://mixkit.co/free-sound-effects/crickets/ (item 1782)",
+      "author": "Mixkit"
+    },
+    {
+      "id": "forest_frogs",
+      "label": "Forest ambience with croaking frogs",
+      "kind": "ambience",
+      "file": "ambience/forest_frogs.wav",
+      "license": "Mixkit Free License",
+      "source": "https://mixkit.co/free-sound-effects/frogs/ (item 1241)",
+      "author": "Mixkit"
+    },
+    {
+      "id": "mosquito",
+      "label": "Annoying mosquito buzz",
+      "kind": "sfx",
+      "file": "sfx/mosquito.wav",
+      "license": "Mixkit Free License",
+      "source": "https://mixkit.co/free-sound-effects/mosquito/ (item 330)",
+      "author": "Mixkit"
+    },
+    {
+      "id": "running_forest",
+      "label": "Running through the forest",
+      "kind": "sfx",
+      "file": "sfx/running_forest.wav",
+      "license": "Mixkit Free License",
+      "source": "https://mixkit.co/free-sound-effects/footsteps/ (item 1232)",
+      "author": "Mixkit"
+    },
+    {
+      "id": "water_splash",
+      "label": "Small water splash",
+      "kind": "sfx",
+      "file": "sfx/water_splash.wav",
+      "license": "Mixkit Free License",
+      "source": "https://mixkit.co/free-sound-effects/splash/ (item 1311)",
+      "author": "Mixkit"
+    },
+    {
+      "id": "terror_transition",
+      "label": "Terror transition (horror sting)",
+      "kind": "sfx",
+      "file": "sfx/terror_transition.wav",
+      "license": "Mixkit Free License",
+      "source": "https://mixkit.co/free-sound-effects/horror/ (item 2484)",
+      "author": "Mixkit"
+    },
+    {
+      "id": "terror_sweep",
+      "label": "Terror sweep of darkness (horror swell)",
+      "kind": "sfx",
+      "file": "sfx/terror_sweep.wav",
+      "license": "Mixkit Free License",
+      "source": "https://mixkit.co/free-sound-effects/horror/ (item 2630)",
+      "author": "Mixkit"
+    },
+    {
+      "id": "metal_hit",
+      "label": "Metal hammer hit (can clack alternative)",
+      "kind": "sfx",
+      "file": "sfx/metal_hit.wav",
+      "license": "Mixkit Free License",
+      "source": "https://mixkit.co/free-sound-effects/metal-hit/ (item 833)",
+      "author": "Mixkit"
     }
   ]
 }
