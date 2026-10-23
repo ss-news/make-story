@@ -162,7 +162,7 @@ Asset mới **chỉ** nằm trong `assets/bac-bo-stick/extra/`. Lệnh build b�
  "license": "CC0", "source": "https://freesound.org/people/cower/sounds/185370/", "author": "cower"}
 ```
 
-- `kind`: `music`, `ambience` hoặc `sfx`. `license`: `CC0`, `CC-BY-4.0` (bắt buộc kèm `attribution`) hoặc `YouTube Audio Library`. Có thể thêm `gain_db` để chỉnh to nhỏ riêng một file.
+- `kind`: `music`, `ambience` hoặc `sfx`. `license`: `CC0`, `CC-BY-4.0` (bắt buộc kèm `attribution`), `YouTube Audio Library` hoặc `Mixkit Free License`. Có thể thêm `gain_db` để chỉnh to nhỏ riêng một file.
 - Tool tự cân âm lượng mọi file về cùng mức trung bình, rồi đặt nhạc thấp hơn giọng khoảng 14–16 dB và nhỏ thêm 6 dB khi có người nói.
 - Video dùng âm thanh CC-BY thì lệnh dựng ghi dòng ghi công vào `credits.txt` trong thư mục dự án; chép vào mô tả video.
 - File âm thanh **không** được đưa vào git (điều khoản YouTube Audio Library cấm phát tán lại file). Chỉ manifest được lưu; tải lại theo `source` khi cần.

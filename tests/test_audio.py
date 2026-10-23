@@ -73,7 +73,7 @@ class AudioTest(unittest.TestCase):
         self.write()
         problems = check.audio_problems()
         self.assertIn('audio/dark_bed: CC-BY-4.0 needs an attribution line', problems)
-        self.assertIn('audio/night_frogs: license must be one of CC0, CC-BY-4.0, YouTube Audio Library', problems)
+        self.assertIn('audio/night_frogs: license must be one of CC0, CC-BY-4.0, YouTube Audio Library, Mixkit Free License', problems)
 
     def test_mix_adds_sound_and_ducks_music(self):
         script = self.script()

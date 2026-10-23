@@ -36,6 +36,29 @@ Tìm "horror" ra khoảng 184 bài. Ứng viên hợp không khí làng quê u �
 
 Cần xem cột "Loại giấy phép" của từng bài: bài nào ghi "Yêu cầu ghi công" thì phải chép dòng ghi công vào mô tả video.
 
+## Nguồn không cần đăng nhập
+
+### BigSoundBank (https://bigsoundbank.com): CC0
+Trang giấy phép (https://bigsoundbank.com/licenses.html) ghi rõ: Creative Commons CC0 1.0, dùng thương mại không giới hạn, không cần xin phép; ghi công là tự nguyện ("Additional sounds: Joseph SARDIN - BigSoundBank.com"). Tải WAV/MP3/FLAC trực tiếp, không cần tài khoản.
+
+Có sẵn cho ma lon: Tin can #1–#5 (lon thiếc rơi, 2 giây tới 1 phút), Trash can rolling on a road, côn trùng ban đêm (Singing insect, "At 1 am…" 2:32), Generator, Running in the…, Splash, Wind in the Trees (3:39), 8 bản tiếng ếch.
+
+### Mixkit (https://mixkit.co/free-sound-effects/): Mixkit Free License
+Dùng thương mại miễn phí, không cần ghi công, không cần tài khoản; không được bán lại file. Có sẵn:
+- Côn trùng đêm: Night crickets near the swamp (0:33), Summer night in the forest (2:06), Pond ambience with crickets (2:28), Crickets near the river (3:00)
+- Ếch: Forest ambience with croaking frogs (1:53)
+- Muỗi: Annoying mosquito sound (0:03)
+- Chạy: Running through the forest (0:14), Footsteps in the forest ground (0:34)
+- Nước: Water splash (0:01), Jump into the water (0:02)
+- Kinh dị: Terror transition (0:12), Terror sweep of darkness (0:07), Cinematic whoosh deep impact (0:04)
+- Không có tiếng lon lăn; dùng "Metal hammer hit" (0:01) thay cho tiếng "cạch" được.
+
+### YouTube Audio Library, tab Hiệu ứng âm thanh
+Có khoảng 637 hiệu ứng, phần lớn từ 2014; ô tìm kiếm không lọc theo từ khóa nên khó tìm. Không ưu tiên.
+
+## Gợi ý chọn
+Tiếng lon: BigSoundBank (Tin can, CC0) hoặc Freesound "Rolling Can Sound 2". Âm nền đêm, muỗi, chạy, nước, sting kinh dị: Mixkit. Máy phát điện: BigSoundBank Generator.
+
 ## Không dùng
 - BBC Sound Effects: chỉ cho phép phi thương mại.
 - File Freesound giấy phép CC-BY-NC hoặc Sampling+.

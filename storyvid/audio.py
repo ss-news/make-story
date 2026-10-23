@@ -18,7 +18,7 @@ from .tts import SAMPLE_RATE
 
 AUDIO = Path(__file__).resolve().parents[1] / "assets" / "audio"
 KINDS = ("sfx", "ambience", "music")
-LICENSES = ("CC0", "CC-BY-4.0", "YouTube Audio Library")
+LICENSES = ("CC0", "CC-BY-4.0", "YouTube Audio Library", "Mixkit Free License")
 TARGET_RMS = 0.1    # every sound is levelled to this average loudness (-20 dBFS) before its gain
 # Gains relative to that level; the narration sits around -24 dBFS, so music stays ~10 dB under the voice
 DEFAULT_GAIN_DB = {"sfx": -4.0, "ambience": -10.0, "music": -8.0}
