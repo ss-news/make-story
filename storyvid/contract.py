@@ -9,7 +9,7 @@ import json
 import re
 from pathlib import Path
 
-from . import pack
+from . import audio, pack
 from .character_catalog import ACCESSORIES, OUTFITS, PRESETS, validate_selection
 from .script import ACTIONS, CAMERAS, EXPRESSIONS, HOST, KINDS, LANG_NAMES, NARRATOR, POSES, POSITIONS
 
@@ -44,9 +44,11 @@ ASSET_SPECS = {
                             "with label, female, age (child|young|middle|elder), scale, skin, hair."},
 }
 TOP_KEYS = {"format", "title", "lang", "cast", "scenes"}
-OPTIONAL_TOP_KEYS = {"character", "short"}
+OPTIONAL_TOP_KEYS = {"character", "short", "music"}
 CAST_KEYS = {"id", "name", "preset", "outfit", "accessory", "kind"}
 SCENE_KEYS = {"bg_id", "bg_prompt", "camera", "actors", "props", "lines"}
+OPTIONAL_SCENE_KEYS = {"ambience", "sfx"}
+MAX_SFX = 6
 ACTOR_KEYS = {"id", "position", "pose", "expression", "action"}
 PROP_KEYS = {"id", "position"}
 LINE_KEYS = {"speaker", "text"}
@@ -108,6 +110,8 @@ def validate(script) -> tuple[list[str], list[dict]]:
 
     if "short" in script:
         _validate_short(script["short"], script["scenes"], errors)
+    if "music" in script and _keys(script["music"], {"id"}, "$.music", errors):
+        _sound(script["music"]["id"], "music", "$.music.id", errors)
 
     cast_ids = set()
     if not isinstance(script["cast"], list):
@@ -136,8 +140,22 @@ def validate(script) -> tuple[list[str], list[dict]]:
         scenes = []
     for i, s in enumerate(scenes):
         where = f"$.scenes[{i}]"
-        if not _keys(s, SCENE_KEYS, where, errors):
+        if not _keys(s, SCENE_KEYS, where, errors, OPTIONAL_SCENE_KEYS):
             continue
+        if "ambience" in s:
+            _sound(s["ambience"], "ambience", f"{where}.ambience", errors)
+        if "sfx" in s:
+            cues = s["sfx"] if isinstance(s["sfx"], list) else []
+            if not isinstance(s["sfx"], list) or len(cues) > MAX_SFX:
+                errors.append(f"{where}.sfx: must be a list of at most {MAX_SFX}")
+            n_lines = len(s["lines"]) if isinstance(s["lines"], list) else 0
+            for j, cue in enumerate(cues):
+                cw = f"{where}.sfx[{j}]"
+                if not _keys(cue, {"id", "line"}, cw, errors):
+                    continue
+                _sound(cue["id"], "sfx", f"{cw}.id", errors)
+                if not isinstance(cue["line"], int) or isinstance(cue["line"], bool) or not 0 <= cue["line"] < max(1, n_lines):
+                    errors.append(f"{cw}.line: must be the index of a line in this scene (0-{max(0, n_lines - 1)})")
         if _slug(s["bg_id"], BG_SLUG, f"{where}.bg_id", errors) and s["bg_id"] not in backgrounds:
             request("backgrounds", s["bg_id"], i, s["bg_prompt"] if isinstance(s["bg_prompt"], str) else "")
         if not isinstance(s["bg_prompt"], str):
@@ -255,6 +273,13 @@ def review_schema() -> dict:
     }
 
 
+def _sound(sound_id, kind: str, where: str, errors: list) -> None:
+    """Sounds must already be in assets/audio/manifest.json: agents cannot draw audio, only pick it."""
+    if sound_id not in audio.ids(kind):
+        errors.append(f"{where}: {sound_id!r} is not a {kind} in assets/audio/manifest.json "
+                      f"(choose from schema/assets.catalog.json)")
+
+
 def _validate_short(short, scenes, errors: list) -> None:
     """short.scenes: the scenes cut into the 9:16 Short, by index, in story order."""
     if not _keys(short, {"scenes"}, "$.short", errors):
@@ -301,6 +326,9 @@ def json_schema() -> dict:
                       "description": "Optional: scenes cut into the 9:16 Short (aim for 30-60 s, hook first).",
                       "properties": {"scenes": {"type": "array", "minItems": 1, "uniqueItems": True,
                                                 "items": {"type": "integer", "minimum": 0}}}},
+            "music": {"type": "object", "required": ["id"], "additionalProperties": False,
+                      "description": "Optional background music for the whole video (ducked under the voice).",
+                      "properties": {"id": {"type": "string", "description": "A music id from the catalog."}}},
             "cast": {"type": "array", "items": obj({
                 "id": {"type": "string", "pattern": SLUG, "not": {"enum": [HOST, NARRATOR]}},
                 "name": string,
@@ -323,8 +351,13 @@ def json_schema() -> dict:
                 "lines": {"type": "array", "minItems": 1, "maxItems": MAX_LINES, "items": obj({
                     "speaker": {"type": "string", "description": "'narrator' or a cast id on stage."},
                     "text": string})},
-            })},
-        }, optional=("character", "short")),
+                "ambience": {"type": "string", "description": "Optional ambience id looped under this scene."},
+                "sfx": {"type": "array", "maxItems": MAX_SFX, "items": obj({
+                    "id": {"type": "string", "description": "An sfx id from the catalog."},
+                    "line": {"type": "integer", "minimum": 0,
+                             "description": "Index of the line the sound starts with."}})},
+            }, optional=("ambience", "sfx"))},
+        }, optional=("character", "short", "music")),
     }
 
 
@@ -336,6 +369,9 @@ def catalog() -> dict:
         "props": pack.labels("props"),
         "characters": [[k, v["label"]] for k, v in PRESETS.items()],
         "outfits": list(OUTFITS), "accessories": list(ACCESSORIES),
+        "music": [[s["id"], s["label"]] for s in audio.sounds("music")],
+        "ambience": [[s["id"], s["label"]] for s in audio.sounds("ambience")],
+        "sfx": [[s["id"], s["label"]] for s in audio.sounds("sfx")],
     }
 
 

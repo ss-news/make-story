@@ -1,0 +1,41 @@
+{
+  "format": "storyvid.audio/1",
+  "sounds": [
+    {
+      "id": "house_on_the_hill",
+      "label": "House on the Hill — Everet Almond (dark)",
+      "kind": "music",
+      "file": "music/house_on_the_hill.mp3",
+      "license": "YouTube Audio Library",
+      "source": "YouTube Audio Library (YouTube Studio > Audio Library)",
+      "author": "Everet Almond"
+    },
+    {
+      "id": "curse_of_old",
+      "label": "Curse Of Old — Density & Time (sad)",
+      "kind": "music",
+      "file": "music/curse_of_old.mp3",
+      "license": "YouTube Audio Library",
+      "source": "YouTube Audio Library (YouTube Studio > Audio Library)",
+      "author": "Density & Time"
+    },
+    {
+      "id": "midnight_trace",
+      "label": "Midnight Trace — Jimena Contreras (tense)",
+      "kind": "music",
+      "file": "music/midnight_trace.mp3",
+      "license": "YouTube Audio Library",
+      "source": "YouTube Audio Library (YouTube Studio > Audio Library)",
+      "author": "Jimena Contreras"
+    },
+    {
+      "id": "night_hunt",
+      "label": "Night Hunt — Jimena Contreras (tense)",
+      "kind": "music",
+      "file": "music/night_hunt.mp3",
+      "license": "YouTube Audio Library",
+      "source": "YouTube Audio Library (YouTube Studio > Audio Library)",
+      "author": "Jimena Contreras"
+    }
+  ]
+}

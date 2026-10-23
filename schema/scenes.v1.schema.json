@@ -44,6 +44,20 @@
         }
       }
     },
+    "music": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false,
+      "description": "Optional background music for the whole video (ducked under the voice).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "A music id from the catalog."
+        }
+      }
+    },
     "cast": {
       "type": "array",
       "items": {
@@ -246,6 +260,33 @@
               "required": [
                 "speaker",
                 "text"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "ambience": {
+            "type": "string",
+            "description": "Optional ambience id looped under this scene."
+          },
+          "sfx": {
+            "type": "array",
+            "maxItems": 6,
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "An sfx id from the catalog."
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Index of the line the sound starts with."
+                }
+              },
+              "required": [
+                "id",
+                "line"
               ],
               "additionalProperties": false
             }

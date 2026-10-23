@@ -366,5 +366,25 @@
     "bag",
     "scarf",
     "flashlight"
-  ]
+  ],
+  "music": [
+    [
+      "house_on_the_hill",
+      "House on the Hill — Everet Almond (dark)"
+    ],
+    [
+      "curse_of_old",
+      "Curse Of Old — Density & Time (sad)"
+    ],
+    [
+      "midnight_trace",
+      "Midnight Trace — Jimena Contreras (tense)"
+    ],
+    [
+      "night_hunt",
+      "Night Hunt — Jimena Contreras (tense)"
+    ]
+  ],
+  "ambience": [],
+  "sfx": []
 }

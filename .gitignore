@@ -11,3 +11,9 @@ __pycache__/
 *.blend1
 *.blend2
 .claude/
+
+# Sound files: sources are listed in assets/audio/manifest.json; YouTube Audio Library files may not be redistributed
+assets/audio/**/*.mp3
+assets/audio/**/*.wav
+assets/audio/**/*.flac
+assets/audio/**/*.ogg

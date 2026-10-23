@@ -175,10 +175,17 @@ def _normalize(script: dict, lang: str | None = None) -> dict:
         for pr in (s.get("props") or [])[:MAX_PROPS]:
             if isinstance(pr, dict) and re.fullmatch(r"[a-z][a-z0-9_]*", str(pr.get("id") or "")):
                 props.append({"id": pr["id"], "position": _pick(pr.get("position"), POSITIONS)})
+        sound = {}  # optional audio cues are kept as written; the contract checks them against the audio manifest
+        if isinstance(s.get("ambience"), str) and s["ambience"]:
+            sound["ambience"] = s["ambience"]
+        cues = [c for c in (s.get("sfx") or []) if isinstance(c, dict) and isinstance(c.get("id"), str)
+                and isinstance(c.get("line"), int) and 0 <= c["line"] < len(lines)]
+        if cues:
+            sound["sfx"] = [{"id": c["id"], "line": c["line"]} for c in cues]
         scenes.append({"bg_id": _slug(s.get("bg_id"), f"bg{i}"),
                        "bg_prompt": str(s.get("bg_prompt") or "misty village at dusk"),
                        "camera": _pick(s.get("camera"), CAMERAS), "actors": actors, "props": props,
-                       "lines": lines})
+                       "lines": lines, **sound})
     if not scenes:
         raise RuntimeError("Script has no scenes")
     from .contract import FORMAT
@@ -188,6 +195,8 @@ def _normalize(script: dict, lang: str | None = None) -> dict:
     if "character" in script:
         from .character_catalog import validate_selection
         result["character"] = validate_selection(script["character"])
+    if isinstance(script.get("music"), dict) and isinstance(script["music"].get("id"), str):
+        result["music"] = {"id": script["music"]["id"]}
     picked = (script.get("short") or {}).get("scenes") if isinstance(script.get("short"), dict) else None
     if isinstance(picked, list):
         picked = sorted({i for i in picked if isinstance(i, int) and 0 <= i < len(scenes)})

@@ -97,6 +97,39 @@ def asset_problems() -> list[str]:
     return problems
 
 
+def audio_problems() -> list[str]:
+    """Every sound needs a file that decodes, a kind, a known licence and its source; CC-BY needs a credit."""
+    from . import audio
+    audio.reload()
+    problems, seen = [], set()
+    for item in audio.sounds():
+        where = f"audio/{item.get('id')}"
+        if not re.fullmatch(contract.SLUG, str(item.get("id"))):
+            problems.append(f"{where}: id does not match {contract.SLUG}")
+        if item.get("id") in seen:
+            problems.append(f"{where}: id used twice")
+        seen.add(item.get("id"))
+        if item.get("kind") not in audio.KINDS:
+            problems.append(f"{where}: kind must be one of {', '.join(audio.KINDS)}")
+        if item.get("license") not in audio.LICENSES:
+            problems.append(f"{where}: license must be one of {', '.join(audio.LICENSES)}")
+        if item.get("license") == "CC-BY-4.0" and not item.get("attribution"):
+            problems.append(f"{where}: CC-BY-4.0 needs an attribution line")
+        for field in ("label", "source", "file"):
+            if not item.get(field):
+                problems.append(f"{where}: missing {field}")
+        path = audio.AUDIO / str(item.get("file", ""))
+        if item.get("file") and not path.is_file():
+            problems.append(f"{where}: file not found {path}")
+        elif item.get("file") and item.get("kind") in audio.KINDS:
+            try:
+                if not len(audio._decoded(item["id"])):
+                    problems.append(f"{where}: file has no audio")
+            except Exception as e:  # ffmpeg could not read it
+                problems.append(f"{where}: cannot decode ({e})")
+    return problems
+
+
 def _character_problems(asset_ids: set) -> list[str]:
     from .character import Character
     reference = json.loads((pack.PACK / "characters" / "young_man" / "rig.json").read_text())["parts"]
@@ -133,7 +166,7 @@ def _character_problems(asset_ids: set) -> list[str]:
 
 
 def check_assets() -> int:
-    problems = asset_problems()
+    problems = asset_problems() + audio_problems()
     for p in problems:
         print(f"ERROR {p}")
     if problems:

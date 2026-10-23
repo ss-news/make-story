@@ -64,6 +64,7 @@ Nguồn chuẩn duy nhất là `storyvid/contract.py`. File `schema/scenes.v1.sc
 Quy tắc (bộ kiểm tra báo lỗi kèm đường dẫn, ví dụ `$.scenes[2].actors[0].pose`):
 - Đủ các trường, **không thêm trường lạ**. Chỉ `character` và `short` là tùy chọn.
 - `short.scenes`: chỉ số các cảnh (đếm từ 0, tăng dần) cắt vào Short 9:16. Nên mở bằng cảnh hook, tổng 30–60 giây, kết lửng. Không có trường này thì Short lấy các cảnh đầu truyện tới khoảng 55 giây.
+- Âm thanh (tùy chọn): `"music": {"id": ...}` ở cấp video là nhạc nền cả video, tự nhỏ lại khi có lời đọc; `"ambience": "<id>"` trong một cảnh là âm thanh nền lặp suốt cảnh đó; `"sfx": [{"id": ..., "line": 0}]` là hiệu ứng phát lúc bắt đầu câu thứ `line` của cảnh (tối đa 6). Mã âm thanh phải có sẵn trong `assets/audio/manifest.json`, xem danh sách trong `schema/assets.catalog.json` (mục `music`, `ambience`, `sfx`). Agent không tự tạo âm thanh mới.
 - Mọi id là chữ thường không dấu: `^[a-z][a-z0-9_]*$`. `bg_id` có đuôi `_day` hoặc `_night`.
 - `host` và `narrator` là id dành riêng. `host` là người dẫn chuyện đứng trên sân khấu; `narrator` là giọng kể.
 - Mỗi cảnh: 0–3 diễn viên, 0–3 đồ vật, 1–6 câu thoại. Diễn viên là id trong `cast` hoặc `host`, không lặp trong một cảnh.
@@ -152,6 +153,21 @@ Asset mới **chỉ** nằm trong `assets/bac-bo-stick/extra/`. Lệnh build b�
 | `owner` | `codex`: sửa `scenes.json` hoặc asset. `tool`: lỗi code, báo người dùng |
 | `problem`, `fix` | mô tả lỗi và cách sửa cụ thể, đủ để Codex làm mà không cần hỏi lại |
 
+## Âm thanh: `assets/audio/`
+
+`assets/audio/manifest.json` liệt kê mọi file âm thanh kèm nguồn và giấy phép, để khi bị Content ID claim thì chứng minh được:
+
+```json
+{"id": "can_roll", "label": "Rolling can", "kind": "sfx", "file": "sfx/can_roll.wav",
+ "license": "CC0", "source": "https://freesound.org/people/cower/sounds/185370/", "author": "cower"}
+```
+
+- `kind`: `music`, `ambience` hoặc `sfx`. `license`: `CC0`, `CC-BY-4.0` (bắt buộc kèm `attribution`) hoặc `YouTube Audio Library`. Có thể thêm `gain_db` để chỉnh to nhỏ riêng một file.
+- Tool tự cân âm lượng mọi file về cùng mức trung bình, rồi đặt nhạc thấp hơn giọng khoảng 14–16 dB và nhỏ thêm 6 dB khi có người nói.
+- Video dùng âm thanh CC-BY thì lệnh dựng ghi dòng ghi công vào `credits.txt` trong thư mục dự án; chép vào mô tả video.
+- File âm thanh **không** được đưa vào git (điều khoản YouTube Audio Library cấm phát tán lại file). Chỉ manifest được lưu; tải lại theo `source` khi cần.
+- Chỉ người dùng hoặc Claude (khi người dùng đồng ý tải) thêm file mới. `python -m storyvid.check --assets` kiểm tra cả manifest âm thanh.
+
 ## Thư mục một dự án
 
 ```
@@ -163,6 +179,8 @@ output/<id>/
   review.json           báo cáo kiểm định của Claude
   backgrounds.json      ảnh nền đã raster cho từng bg_id
   audio/, narration.wav giọng đọc
+  mix.wav               giọng đọc đã trộn nhạc và hiệu ứng (chỉ có khi kịch bản có âm thanh)
+  credits.txt           dòng ghi công cho mô tả video (chỉ khi dùng âm thanh CC-BY)
   video.mp4             video 16:9
   short/                giọng đọc riêng của Short
   video_short.mp4       Short 9:16 (1080x1920 với --res 1080)

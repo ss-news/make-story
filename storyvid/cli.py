@@ -132,6 +132,7 @@ def main():
     provider = tts_provider()
     print(f"[2/4] Narrating with {voice if provider == 'edge' else provider}...")
     timeline = narrate(script, voice, out_dir, args.lang)
+    add_sound(script, timeline, out_dir)
 
     size = RESOLUTIONS[args.res]
     print("[3/4] Backgrounds...")
@@ -146,6 +147,19 @@ def main():
     print(f"Done in {time.time() - started:.0f}s -> {video}")
 
 
+def add_sound(script: dict, timeline: dict, work_dir: Path) -> None:
+    """Mix music, ambience and sfx under the voice; the renderer still lip-syncs to the voice alone."""
+    from . import audio
+    if not audio.has_sound(script):
+        return
+    print("  mixing music and sound effects")
+    timeline["audio"] = audio.mix(script, timeline, work_dir / "mix.wav")
+    credits = audio.attributions(script)
+    if credits:
+        (work_dir / "credits.txt").write_text("\n".join(credits) + "\n", encoding="utf-8")
+        print(f"  credits for the description -> {work_dir / 'credits.txt'}")
+
+
 def render_short(script: dict, channel: dict, voice: str, out_dir: Path, args) -> None:
     picked = short_scenes(script)
     short = {**script, "scenes": [script["scenes"][i] for i in picked]}
@@ -153,6 +167,7 @@ def render_short(script: dict, channel: dict, voice: str, out_dir: Path, args) -
     provider = tts_provider()
     print(f"[2/4] Narrating with {voice if provider == 'edge' else provider}...")
     timeline = narrate(short, voice, out_dir / "short", args.lang)
+    add_sound(short, timeline, out_dir / "short")
     if timeline["duration"] > 60:
         print(f"  warning: {timeline['duration']:.0f}s is longer than 60 s; pick fewer scenes in short.scenes")
     width = RESOLUTIONS[args.res][1]  # 720 -> a 720x1280 Short

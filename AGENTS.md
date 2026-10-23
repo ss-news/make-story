@@ -9,7 +9,7 @@
   - Sau bản đầu tiên, không sửa `scenes.json` và không vẽ asset. Mọi chỗ cần sửa ghi vào `output/<id>/review.json` (chuẩn `storyvid.review/1`, schema ở `schema/review.v1.schema.json`).
   - Kiểm định: chạy kiểm tra, dựng video, xem và chấm kịch bản lẫn video, ghi `review.json` với `verdict` là `pass` hoặc `fix`.
 - **Codex** (sửa kịch bản và vẽ asset):
-  - Sửa và hoàn thiện `output/<id>/scenes.json`: lời thoại, diễn xuất, đồ vật, và các mục `owner: "codex"` trong `review.json`.
+  - Sửa và hoàn thiện `output/<id>/scenes.json`: lời thoại, diễn xuất, đồ vật, âm thanh (`music`, `ambience`, `sfx`, chỉ chọn mã có trong `schema/assets.catalog.json`), và các mục `owner: "codex"` trong `review.json`.
   - Vẽ asset được yêu cầu trong `output/<id>/asset_requests.json`, đặt vào `assets/bac-bo-stick/extra/` và đăng ký trong `extra/manifest.json`.
   - Không sửa code `storyvid/`, bộ asset gốc ngoài `extra/`, hay `review.json`.
 - Mục `owner: "tool"` trong `review.json` là lỗi code: báo cho người dùng, không agent nào tự sửa.
