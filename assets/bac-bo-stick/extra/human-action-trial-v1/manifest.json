@@ -1,0 +1,314 @@
+{
+  "format": "blender.layered-character/1",
+  "character": "Narrator",
+  "source_size": [
+    1122,
+    1402
+  ],
+  "grid": [
+    4,
+    5
+  ],
+  "parts": [
+    {
+      "id": "head_front",
+      "file": "parts/head_front.png",
+      "atlas_cell": [
+        0,
+        0,
+        280,
+        280
+      ],
+      "size": [
+        239,
+        219
+      ],
+      "sha256": "e160e5490485d0d9735d615e5398499d6683ba1d00328be8b96350d3bc777edb"
+    },
+    {
+      "id": "head_turn",
+      "file": "parts/head_turn.png",
+      "atlas_cell": [
+        280,
+        0,
+        561,
+        280
+      ],
+      "size": [
+        234,
+        217
+      ],
+      "sha256": "ca2893143cfe7bbe0f07f37fc4353f037f5e692c94880ddc07e740e408ecb946"
+    },
+    {
+      "id": "head_scared",
+      "file": "parts/head_scared.png",
+      "atlas_cell": [
+        561,
+        0,
+        842,
+        280
+      ],
+      "size": [
+        238,
+        219
+      ],
+      "sha256": "507cb0edb930c0a5be62fa6c92f1b5fe95bff04662677f084e9771e36fee3ed7"
+    },
+    {
+      "id": "head_blink",
+      "file": "parts/head_blink.png",
+      "atlas_cell": [
+        842,
+        0,
+        1122,
+        280
+      ],
+      "size": [
+        236,
+        218
+      ],
+      "sha256": "eef034228fa6dac3d15fb9a9f1c41b26b0ac5a7472dca5c9861aec82b41af9a7"
+    },
+    {
+      "id": "torso",
+      "file": "parts/torso.png",
+      "atlas_cell": [
+        0,
+        280,
+        280,
+        561
+      ],
+      "size": [
+        192,
+        234
+      ],
+      "sha256": "f3e66b2e0651cfda46570c4b63d0c268c275887809d7f20b3b67774645a5040c"
+    },
+    {
+      "id": "upper_arm_l",
+      "file": "parts/upper_arm_l.png",
+      "atlas_cell": [
+        280,
+        280,
+        561,
+        561
+      ],
+      "size": [
+        94,
+        233
+      ],
+      "sha256": "041afe314f9638769fd8ee9546618602f0bb83106f537d43c759dc5f0d1a9a3d"
+    },
+    {
+      "id": "upper_arm_r",
+      "file": "parts/upper_arm_r.png",
+      "atlas_cell": [
+        561,
+        280,
+        842,
+        561
+      ],
+      "size": [
+        94,
+        233
+      ],
+      "sha256": "cb11a5204e2e0973c43c5c9b64555b0339d3fd38e209fd329e61ca0dc1e06ae1"
+    },
+    {
+      "id": "forearm_l",
+      "file": "parts/forearm_l.png",
+      "atlas_cell": [
+        842,
+        280,
+        1122,
+        561
+      ],
+      "size": [
+        44,
+        174
+      ],
+      "sha256": "366112b834c4dfb0d6560e497bc54e5f2e0e0e32e5e5bd9e8285ffb675926c65"
+    },
+    {
+      "id": "forearm_r",
+      "file": "parts/forearm_r.png",
+      "atlas_cell": [
+        0,
+        561,
+        280,
+        841
+      ],
+      "size": [
+        45,
+        174
+      ],
+      "sha256": "c9ba7084c6d76869ac6f4665f921a067221849fe6026014b9e0a0264e85221ae"
+    },
+    {
+      "id": "hand_l",
+      "file": "parts/hand_l.png",
+      "atlas_cell": [
+        280,
+        561,
+        561,
+        841
+      ],
+      "size": [
+        66,
+        83
+      ],
+      "sha256": "6d9fda72eda9f42bc3ff799621d2da025949a2fe97fc42ad1b796f3eae29bceb"
+    },
+    {
+      "id": "hand_r",
+      "file": "parts/hand_r.png",
+      "atlas_cell": [
+        561,
+        561,
+        842,
+        841
+      ],
+      "size": [
+        65,
+        82
+      ],
+      "sha256": "694346c9e88e0c74d7106113ea1c7ad9b088cdb308e0433663de2ff8c6aedd21"
+    },
+    {
+      "id": "thigh_l",
+      "file": "parts/thigh_l.png",
+      "atlas_cell": [
+        842,
+        561,
+        1122,
+        841
+      ],
+      "size": [
+        113,
+        237
+      ],
+      "sha256": "2fbc8d07f51f9fa56901d3b81b1b86002fa1e6bb9cbf6f7e7b09c8838cd011b2"
+    },
+    {
+      "id": "thigh_r",
+      "file": "parts/thigh_r.png",
+      "atlas_cell": [
+        0,
+        841,
+        280,
+        1122
+      ],
+      "size": [
+        113,
+        232
+      ],
+      "sha256": "53ab2ed62bc1dd22e204f8ae38765c089053097f50f6e185c9a5031ebe1482d7"
+    },
+    {
+      "id": "shin_l",
+      "file": "parts/shin_l.png",
+      "atlas_cell": [
+        280,
+        841,
+        561,
+        1122
+      ],
+      "size": [
+        100,
+        228
+      ],
+      "sha256": "fb2fc38328dc7d259764fe4a9f3bf1cd74122b7842599b080f006119b0334557"
+    },
+    {
+      "id": "shin_r",
+      "file": "parts/shin_r.png",
+      "atlas_cell": [
+        561,
+        841,
+        842,
+        1122
+      ],
+      "size": [
+        100,
+        229
+      ],
+      "sha256": "121f5cbee1ea2d83bd55d5f6ddc8868954e088f0a9a47639ce2a38d9b8bc2e14"
+    },
+    {
+      "id": "foot_l",
+      "file": "parts/foot_l.png",
+      "atlas_cell": [
+        842,
+        841,
+        1122,
+        1122
+      ],
+      "size": [
+        130,
+        83
+      ],
+      "sha256": "eb46443c66010c962993a17a3c0ca56661a9c0108a2ca2a02bbb1dae9394c676"
+    },
+    {
+      "id": "foot_r",
+      "file": "parts/foot_r.png",
+      "atlas_cell": [
+        0,
+        1122,
+        280,
+        1402
+      ],
+      "size": [
+        139,
+        89
+      ],
+      "sha256": "d20232f2ab9a72bbfb7f07d9f09eece226e003b98a984e056dfb689b9eec9761"
+    },
+    {
+      "id": "flashlight",
+      "file": "parts/flashlight.png",
+      "atlas_cell": [
+        280,
+        1122,
+        561,
+        1402
+      ],
+      "size": [
+        199,
+        111
+      ],
+      "sha256": "b08afcdd46d86ab6243e58ff93572f864cec841753f823cf4520b5d26d7d9475"
+    },
+    {
+      "id": "shoulder_l",
+      "file": "parts/shoulder_l.png",
+      "atlas_cell": [
+        561,
+        1122,
+        842,
+        1402
+      ],
+      "size": [
+        82,
+        87
+      ],
+      "sha256": "f112112a6f02b98c386e40f6835ce936381fc647a0b61a1a2a0661ac28af1ab9"
+    },
+    {
+      "id": "shoulder_r",
+      "file": "parts/shoulder_r.png",
+      "atlas_cell": [
+        842,
+        1122,
+        1122,
+        1402
+      ],
+      "size": [
+        82,
+        87
+      ],
+      "sha256": "b12128508c947043d0a92708360be78da36797249bd4070f37ac42e2e02e67ee"
+    }
+  ]
+}
