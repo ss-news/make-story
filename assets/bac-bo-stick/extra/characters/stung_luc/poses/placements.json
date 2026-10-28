@@ -1,0 +1,9 @@
+{
+  "prayer": {
+    "shoulder_L": 28.5,
+    "elbow_L": -129.6,
+    "shoulder_R": -28.5,
+    "elbow_R": 129.6
+  },
+  "note": "Authored source pose; requires renderer support before selecting prayer in scenes/1."
+}

@@ -365,6 +365,90 @@
     [
       "small_boy",
       "Bé trai nhỏ · Út"
+    ],
+    [
+      "stung_narrator",
+      "Narrator"
+    ],
+    [
+      "stung_bay",
+      "Bay"
+    ],
+    [
+      "stung_luc",
+      "Luc"
+    ],
+    [
+      "stung_tung",
+      "Tung"
+    ],
+    [
+      "stung_sophal",
+      "Sophal"
+    ],
+    [
+      "stung_vanna",
+      "Vanna"
+    ],
+    [
+      "stung_foreman",
+      "Foreman"
+    ],
+    [
+      "stung_mr_chan",
+      "Mr Chan"
+    ],
+    [
+      "stung_mrs_chan",
+      "Mrs Chan"
+    ],
+    [
+      "legless_ghost_woman",
+      "The Woman"
+    ],
+    [
+      "kneeling_ghost_woman",
+      "Kneeling Woman"
+    ],
+    [
+      "stung_ghost_boy",
+      "Boy"
+    ],
+    [
+      "fanged_ghost_child",
+      "Small Child"
+    ],
+    [
+      "stung_npc_man_round",
+      "NPC man round"
+    ],
+    [
+      "stung_npc_man_thin",
+      "NPC man thin"
+    ],
+    [
+      "stung_npc_woman_long",
+      "NPC woman long hair"
+    ],
+    [
+      "stung_npc_woman_bun",
+      "NPC woman bun"
+    ],
+    [
+      "stung_npc_elder_man",
+      "NPC elder man"
+    ],
+    [
+      "stung_npc_elder_woman",
+      "NPC elder woman"
+    ],
+    [
+      "stung_npc_boy",
+      "NPC boy"
+    ],
+    [
+      "stung_npc_girl",
+      "NPC girl"
     ]
   ],
   "outfits": [

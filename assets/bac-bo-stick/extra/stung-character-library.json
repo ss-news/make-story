@@ -1,0 +1,122 @@
+{
+  "format": "stung-character-source/1",
+  "approved_reference": "output/stung_treng/concepts/people-v1.png + ghosts-v1.png",
+  "characters": [
+    {
+      "id": "stung_narrator",
+      "name": "Narrator",
+      "default_accessory": "flashlight"
+    },
+    {
+      "id": "stung_bay",
+      "name": "Bay",
+      "default_accessory": "none"
+    },
+    {
+      "id": "stung_luc",
+      "name": "Luc",
+      "default_accessory": "none"
+    },
+    {
+      "id": "stung_tung",
+      "name": "Tung",
+      "default_accessory": "bag"
+    },
+    {
+      "id": "stung_sophal",
+      "name": "Sophal",
+      "default_accessory": "flashlight"
+    },
+    {
+      "id": "stung_vanna",
+      "name": "Vanna",
+      "default_accessory": "scarf"
+    },
+    {
+      "id": "stung_foreman",
+      "name": "Foreman",
+      "default_accessory": "bag"
+    },
+    {
+      "id": "stung_mr_chan",
+      "name": "Mr Chan",
+      "default_accessory": "none"
+    },
+    {
+      "id": "stung_mrs_chan",
+      "name": "Mrs Chan",
+      "default_accessory": "none"
+    },
+    {
+      "id": "legless_ghost_woman",
+      "name": "The Woman",
+      "default_accessory": "none"
+    },
+    {
+      "id": "kneeling_ghost_woman",
+      "name": "Kneeling Woman",
+      "default_accessory": "none"
+    },
+    {
+      "id": "stung_ghost_boy",
+      "name": "Boy",
+      "default_accessory": "none"
+    },
+    {
+      "id": "fanged_ghost_child",
+      "name": "Small Child",
+      "default_accessory": "none"
+    }
+  ],
+  "npcs": [
+    "stung_npc_man_round",
+    "stung_npc_man_thin",
+    "stung_npc_woman_long",
+    "stung_npc_woman_bun",
+    "stung_npc_elder_man",
+    "stung_npc_elder_woman",
+    "stung_npc_boy",
+    "stung_npc_girl"
+  ],
+  "runtime_expressions": [
+    "neutral",
+    "happy",
+    "scared",
+    "surprised",
+    "sad",
+    "angry",
+    "smirk"
+  ],
+  "source_expressions": [
+    "worried",
+    "terrified",
+    "crying",
+    "pleading",
+    "suspicious",
+    "exhausted",
+    "determined",
+    "embarrassed",
+    "blushing",
+    "shy_happy",
+    "sad_blush",
+    "relieved",
+    "laughing",
+    "blank",
+    "shadowed"
+  ],
+  "effects": [
+    "stung_blush_cheeks",
+    "stung_embarrassed_hatch",
+    "stung_tear_drop",
+    "stung_tear_streams",
+    "stung_sweat_drop",
+    "stung_sparkle_star",
+    "stung_anger_mark",
+    "stung_shadow_eyes",
+    "stung_shock_lines",
+    "stung_tremble_lines",
+    "stung_heart_pop",
+    "stung_laugh_tears"
+  ],
+  "note": "Source-only expressions and effects are not automatically usable by the current scenes/1 renderer. No core code changes."
+}

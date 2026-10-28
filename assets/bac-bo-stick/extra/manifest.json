@@ -253,6 +253,78 @@
       "label": "Hiên nhà với đèn dầu và mùng ngủ · đêm",
       "group": "backgrounds",
       "svg": "backgrounds/veranda_night.svg"
+    },
+    {
+      "id": "stung_blush_cheeks",
+      "label": "blush cheeks",
+      "group": "effects",
+      "svg": "effects/stung_blush_cheeks.svg"
+    },
+    {
+      "id": "stung_embarrassed_hatch",
+      "label": "embarrassed hatch",
+      "group": "effects",
+      "svg": "effects/stung_embarrassed_hatch.svg"
+    },
+    {
+      "id": "stung_tear_drop",
+      "label": "tear drop",
+      "group": "effects",
+      "svg": "effects/stung_tear_drop.svg"
+    },
+    {
+      "id": "stung_tear_streams",
+      "label": "tear streams",
+      "group": "effects",
+      "svg": "effects/stung_tear_streams.svg"
+    },
+    {
+      "id": "stung_sweat_drop",
+      "label": "sweat drop",
+      "group": "effects",
+      "svg": "effects/stung_sweat_drop.svg"
+    },
+    {
+      "id": "stung_sparkle_star",
+      "label": "sparkle star",
+      "group": "effects",
+      "svg": "effects/stung_sparkle_star.svg"
+    },
+    {
+      "id": "stung_anger_mark",
+      "label": "anger mark",
+      "group": "effects",
+      "svg": "effects/stung_anger_mark.svg"
+    },
+    {
+      "id": "stung_shadow_eyes",
+      "label": "shadow eyes",
+      "group": "effects",
+      "svg": "effects/stung_shadow_eyes.svg"
+    },
+    {
+      "id": "stung_shock_lines",
+      "label": "shock lines",
+      "group": "effects",
+      "svg": "effects/stung_shock_lines.svg"
+    },
+    {
+      "id": "stung_tremble_lines",
+      "label": "tremble lines",
+      "group": "effects",
+      "svg": "effects/stung_tremble_lines.svg"
+    },
+    {
+      "id": "stung_heart_pop",
+      "label": "heart pop",
+      "group": "effects",
+      "svg": "effects/stung_heart_pop.svg"
+    },
+    {
+      "id": "stung_laugh_tears",
+      "label": "laugh tears",
+      "group": "effects",
+      "svg": "effects/stung_laugh_tears.svg"
     }
   ],
   "characters": [
@@ -264,6 +336,195 @@
       "scale": 0.6,
       "skin": "#d3a075",
       "hair": "#30302c"
+    },
+    {
+      "id": "stung_narrator",
+      "label": "Narrator",
+      "female": false,
+      "age": "young",
+      "scale": 1.0,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_bay",
+      "label": "Bay",
+      "female": false,
+      "age": "middle",
+      "scale": 1.02,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_luc",
+      "label": "Luc",
+      "female": false,
+      "age": "young",
+      "scale": 0.98,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_tung",
+      "label": "Tung",
+      "female": false,
+      "age": "young",
+      "scale": 1.0,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_sophal",
+      "label": "Sophal",
+      "female": false,
+      "age": "middle",
+      "scale": 1.0,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_vanna",
+      "label": "Vanna",
+      "female": false,
+      "age": "young",
+      "scale": 0.98,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_foreman",
+      "label": "Foreman",
+      "female": false,
+      "age": "middle",
+      "scale": 1.02,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_mr_chan",
+      "label": "Mr Chan",
+      "female": false,
+      "age": "elder",
+      "scale": 0.94,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_mrs_chan",
+      "label": "Mrs Chan",
+      "female": true,
+      "age": "elder",
+      "scale": 0.92,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "legless_ghost_woman",
+      "label": "The Woman",
+      "female": true,
+      "age": "young",
+      "scale": 0.98,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "kneeling_ghost_woman",
+      "label": "Kneeling Woman",
+      "female": true,
+      "age": "middle",
+      "scale": 0.96,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_ghost_boy",
+      "label": "Boy",
+      "female": false,
+      "age": "child",
+      "scale": 0.76,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "fanged_ghost_child",
+      "label": "Small Child",
+      "female": false,
+      "age": "child",
+      "scale": 0.58,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_npc_man_round",
+      "label": "NPC man round",
+      "female": false,
+      "age": "middle",
+      "scale": 1.0,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_npc_man_thin",
+      "label": "NPC man thin",
+      "female": false,
+      "age": "young",
+      "scale": 0.98,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_npc_woman_long",
+      "label": "NPC woman long hair",
+      "female": true,
+      "age": "young",
+      "scale": 0.95,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_npc_woman_bun",
+      "label": "NPC woman bun",
+      "female": true,
+      "age": "middle",
+      "scale": 0.96,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_npc_elder_man",
+      "label": "NPC elder man",
+      "female": false,
+      "age": "elder",
+      "scale": 0.92,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_npc_elder_woman",
+      "label": "NPC elder woman",
+      "female": true,
+      "age": "elder",
+      "scale": 0.9,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_npc_boy",
+      "label": "NPC boy",
+      "female": false,
+      "age": "child",
+      "scale": 0.7,
+      "skin": "#ffffff",
+      "hair": "#252729"
+    },
+    {
+      "id": "stung_npc_girl",
+      "label": "NPC girl",
+      "female": true,
+      "age": "child",
+      "scale": 0.67,
+      "skin": "#ffffff",
+      "hair": "#252729"
     }
   ]
 }
