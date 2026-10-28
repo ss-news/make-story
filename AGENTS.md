@@ -12,6 +12,10 @@
   - Sửa và hoàn thiện `output/<id>/scenes.json`: lời thoại, diễn xuất, đồ vật, âm thanh (`music`, `ambience`, `sfx`, chỉ chọn mã có trong `schema/assets.catalog.json`), và các mục `owner: "codex"` trong `review.json`.
   - Vẽ asset được yêu cầu trong `output/<id>/asset_requests.json`, đặt vào `assets/bac-bo-stick/extra/` và đăng ký trong `extra/manifest.json`.
   - Không sửa code `storyvid/`, bộ asset gốc ngoài `extra/`, hay `review.json`.
+- **Checklist review `docs/review-checklist.md` bắt buộc cho cả Claude và Codex:**
+  - Claude: khi chia cảnh (bản đầu) tự soát phần 2–5 và 7; khi kiểm định đi hết phần 1–7, mục ★ không đạt ghi tối thiểu `major` vào `review.json`.
+  - Codex: trước khi bàn giao `scenes.json` hoặc asset, tự soát phần 1–7 (những mục thuộc kịch bản và asset) và sửa hết mục ★ chưa đạt; mục không tự sửa được thì nêu rõ khi bàn giao.
+  - Khi bàn giao, cả hai báo mục nào chưa đạt. Phần 8–9 do người dùng làm, agent chỉ nhắc.
 - Mục `owner: "tool"` trong `review.json` là lỗi code: báo cho người dùng, không agent nào tự sửa.
 - Trước khi bàn giao:
   - Kịch bản: `.venv/bin/python -m storyvid.check output/<id>/scenes.json` (0 = đạt, 1 = sai chuẩn, 2 = thiếu asset).
@@ -20,3 +24,11 @@
   - Code: `.venv/bin/python -m unittest discover -s tests` phải qua hết.
 - Dựng video: `.venv/bin/python -m storyvid.cli --script output/<id>/scenes.json`; thêm `--short` để dựng Short 9:16. Chỉ dùng `--fallback` để xem nháp.
 - Đổi chuẩn: sửa `storyvid/contract.py`, chạy `.venv/bin/python -m storyvid.check --write-schema`, cập nhật `docs/pipeline.md` và `examples/`.
+
+## Lưu ý nội dung từ số liệu YouTube (chi tiết: `docs/research/2026-10-28-ma-lon-analytics.md`)
+- Ma Lon: CTR 1,1%, xem trung bình 43 giây trên 10 phút, bị YouTube đề xuất cạnh Mr Bean và hoạt hình thiếu nhi. Áp dụng cho mọi clip sau:
+- 30 giây đầu: cảnh đáng sợ nhất, chủ thể to và rõ giữa khung, kết bằng câu hỏi. Không tả làng, bối cảnh hay cảnh ban ngày trước khi có điều lạ. Claude kiểm tra điều này khi chia cảnh và khi chấm.
+- Truyện ma phải trông như truyện ma: nền tối, bóng đổ, nhân vật biểu cảm sợ chứ không hài, tránh khung hình dễ nhầm với hoạt hình thiếu nhi.
+- Mỗi video có thumbnail riêng: nền tối, một chủ thể đáng sợ thật to, một màu nhấn, chữ tối đa 3–4 từ. Không dùng khung hình tự cắt.
+- Short: hình đầy khung dọc, chủ thể to, không để dải đen lớn.
+- Khi đăng: bản 1080p (không dùng bản nén), tải phụ đề SRT, không đánh dấu dành cho trẻ em. Sau 48 giờ đọc lại CTR, đường giữ chân và các video YouTube đề xuất cạnh.
