@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Whole-character source pack (Blender adapter)",
+  "type": "object",
+  "required": ["format", "canvas", "anchor", "render_mode", "characters"],
+  "properties": {
+    "format": {"const": "storyvid.whole-character-assets/1"},
+    "canvas": {"const": [1024,1536]},
+    "anchor": {"const": [512,1390]},
+    "render_mode": {"const": "whole_pose_rgba"},
+    "characters": {
+      "type": "array", "minItems": 4, "maxItems": 4,
+      "items": {
+        "type": "object", "required": ["id", "default_pose", "poses"],
+        "properties": {
+          "id": {"type":"string"}, "default_pose": {"type":"string"},
+          "poses": {
+            "type":"array", "minItems":4,"maxItems":4,
+            "items":{"type":"object","required":["id","file","size","anchor","sha256"],"properties":{"id":{"type":"string"},"file":{"type":"string"},"size":{"const":[1024,1536]},"anchor":{"const":[512,1390]},"sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"}}}
+          }
+        }
+      }
+    }
+  }
+}

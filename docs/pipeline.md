@@ -193,3 +193,9 @@ Không sửa chuẩn ngầm. Khi cần thêm trường hay đổi quy tắc:
 1. Sửa `storyvid/contract.py` (và `script.py` nếu thêm giá trị cố định).
 2. Tăng phiên bản (`storyvid.scenes/2`) nếu kịch bản cũ không còn hợp lệ.
 3. Chạy `python -m storyvid.check --write-schema`, sửa tài liệu này và `examples/`, chạy test.
+
+## Ma nguyên ảnh và Blender (bộ đã duyệt cho Stung Treng)
+
+Bộ nguồn `assets/bac-bo-stick/extra/whole-ghosts-v1/` dùng một PNG RGBA nguyên nhân vật cho mỗi tư thế, giữ mẫu đã duyệt thay vì cắt khớp tay chân. Mỗi ma có bốn tư thế. Quy cách, điểm đặt, nguồn ảnh và script ở [README bộ ma](../assets/bac-bo-stick/extra/whole-ghosts-v1/README.md). Blender tạo cảnh 2.5D từ manifest riêng, với chuyển động nhẹ và đổi tư thế bằng độ mờ.
+
+Đây là chuẩn nguồn cho bộ dựng Blender riêng, **chưa phải một thay đổi của `storyvid.scenes/1`**. Quy tắc nhân vật SVG của renderer Storyvid hiện tại vẫn giữ nguyên. Không thêm trường hay giá trị pose mới vào scenes.json để dùng tạm PNG; không đăng ký PNG nguyên nhân vật thành props. Khi cần Storyvid đọc bộ này, phải làm một đợt tích hợp được cho phép rõ ràng và kiểm tra lại chuẩn, renderer và video. Bộ nguồn và bản Blender không thay thế review cuối của Claude.

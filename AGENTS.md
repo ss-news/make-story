@@ -25,6 +25,8 @@
 - Dựng video: `.venv/bin/python -m storyvid.cli --script output/<id>/scenes.json`; thêm `--short` để dựng Short 9:16. Chỉ dùng `--fallback` để xem nháp.
 - Đổi chuẩn: sửa `storyvid/contract.py`, chạy `.venv/bin/python -m storyvid.check --write-schema`, cập nhật `docs/pipeline.md` và `examples/`.
 
+- Bộ ma nguyên ảnh dùng Blender: chuẩn nguồn ở `assets/bac-bo-stick/extra/whole-ghosts-v1/` (PNG RGBA theo tư thế, manifest riêng, không cắt khớp tay chân). Đây là chuẩn nguồn cho Blender, chưa thay đổi hợp đồng `storyvid.scenes/1`; không tự đưa pose mới vào scenes.json hoặc đăng ký nhân vật PNG thành props.
+
 ## Lưu ý nội dung từ số liệu YouTube (chi tiết: `docs/research/2026-10-28-ma-lon-analytics.md`)
 - Ma Lon: CTR 1,1%, xem trung bình 43 giây trên 10 phút, bị YouTube đề xuất cạnh Mr Bean và hoạt hình thiếu nhi. Áp dụng cho mọi clip sau:
 - 30 giây đầu: cảnh đáng sợ nhất, chủ thể to và rõ giữa khung, kết bằng câu hỏi. Không tả làng, bối cảnh hay cảnh ban ngày trước khi có điều lạ. Claude kiểm tra điều này khi chia cảnh và khi chấm.

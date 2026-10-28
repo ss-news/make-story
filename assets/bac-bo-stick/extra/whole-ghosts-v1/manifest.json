@@ -1,0 +1,384 @@
+{
+  "format": "storyvid.whole-character-assets/1",
+  "canvas": [
+    1024,
+    1536
+  ],
+  "anchor": [
+    512,
+    1390
+  ],
+  "units": "pixels",
+  "render_mode": "whole_pose_rgba",
+  "characters": [
+    {
+      "id": "legless_ghost_woman",
+      "label": "The Woman",
+      "default_pose": "plead",
+      "blender_height": 3.5,
+      "poses": [
+        {
+          "id": "float_neutral",
+          "file": "characters/legless_ghost_woman/float_neutral.png",
+          "source": "source/legless_ghost_woman/float_neutral.png",
+          "bbox": [
+            212,
+            260,
+            812,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 1.050185873605948,
+          "sha256": "40f379ffd90a2315531c11278797bde2794a52d8216fea7cf94eeff315f7af3e"
+        },
+        {
+          "id": "plead",
+          "file": "characters/legless_ghost_woman/plead.png",
+          "source": "source/legless_ghost_woman/plead.png",
+          "bbox": [
+            223,
+            260,
+            801,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 0.8982511923688394,
+          "sha256": "4e87bd83aba11b8a474e6372691943c1e395ce2e5bd8e36687d37018435de49f"
+        },
+        {
+          "id": "bow",
+          "file": "characters/legless_ghost_woman/bow.png",
+          "source": "source/legless_ghost_woman/bow.png",
+          "bbox": [
+            225,
+            320,
+            799,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 0.8784893267651889,
+          "sha256": "67927355118245713c1a0ff99a615a53afcd6b6367110a159577e702f9d0d219"
+        },
+        {
+          "id": "raise_head",
+          "file": "characters/legless_ghost_woman/raise_head.png",
+          "source": "source/legless_ghost_woman/raise_head.png",
+          "bbox": [
+            198,
+            240,
+            827,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 0.9888220120378332,
+          "sha256": "c884d3ea5636e7e9bc7c7b59f6f85186492614616116bc5a7d31ae5634e1c730"
+        }
+      ]
+    },
+    {
+      "id": "kneeling_ghost_woman",
+      "label": "Kneeling Woman",
+      "default_pose": "kneel",
+      "blender_height": 1.3,
+      "poses": [
+        {
+          "id": "kneel",
+          "file": "characters/kneeling_ghost_woman/kneel.png",
+          "source": "source/kneeling_ghost_woman/kneel.png",
+          "bbox": [
+            137,
+            900,
+            887,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 0.6744604316546763,
+          "sha256": "e7a6c0a0e90a507ba4d8ea9be87391d0d0fcf70dfdd497d68e4f30c49224cd66"
+        },
+        {
+          "id": "deep_bow",
+          "file": "characters/kneeling_ghost_woman/deep_bow.png",
+          "source": "source/kneeling_ghost_woman/deep_bow.png",
+          "bbox": [
+            137,
+            929,
+            887,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 0.6938020351526365,
+          "sha256": "585a7768dc5dcaaac1a045830937de5b84cbd2ecee27b370f91be0c936d377ae"
+        },
+        {
+          "id": "crawl",
+          "file": "characters/kneeling_ghost_woman/crawl.png",
+          "source": "source/kneeling_ghost_woman/crawl.png",
+          "bbox": [
+            137,
+            931,
+            887,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 0.6504770164787511,
+          "sha256": "d458226731a87172e5ba1ba42f4da78d2aedaee1e992059222477d1b9c635a30"
+        },
+        {
+          "id": "look_up",
+          "file": "characters/kneeling_ghost_woman/look_up.png",
+          "source": "source/kneeling_ghost_woman/look_up.png",
+          "bbox": [
+            137,
+            574,
+            887,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 1.0204081632653061,
+          "sha256": "85514e3acf6bd88e963d57273560f163e8dbb4d12a281789f8c609b83fcc2cf8"
+        }
+      ]
+    },
+    {
+      "id": "ghost_boy",
+      "label": "Boy",
+      "default_pose": "stand",
+      "blender_height": 3.0,
+      "poses": [
+        {
+          "id": "stand",
+          "file": "characters/ghost_boy/stand.png",
+          "source": "source/ghost_boy/stand.png",
+          "bbox": [
+            274,
+            330,
+            750,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 0.9306409130816505,
+          "sha256": "e3bb367a12c53b5969ad9e7fc08de8cdfb190680ee8ac9c5efcd791044e0018b"
+        },
+        {
+          "id": "hold_hand",
+          "file": "characters/ghost_boy/hold_hand.png",
+          "source": "source/ghost_boy/hold_hand.png",
+          "bbox": [
+            199,
+            330,
+            825,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 0.8527755430410298,
+          "sha256": "b733e123e59e32d998fee59d6706bf56d09cb8f4a0a74a2de78663399073c042"
+        },
+        {
+          "id": "turn",
+          "file": "characters/ghost_boy/turn.png",
+          "source": "source/ghost_boy/turn.png",
+          "bbox": [
+            283,
+            330,
+            741,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 0.9273840769903762,
+          "sha256": "e1a548c23ac724460c6b86d97ff64c01d4de433b09b7cc9e6d76b31a4b31d542"
+        },
+        {
+          "id": "lower_head",
+          "file": "characters/ghost_boy/lower_head.png",
+          "source": "source/ghost_boy/lower_head.png",
+          "bbox": [
+            276,
+            360,
+            748,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 0.8841201716738197,
+          "sha256": "060fc98267ace1aa7143a09e59e4cafc42b976df8d184f33c877b6961ab635ae"
+        }
+      ]
+    },
+    {
+      "id": "fanged_ghost_child",
+      "label": "Small Child",
+      "default_pose": "stand",
+      "blender_height": 2.1,
+      "poses": [
+        {
+          "id": "stand",
+          "file": "characters/fanged_ghost_child/stand.png",
+          "source": "source/fanged_ghost_child/stand.png",
+          "bbox": [
+            298,
+            600,
+            725,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 0.7417840375586855,
+          "sha256": "2f398cf65317ad7eacc495a2976a11fde602ee34bfbeac0efaa67bc96eea1e6d"
+        },
+        {
+          "id": "lean",
+          "file": "characters/fanged_ghost_child/lean.png",
+          "source": "source/fanged_ghost_child/lean.png",
+          "bbox": [
+            284,
+            620,
+            739,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 0.6802120141342756,
+          "sha256": "76a173618fecfc32f3ac4bd3d85fc51d49e6338634362c0e203fefd8970f6758"
+        },
+        {
+          "id": "look_up",
+          "file": "characters/fanged_ghost_child/look_up.png",
+          "source": "source/fanged_ghost_child/look_up.png",
+          "bbox": [
+            291,
+            590,
+            733,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 0.7168458781362007,
+          "sha256": "e2ab8c9a4bdbed2a7f743e6ffd420f344078a8bb089688f4a87c0e6d57d447a3"
+        },
+        {
+          "id": "reach",
+          "file": "characters/fanged_ghost_child/reach.png",
+          "source": "source/fanged_ghost_child/reach.png",
+          "bbox": [
+            264,
+            590,
+            759,
+            1390
+          ],
+          "size": [
+            1024,
+            1536
+          ],
+          "anchor": [
+            512,
+            1390
+          ],
+          "scale_from_source": 0.6932409012131716,
+          "sha256": "647d3c38bd35727c1c72868cb277d3cbf7542f1ef6a1ff73175b49a1faec3704"
+        }
+      ]
+    }
+  ],
+  "generation": "ImageGen edits from approved reference; no limb slicing; native PNG alpha preserved"
+}
