@@ -53,12 +53,24 @@ export function posed(document,name,phase=0){
  if(name==='aim'){bend('r',-52,-28);const f=get('flashlight'),h=get('hand_r');if(f&&h){f.visible=true;f.x=h.x;f.y=h.y;f.rotation=0;}const head=get('head');if(head)head.asset='head_turn';}
  if(name==='scared'){bend('l',65,45);bend('r',-65,-45);const head=get('head');if(head)head.asset='head_scared';}
  if(name==='walk'){
-  bend('l',Math.sin(phase)*12,5);bend('r',-Math.sin(phase)*12,-5);
-  for(const [side,sign] of [['l',1],['r',-1]]){
+  // Side walk in place toward the viewer's left, where head_turn looks. Rotation is clockwise, so f=-1 makes a forward (left) swing positive.
+  const f=-1,bottom=p=>Math.max(...[[0,p.height],[p.width,p.height]].map(([x,y])=>worldPoint(p,x,y).y));
+  const feet=['foot_l','foot_r'].map(get).filter(Boolean),ground=feet.length?Math.max(...feet.map(bottom)):null;
+  const head=get('head');if(head)head.asset='head_turn';
+  const hips=['thigh_l','thigh_r'].map(get).filter(Boolean),hipX=hips.reduce((a,p)=>a+p.x,0)/(hips.length||1);
+  for(const [side,offset] of [['l',0],['r',Math.PI]]){
+   const t=phase+offset,hip=22*Math.sin(t),knee=45*Math.max(0,Math.cos(t))**2+4;
+   const arm=-16*Math.sin(t);bend(side,-f*arm,-f*(.6*Math.max(0,arm)+4));
    const thigh=get('thigh_'+side),shin=get('shin_'+side),foot=get('foot_'+side);if(!thigh||!shin||!foot)continue;
-   const knee=localPoint(thigh,shin.x,shin.y),ankle=localPoint(shin,foot.x,foot.y),swing=Math.sin(phase)*sign*18;
-   thigh.rotation+=swing;Object.assign(shin,worldPoint(thigh,knee.x,knee.y));shin.rotation+=swing+Math.max(0,Math.sin(phase)*sign)*24;Object.assign(foot,worldPoint(shin,ankle.x,ankle.y));
+   const kneeAt=localPoint(thigh,shin.x,shin.y),ankleAt=localPoint(shin,foot.x,foot.y);
+   thigh.x+=(hipX-thigh.x)*.7;thigh.rotation-=f*hip;
+   Object.assign(shin,worldPoint(thigh,kneeAt.x,kneeAt.y));shin.rotation-=f*(hip-knee);
+   Object.assign(foot,worldPoint(shin,ankleAt.x,ankleAt.y));foot.rotation+=f*.3*knee;
+   // foot_l points its toe right, foot_r left; both feet face the walking direction.
+   const toward=f>0?'foot_l':'foot_r';if(foot.asset!==toward&&foot.asset.startsWith('foot_')){foot.asset=toward;foot.pivotX=1-foot.pivotX;}
   }
+  // Keep the lowest foot planted on the ground line of the edit layout.
+  if(ground!==null){const dy=ground-Math.max(...feet.map(bottom));for(const p of doc.parts)p.y+=dy;}
  }
  return doc;
 }
