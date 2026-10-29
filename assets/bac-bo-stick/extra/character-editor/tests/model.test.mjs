@@ -21,3 +21,10 @@ assert.ok(behind.parts.find(p=>p.id==='torso').z<behind.parts.find(p=>p.id==='sh
 assert.deepEqual(validate(JSON.parse(JSON.stringify(behind))),behind);
 assert.deepEqual(behind.parts.map(({z,...rest})=>rest),layers.parts.map(({z,...rest})=>rest));
 console.log('Layer ordering: front/back insertion, source unchanged, other transforms preserved, JSON roundtrip passed.');
+const {translateParts}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const groupDoc=defaults(),groupIds=['upper_arm_l','forearm_l','hand_l'];
+const translated=translateParts(groupDoc,groupIds,40,-25);
+for(let i=0;i<groupDoc.parts.length;i++){const original=groupDoc.parts[i],part=translated.parts[i];assert.deepEqual(part,groupIds.includes(part.id)?{...original,x:original.x+40,y:original.y-25}:original);}
+const bounded=translateParts(groupDoc,groupIds,99999,0),deltas=bounded.parts.filter(p=>groupIds.includes(p.id)).map(p=>p.x-groupDoc.parts.find(o=>o.id===p.id).x);
+assert.ok(deltas.every(d=>Math.abs(d-deltas[0])<1e-9));validate(bounded);
+console.log('Group translation: selected parts only, shared delta, bounds preserve spacing passed.');

@@ -72,3 +72,11 @@ export function reorderLayers(document,sourceId,targetId,before=true){
  order.forEach((p,i)=>p.z=order.length-1-i);
  return result;
 }
+export function translateParts(document,ids,dx,dy){
+ if(!Number.isFinite(dx)||!Number.isFinite(dy))throw Error('Độ dịch chuyển không hợp lệ.');
+ const result=clone(document),wanted=new Set(ids),parts=result.parts.filter(p=>wanted.has(p.id));
+ if(!parts.length||parts.length!==wanted.size)throw Error('Cụm có bộ phận không tồn tại.');
+ dx=Math.max(Math.max(...parts.map(p=>-8192-p.x)),Math.min(Math.min(...parts.map(p=>8192-p.x)),dx));
+ dy=Math.max(Math.max(...parts.map(p=>-8192-p.y)),Math.min(Math.min(...parts.map(p=>8192-p.y)),dy));
+ for(const part of parts){part.x+=dx;part.y+=dy;}return result;
+}
