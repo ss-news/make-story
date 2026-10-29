@@ -1,0 +1,13 @@
+const {chromium}=require('playwright');const assert=require('node:assert/strict');
+(async()=>{const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});const page=await browser.newPage({viewport:{width:1440,height:1100}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+try{await page.goto('http://127.0.0.1:8766');await page.locator('.layer').first().waitFor();const original=await page.locator('.layer').evaluateAll(rows=>rows.map(r=>r.dataset.id));
+ await page.locator('.layer[data-id="torso"]').dragTo(page.locator('.layer[data-id="head"]'),{targetPosition:{x:70,y:4}});
+ assert.equal(await page.locator('.layer').first().getAttribute('data-id'),'torso');assert.equal(await page.locator('#part-select').inputValue(),'torso');
+ const doc=await page.evaluate(()=>JSON.parse(localStorage.getItem('stung-treng-character-layout-v1')));assert.ok(doc.parts.find(p=>p.id==='torso').z>doc.parts.find(p=>p.id==='head').z);
+ await page.locator('#undo').click();assert.deepEqual(await page.locator('.layer').evaluateAll(rows=>rows.map(r=>r.dataset.id)),original);await page.locator('#redo').click();
+ await page.locator('#layer-down').click();assert.equal(await page.locator('.layer').nth(1).getAttribute('data-id'),'torso');await page.locator('#layer-up').click();assert.equal(await page.locator('.layer').first().getAttribute('data-id'),'torso');
+ await page.locator('#field-z').fill('99');await page.locator('#field-z').press('Tab');assert.equal(await page.locator('.layer[data-id="torso"] .z-badge').textContent(),'z 99');
+ await page.reload();await page.locator('.layer').first().waitFor();assert.equal(await page.locator('.layer').first().getAttribute('data-id'),'torso');await page.locator('#part-select').selectOption('torso');assert.equal(await page.locator('#field-z').inputValue(),'99');
+ await page.setViewportSize({width:390,height:844});await page.locator('#layer-down').click();assert.equal(await page.locator('.layer').nth(1).getAttribute('data-id'),'torso');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ assert.deepEqual(errors,[]);console.log('Layer UI: drag/drop, z badges, single-step ordering, undo/redo, numeric z-index, reload and mobile passed.');
+}finally{await browser.close();}})().catch(e=>{console.error(e);process.exit(1);});

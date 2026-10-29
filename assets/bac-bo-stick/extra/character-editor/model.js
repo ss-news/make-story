@@ -62,3 +62,13 @@ export function posed(document,name,phase=0){
  }
  return doc;
 }
+// Front-to-back list order is the reverse of the stable ascending render order.
+export function reorderLayers(document,sourceId,targetId,before=true){
+ const result=clone(document);if(sourceId===targetId)return result;
+ const order=[...result.parts].sort((a,b)=>a.z-b.z).reverse();
+ const source=order.find(p=>p.id===sourceId),target=order.find(p=>p.id===targetId);
+ if(!source||!target)throw Error('Không tìm thấy bộ phận để xếp lớp.');
+ order.splice(order.indexOf(source),1);order.splice(order.indexOf(target)+(before?0:1),0,source);
+ order.forEach((p,i)=>p.z=order.length-1-i);
+ return result;
+}

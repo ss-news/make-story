@@ -1,7 +1,9 @@
-import {labels,assets,clone,defaults,validate,localPoint,worldPoint,movePivot,posed} from './model.js';
+import {labels,assets,clone,defaults,validate,localPoint,worldPoint,movePivot,posed,reorderLayers} from './model.js';
 const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d'),storageKey='stung-treng-character-layout-v1';
 let doc=defaults(),selected='torso',mode='move',zoom=1,drag=null,undo=[],redo=[],preview='edit',playing=false,phase=0,lastTime=0,dirty=false;
-const images={};
+const images={};let draggedLayer=null;
+function placeLayer(source,target,before){change(()=>{doc=reorderLayers(doc,source,target,before);selected=source;});notice('Đã cập nhật z-index. Lớp ở trên danh sách nằm phía trước.');}
+function stepLayer(direction){const order=sorted(doc.parts).reverse(),index=order.findIndex(p=>p.id===selected),target=order[index+direction];if(target)placeLayer(selected,target.id,direction<0);}
 function notice(text,error=false){$('notice').textContent=text;$('notice').classList.toggle('error',error);}
 function status(text){$('save-state').textContent=text;}
 try{const saved=localStorage.getItem(storageKey);if(saved)doc=validate(JSON.parse(saved));}catch{notice('Không đọc được bản tự lưu. Đã mở mẫu gốc; bạn có thể nhập lại JSON.',true);}
@@ -37,7 +39,7 @@ function draw(){
  }
  ctx.restore();
 }
-const fieldSpecs=[['x','Vị trí X','px'],['y','Vị trí Y','px'],['width','Chiều rộng','px'],['height','Chiều cao','px'],['rotation','Góc xoay','°'],['z','Thứ tự lớp',''],['pivotX','Điểm xoay X','%'],['pivotY','Điểm xoay Y','%']];
+const fieldSpecs=[['x','Vị trí X','px'],['y','Vị trí Y','px'],['width','Chiều rộng','px'],['height','Chiều cao','px'],['rotation','Góc xoay','°'],['z','Z-index',''],['pivotX','Điểm xoay X','%'],['pivotY','Điểm xoay Y','%']];
 for(const [key,label,unit] of fieldSpecs){const l=document.createElement('label');l.textContent=`${label} ${unit}`;const input=document.createElement('input');input.type='number';input.id='field-'+key;input.step=key.startsWith('pivot')?'1':'.5';input.setAttribute('aria-label',label);l.append(input);$('fields').append(l);
  input.addEventListener('change',()=>{const value=Number(input.value),p=selectedPart();if(input.value.trim()===''||!Number.isFinite(value)){refresh();return;}
   const candidate=clone(doc),target=candidate.parts.find(t=>t.id===p.id);
@@ -56,7 +58,13 @@ function refresh(){
   if(query&&!fold(labels[part.id]).includes(query))continue;matches++;
   const b=document.createElement('button');b.className='layer'+(part.id===selected?' active':'')+(part.visible?'':' hidden');b.dataset.id=part.id;b.setAttribute('aria-label',labels[part.id]);b.setAttribute('aria-pressed',String(part.id===selected));
   const img=document.createElement('img');img.src='/source/'+part.asset;img.alt='';const name=document.createElement('span');name.className='name';name.textContent=labels[part.id];
-  const eye=document.createElement('span');eye.className='eye';eye.textContent=part.visible?'◉':'○';eye.title=part.visible?'Đang hiện':'Đang ẩn';b.append(img,name,eye);b.onclick=e=>{if(e.target===eye)change(()=>part.visible=!part.visible);else choose(part.id);};$('layers').append(b);
+  const grip=document.createElement('span');grip.className='layer-grip';grip.textContent='⠿';grip.title='Kéo để xếp lớp';const badge=document.createElement('span');badge.className='z-badge';badge.textContent='z '+part.z;badge.title='Z-index: số lớn nằm trước';
+  b.draggable=true;b.ondragstart=e=>{draggedLayer=part.id;e.dataTransfer.setData('text/plain',part.id);e.dataTransfer.effectAllowed='move';b.classList.add('dragging');};
+  b.ondragover=e=>{if(!draggedLayer||draggedLayer===part.id)return;e.preventDefault();e.dataTransfer.dropEffect='move';const before=e.clientY<b.getBoundingClientRect().top+b.offsetHeight/2;b.classList.toggle('drop-before',before);b.classList.toggle('drop-after',!before);};
+  b.ondragleave=()=>b.classList.remove('drop-before','drop-after');b.ondragend=()=>{draggedLayer=null;for(const row of $('layers').children)row.classList.remove('dragging','drop-before','drop-after');};
+  b.ondrop=e=>{e.preventDefault();const source=draggedLayer;draggedLayer=null;b.classList.remove('drop-before','drop-after');if(source&&source!==part.id)placeLayer(source,part.id,e.clientY<b.getBoundingClientRect().top+b.offsetHeight/2);};
+  b.onkeydown=e=>{if(e.altKey&&['ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();e.stopPropagation();selected=part.id;stepLayer(e.key==='ArrowUp'?-1:1);}};
+  const eye=document.createElement('span');eye.className='eye';eye.textContent=part.visible?'◉':'○';eye.title=part.visible?'Đang hiện':'Đang ẩn';img.draggable=false;b.append(grip,img,name,badge,eye);b.onclick=e=>{if(e.target===eye)change(()=>part.visible=!part.visible);else choose(part.id);};$('layers').append(b);
  }
  $('list-empty').hidden=matches!==0;$('layers').scrollTop=listScroll;
  for(const b of $('faces').children)b.classList.toggle('active',doc.parts.find(p=>p.id==='head')?.asset===b.dataset.asset);
@@ -103,6 +111,7 @@ $('move').onclick=()=>{mode='move';$('move').classList.add('active');$('pivot').
 $('pivot').onclick=()=>{mode='pivot';$('pivot').classList.add('active');$('move').classList.remove('active');$('mode-note').textContent='Chọn mảnh bên trái, kéo trên ảnh để đặt điểm xoay';};
 $('undo').onclick=()=>{if(!undo.length)return;edit();redo.push(clone(doc));doc=undo.pop();persist();refresh();};
 $('redo').onclick=()=>{if(!redo.length)return;edit();undo.push(clone(doc));doc=redo.pop();persist();refresh();};
+$('layer-up').onclick=()=>stepLayer(-1);$('layer-down').onclick=()=>stepLayer(1);
 $('front').onclick=()=>change(()=>selectedPart().z=Math.min(100,Math.max(...doc.parts.map(p=>p.z))+1));
 $('back').onclick=()=>change(()=>selectedPart().z=Math.max(-100,Math.min(...doc.parts.map(p=>p.z))-1));
 $('reset').onclick=()=>{if(confirm('Khôi phục toàn bộ nhân vật về mẫu ban đầu? Bạn vẫn có thể hoàn tác.'))change(()=>doc=defaults());};

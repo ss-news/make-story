@@ -19,7 +19,7 @@ Mở **http://127.0.0.1:8766**. Có thể chọn cổng khác bằng `--port 876
 1. Chọn bộ phận bằng danh sách bên trái (có ô tìm kiếm) hoặc ô **Bộ phận đang chọn** ngay trên khung hình. Khi chọn bằng danh sách, **Giữ lựa chọn** tự bật: kéo trên khung sẽ di chuyển đúng mảnh đó, kể cả mảnh nhỏ hoặc bị che bởi áo. Bỏ chọn **Giữ lựa chọn** để bấm chọn mảnh khác trực tiếp trên hình. Chấm cam có dấu cộng là tay nắm di chuyển; góc vuông đổi kích thước, chấm trắng phía trên để xoay.
 2. Kéo các góc viền cam để thay đổi rộng/cao; kéo chấm tròn phía trên để xoay. Bảng bên phải nhập số chính xác. Thu phóng khi chỉnh chi tiết.
 3. Chọn **Điểm xoay**, chọn mảnh bên trái rồi kéo trong mảnh để đặt khớp. Di chuyển điểm xoay giữ nguyên hình vẽ trên khung; góc xoay tiếp theo quay quanh khớp mới.
-4. Dùng **Lên trước / Ra sau**, bật/tắt mảnh, đổi biểu cảm. Trái/phải tính theo phía người xem.
+4. Mỗi hàng trong danh sách hiển thị **z-index**. Kéo hàng bằng dấu ⠿ lên/xuống; vạch cam cho biết vị trí thả. Trên danh sách = nằm phía trước. Có thể nhập số **Z-index** (số lớn nằm trước), dùng nút **Lên / Xuống một lớp**, hoặc **Lên trước / Ra sau** để đưa ra ngoài cùng. Kéo xếp hàng sẽ đánh lại z-index liên tiếp, giữ nguyên vị trí/kích thước/biểu cảm; có thể hoàn tác. Trên điện thoại dùng nút một lớp. Khi hàng được focus, Alt + mũi tên lên/xuống cũng đổi lớp. Bật/tắt mảnh, đổi biểu cảm. Trái/phải tính theo phía người xem.
 5. Tư thế **Giơ đèn pin / Giật mình / Đi bộ** là xem thử từ bản đang chỉnh. Nút **Giữ tư thế** chụp tư thế đó vào bản chỉnh; nếu không bấm, lưu/xuất JSON vẫn lấy bản gốc đang chỉnh. Chọn hoặc kéo mảnh sẽ quay về chế độ chỉnh.
 6. **Hoàn tác / Làm lại** hoặc ⌘Z / ⌘⇧Z (Windows Ctrl). Phím mũi tên dịch 1 px, Shift dịch 10 px khi không nhập liệu.
 
@@ -66,3 +66,5 @@ NODE_PATH=/Users/thang/.cache/codex-runtimes/codex-primary-runtime/dependencies/
 Selection tests: run `node assets/bac-bo-stick/extra/character-editor/tests/selection.cjs` with the same NODE_PATH/server as browser tests. They cover searchable lists, the quick selector, locked selection for thin/overlapped pieces, hidden pieces and mobile selection.
 
 Browser tests cover drag, pivot, undo/redo, expression, import/export, saving/loading/reloading, PNG export, visibility/layer order, malformed input and mobile overflow. Blender verification reopens the saved file and checks all mesh corners against JSON with tolerance 0.001 px plus packed images and visibility. Project unit tests / asset checker are run separately.
+
+Layer UI regression test: `node assets/bac-bo-stick/extra/character-editor/tests/layers.cjs` with the same NODE_PATH/server checks actual drag/drop, numeric z-index, one-step buttons, undo/redo, persisted reload and mobile controls.

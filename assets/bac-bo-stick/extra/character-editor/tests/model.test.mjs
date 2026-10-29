@@ -11,3 +11,13 @@ assert.throws(()=>validate({...defaults(),parts:[{...defaults().parts[0],asset:'
 const unchanged=JSON.stringify(original);const aiming=posed(original,'aim');assert.equal(JSON.stringify(original),unchanged,'Preview must not mutate source');assert.notDeepEqual(aiming,original);
 for(const name of ['aim','scared','walk'])validate(posed(defaults(),name,1.3));
 console.log('Model: roundtrip, pivot invariance, validation and non-destructive presets passed.');
+const {reorderLayers}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const layers=defaults(),snapshot=JSON.stringify(layers);
+const moved=reorderLayers(layers,'torso','head',true);
+assert.equal(JSON.stringify(layers),snapshot);
+assert.ok(moved.parts.find(p=>p.id==='torso').z>moved.parts.find(p=>p.id==='head').z);
+const behind=reorderLayers(moved,'torso','shin_l',false);
+assert.ok(behind.parts.find(p=>p.id==='torso').z<behind.parts.find(p=>p.id==='shin_l').z);
+assert.deepEqual(validate(JSON.parse(JSON.stringify(behind))),behind);
+assert.deepEqual(behind.parts.map(({z,...rest})=>rest),layers.parts.map(({z,...rest})=>rest));
+console.log('Layer ordering: front/back insertion, source unchanged, other transforms preserved, JSON roundtrip passed.');
