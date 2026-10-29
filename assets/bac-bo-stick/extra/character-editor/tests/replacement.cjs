@@ -1,0 +1,17 @@
+const {chromium}=require('playwright');const assert=require('node:assert/strict');const fs=require('node:fs');
+(async()=>{const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});const page=await browser.newPage({viewport:{width:1440,height:1100}});const errors=[];page.on('pageerror',e=>errors.push(e.message));const state=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('stung-treng-character-layout-v1')));
+try{await page.goto('http://127.0.0.1:8766');await page.locator('.layer').first().waitFor();await page.locator('#part-select').selectOption('upper_arm_l');
+ await page.locator('#asset-select').waitFor({state:'visible',timeout:2000});
+ const original=await page.evaluate(async()=>{const {defaults}=await import('/model.js');return defaults();});
+ await page.locator('#asset-select').selectOption('shoulder_r');const changed=await state();
+ assert.deepEqual(changed.parts.map(p=>({...p,asset:original.parts.find(o=>o.id===p.id).asset})),original.parts);
+ assert.equal(changed.parts.find(p=>p.id==='upper_arm_l').asset,'shoulder_r');assert.ok((await page.locator('#selected-image').getAttribute('src')).endsWith('/shoulder_r'));assert.equal(await page.locator('#part-select').inputValue(),'upper_arm_l');
+ await page.locator('#undo').click();assert.equal(await page.locator('#asset-select').inputValue(),'upper_arm_l');await page.locator('#redo').click();assert.equal(await page.locator('#asset-select').inputValue(),'shoulder_r');
+ await page.locator('#asset-library').click();await page.locator('.asset-tile[data-asset="forearm_r"]').click();assert.equal(await page.locator('#asset-select').inputValue(),'forearm_r');
+ await page.locator('#save-name').fill('qa-replacement');await page.locator('#save').click();await page.waitForFunction(()=>document.querySelector('#save-state').textContent.includes('Đã lưu file'));
+ const disk=JSON.parse(fs.readFileSync('output/stung_treng/character-editor/layouts/qa-replacement.json','utf8'));assert.equal(disk.parts.find(p=>p.id==='upper_arm_l').asset,'forearm_r');
+ await page.reload();await page.locator('.layer').first().waitFor();await page.locator('#part-select').selectOption('upper_arm_l');assert.equal(await page.locator('#asset-select').inputValue(),'forearm_r');
+ await page.locator('#restore-asset').click();assert.equal(await page.locator('#asset-select').inputValue(),'upper_arm_l');
+ await page.setViewportSize({width:390,height:844});await page.locator('#asset-select').selectOption('upper_arm_r');assert.equal((await state()).parts.find(p=>p.id==='upper_arm_l').asset,'upper_arm_r');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.deepEqual(errors,[]);
+ console.log('Replacement: source dropdown, thumbnail library, transforms preserved, undo/redo, disk save/reload, original image restore and mobile passed.');
+}finally{await browser.close();}})().catch(e=>{console.error(e);process.exit(1);});

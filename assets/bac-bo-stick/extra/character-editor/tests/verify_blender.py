@@ -15,6 +15,7 @@ for part in doc['parts']:
         maximum=max(maximum,(pixel-expected).length)
     tex=next(n for n in ob.data.materials[0].node_tree.nodes if n.type=='TEX_IMAGE')
     assert tex.image.packed_file
+    assert Path(bpy.path.abspath(tex.image.filepath)).stem==part["asset"], (part["id"],tex.image.filepath,part["asset"])
 assert maximum<.001,maximum
 assert scene.render.resolution_x==cw and scene.render.resolution_y==ch
 report={'parts':len(doc['parts']),'max_corner_error_pixels':maximum,'all_textures_packed':True,'visibility_preserved':True}

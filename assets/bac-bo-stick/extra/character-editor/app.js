@@ -2,6 +2,8 @@ import {labels,assets,clone,defaults,validate,localPoint,worldPoint,movePivot,po
 const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d'),storageKey='stung-treng-character-layout-v1';
 let doc=defaults(),selected='torso',mode='move',zoom=1,drag=null,undo=[],redo=[],preview='edit',playing=false,phase=0,lastTime=0,dirty=false;
 const images={};let draggedLayer=null;
+const assetLabels={...labels,head_front:'Đầu — bình thường',head_turn:'Đầu — nhìn nghiêng',head_scared:'Đầu — sợ hãi',head_blink:'Đầu — nhắm mắt'};
+function replaceAsset(asset){if(!assets.includes(asset))return;const p=selectedPart();if(p.asset===asset)return;change(()=>p.asset=asset);notice(`Đã thay ảnh cho ${labels[p.id]} bằng ${assetLabels[asset]}. Các thông số bố cục được giữ nguyên.`);}
 function placeLayer(source,target,before){change(()=>{doc=reorderLayers(doc,source,target,before);selected=source;});notice('Đã cập nhật z-index. Lớp ở trên danh sách nằm phía trước.');}
 function stepLayer(direction){const order=sorted(doc.parts).reverse(),index=order.findIndex(p=>p.id===selected),target=order[index+direction];if(target)placeLayer(selected,target.id,direction<0);}
 function notice(text,error=false){$('notice').textContent=text;$('notice').classList.toggle('error',error);}
@@ -48,7 +50,7 @@ for(const [key,label,unit] of fieldSpecs){const l=document.createElement('label'
  });
 }
 function refresh(){
- const p=selectedPart();selected=p.id;$('selected-label').textContent=labels[p.id];$('selected-image').src='/source/'+p.asset;$('visible').checked=p.visible;$('doc-title').textContent=doc.title||'Nhân vật áo kem';$('count').textContent=doc.parts.length;
+ const p=selectedPart();selected=p.id;$('selected-label').textContent=labels[p.id];$('selected-image').src='/source/'+p.asset;$('asset-select').value=p.asset;$('restore-asset').disabled=p.asset===(p.id==='head'?'head_front':p.id);for(const tile of $('asset-grid').children){const active=tile.dataset.asset===p.asset;tile.classList.toggle('active',active);tile.setAttribute('aria-pressed',String(active));}$('visible').checked=p.visible;$('doc-title').textContent=doc.title||'Nhân vật áo kem';$('count').textContent=doc.parts.length;
  for(const [key] of fieldSpecs)$('field-'+key).value=+(p[key]*(key.startsWith('pivot')?100:1)).toFixed(2);
  $('undo').disabled=!undo.length;$('redo').disabled=!redo.length;const listScroll=$('layers').scrollTop;$('layers').replaceChildren();
  const quick=$('part-select');quick.replaceChildren();for(const part of doc.parts){const o=new Option(labels[part.id]+(part.visible?'':' · đang ẩn'),part.id);quick.append(o);}quick.value=selected;
@@ -73,6 +75,14 @@ function refresh(){
 for(const [asset,label] of [['head_front','Bình thường'],['head_turn','Nhìn nghiêng'],['head_scared','Sợ hãi'],['head_blink','Nhắm mắt']]){
  const b=document.createElement('button');b.dataset.asset=asset;b.innerHTML=`<img src="/source/${asset}" alt="">${label}`;b.onclick=()=>{const head=doc.parts.find(p=>p.id==='head');if(!head)return notice('Bản nhập không có đầu để đổi biểu cảm.',true);change(()=>{head.asset=asset;selected='head';});};$('faces').append(b);
 }
+for(const asset of assets){
+ $('asset-select').append(new Option(assetLabels[asset],asset));
+ const tile=document.createElement('button');tile.className='asset-tile';tile.dataset.asset=asset;tile.title=assetLabels[asset];tile.setAttribute('aria-label','Dùng ảnh '+assetLabels[asset]);
+ const img=document.createElement('img');img.src='/source/'+asset;img.alt='';const label=document.createElement('span');label.textContent=assetLabels[asset];tile.append(img,label);tile.onclick=()=>replaceAsset(asset);$('asset-grid').append(tile);
+}
+$('asset-select').onchange=()=>replaceAsset($('asset-select').value);
+$('restore-asset').onclick=()=>replaceAsset(selected==='head'?'head_front':selected);
+$('asset-library').onclick=()=>{const grid=$('asset-grid');grid.hidden=!grid.hidden;$('asset-library').setAttribute('aria-expanded',String(!grid.hidden));$('asset-library').textContent=grid.hidden?'Chọn bằng hình':'Ẩn bộ ảnh';};
 $('part-select').onchange=()=>choose($('part-select').value);
 $('part-search').oninput=()=>{$('layers').scrollTop=0;refresh();};
 $('lock-selection').onchange=refresh;
