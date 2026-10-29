@@ -16,7 +16,7 @@ Mở **http://127.0.0.1:8766**. Có thể chọn cổng khác bằng `--port 876
 
 ## Cách chỉnh
 
-1. Chọn bộ phận bên trái hoặc bấm trực tiếp trên hình. Kéo để dịch vị trí.
+1. Chọn bộ phận bằng danh sách bên trái (có ô tìm kiếm) hoặc ô **Bộ phận đang chọn** ngay trên khung hình. Khi chọn bằng danh sách, **Giữ lựa chọn** tự bật: kéo trên khung sẽ di chuyển đúng mảnh đó, kể cả mảnh nhỏ hoặc bị che bởi áo. Bỏ chọn **Giữ lựa chọn** để bấm chọn mảnh khác trực tiếp trên hình. Chấm cam có dấu cộng là tay nắm di chuyển; góc vuông đổi kích thước, chấm trắng phía trên để xoay.
 2. Kéo các góc viền cam để thay đổi rộng/cao; kéo chấm tròn phía trên để xoay. Bảng bên phải nhập số chính xác. Thu phóng khi chỉnh chi tiết.
 3. Chọn **Điểm xoay**, chọn mảnh bên trái rồi kéo trong mảnh để đặt khớp. Di chuyển điểm xoay giữ nguyên hình vẽ trên khung; góc xoay tiếp theo quay quanh khớp mới.
 4. Dùng **Lên trước / Ra sau**, bật/tắt mảnh, đổi biểu cảm. Trái/phải tính theo phía người xem.
@@ -62,5 +62,7 @@ NODE_PATH=/Users/thang/.cache/codex-runtimes/codex-primary-runtime/dependencies/
   output/stung_treng/character-editor/nhan-vat-01.blend \
   --python assets/bac-bo-stick/extra/character-editor/tests/verify_blender.py
 ```
+
+Selection tests: run `node assets/bac-bo-stick/extra/character-editor/tests/selection.cjs` with the same NODE_PATH/server as browser tests. They cover searchable lists, the quick selector, locked selection for thin/overlapped pieces, hidden pieces and mobile selection.
 
 Browser tests cover drag, pivot, undo/redo, expression, import/export, saving/loading/reloading, PNG export, visibility/layer order, malformed input and mobile overflow. Blender verification reopens the saved file and checks all mesh corners against JSON with tolerance 0.001 px plus packed images and visibility. Project unit tests / asset checker are run separately.

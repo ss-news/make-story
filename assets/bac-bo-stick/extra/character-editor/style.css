@@ -4,3 +4,8 @@
 .layer{min-width:0;white-space:normal}.layer .name{min-width:0;line-height:1.45}.layer img{flex-shrink:0}.layer .eye{flex-shrink:0}
 @media(max-width:800px){#layers{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:1600px){.stage{max-height:none}canvas{max-height:none}}
+/* Selection stays close to the canvas, including narrow in-app browser panels. */
+#part-search{width:100%;padding:10px 11px;border:1px solid #d5dece;border-radius:7px;background:#f7faf4;margin-bottom:12px;font:inherit;color:#34452e;min-width:0}
+#list-empty{font-size:12px;color:#7c8676;padding:15px 0}.selectionbar{display:flex;align-items:center;gap:10px;padding:11px 13px;background:#fff;border:1px solid #d6dfce;border-radius:8px}.selectionbar>label:first-child{font-size:11px;font-weight:600;color:#65785a}.selectionbar select{flex:1;min-width:0;font-weight:600;padding:10px}.selection-lock{font-size:11px;white-space:nowrap;cursor:pointer}#selection-help{font-size:11px;color:#708165;line-height:1.55;margin:9px 2px 12px}.layer{min-height:48px;border-radius:7px}.layer.active{box-shadow:inset 3px 0 #3d7950;background:#e4f0dc}.layer:focus-visible{outline-offset:-3px}
+@media(min-width:801px){.layers{position:sticky;top:0;height:100vh;max-height:calc(100vh - 8px);overflow:hidden}#layers{overflow-y:auto;min-height:0;flex:1;scrollbar-width:thin}.left-foot{flex-shrink:0;padding-top:12px}.layers .hint{flex-shrink:0}}
+@media(max-width:800px){.selectionbar{flex-wrap:wrap;gap:7px}.selectionbar>label:first-child{width:100%;font-size:10px}.selectionbar select{font-size:12px}.selection-lock{font-size:10px}.layer{min-height:51px}.layers{padding:18px 15px}#layers{max-height:320px;overflow-y:auto}.selectionbar select{max-width:calc(100% - 110px)}}
