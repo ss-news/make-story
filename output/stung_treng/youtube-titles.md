@@ -1,8 +1,8 @@
 # YouTube titles
 
-Long: Cambodia’s Dark Secret | The Woman with No Legs
+Long: The Secret of Our Trip to Cambodia | Vietnamese Ghost Story
 
-Short: Cambodia’s Dark Secret | Why Did She Want Us to Follow?
+Short: Our Cambodia Trip Hid a Dark Secret | Vietnamese Ghost Story
 
 Thumbnail headline (both): CAMBODIA’S DARK SECRET
 

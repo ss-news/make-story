@@ -1,4 +1,4 @@
-# Short — Cambodia’s Dark Secret | Why Did She Want Us to Follow?
+# Short — Our Cambodia Trip Hid a Dark Secret | Vietnamese Ghost Story
 
 Target duration: 50–60 seconds, subject to a timed voice recording. Vertical 9:16.
 Content source: `story-vi.txt`, translated from `short-script-vi.md`. This is an adapted ghost story, not an independently verified account.
