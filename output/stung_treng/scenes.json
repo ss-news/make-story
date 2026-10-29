@@ -1,0 +1,5654 @@
+{
+  "format": "storyvid.scenes/1",
+  "title": "Cambodia’s Dark Secret | The Woman with No Legs",
+  "lang": "en",
+  "cast": [
+    {
+      "id": "me",
+      "name": "Narrator",
+      "preset": "young_man",
+      "outfit": "cream",
+      "accessory": "flashlight",
+      "kind": "human"
+    },
+    {
+      "id": "bay",
+      "name": "Bay",
+      "preset": "middle_man",
+      "outfit": "moss",
+      "accessory": "none",
+      "kind": "human"
+    },
+    {
+      "id": "luc",
+      "name": "Luc",
+      "preset": "young_man",
+      "outfit": "indigo",
+      "accessory": "none",
+      "kind": "human"
+    },
+    {
+      "id": "tung",
+      "name": "Tung",
+      "preset": "young_man",
+      "outfit": "earth",
+      "accessory": "bag",
+      "kind": "human"
+    },
+    {
+      "id": "sophal",
+      "name": "Sophal",
+      "preset": "middle_man",
+      "outfit": "indigo",
+      "accessory": "flashlight",
+      "kind": "human"
+    },
+    {
+      "id": "vanna",
+      "name": "Vanna",
+      "preset": "young_man",
+      "outfit": "moss",
+      "accessory": "scarf",
+      "kind": "human"
+    },
+    {
+      "id": "foreman",
+      "name": "Foreman",
+      "preset": "middle_man",
+      "outfit": "earth",
+      "accessory": "bag",
+      "kind": "human"
+    },
+    {
+      "id": "mr_chan",
+      "name": "Mr. Chan",
+      "preset": "elder_man",
+      "outfit": "earth",
+      "accessory": "none",
+      "kind": "human"
+    },
+    {
+      "id": "mrs_chan",
+      "name": "Mrs. Chan",
+      "preset": "elder_woman",
+      "outfit": "indigo",
+      "accessory": "scarf",
+      "kind": "human"
+    },
+    {
+      "id": "woman",
+      "name": "The woman",
+      "preset": "legless_ghost_woman",
+      "outfit": "cream",
+      "accessory": "none",
+      "kind": "ghost"
+    },
+    {
+      "id": "mother",
+      "name": "Kneeling woman",
+      "preset": "kneeling_ghost_woman",
+      "outfit": "earth",
+      "accessory": "none",
+      "kind": "ghost"
+    },
+    {
+      "id": "ghost_boy",
+      "name": "Boy",
+      "preset": "boy",
+      "outfit": "earth",
+      "accessory": "none",
+      "kind": "ghost"
+    },
+    {
+      "id": "child",
+      "name": "Small child",
+      "preset": "fanged_ghost_child",
+      "outfit": "earth",
+      "accessory": "none",
+      "kind": "ghost"
+    }
+  ],
+  "music": {
+    "id": "midnight_trace"
+  },
+  "short": {
+    "scenes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
+  },
+  "scenes": [
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The woman had only half a body."
+        }
+      ],
+      "ambience": "forest_frogs",
+      "sfx": [
+        {
+          "id": "terror_sweep",
+          "line": 0
+        }
+      ]
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Below her waist, there was nothing but darkness. No legs. No footsteps."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "me",
+          "position": "far_left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "approach"
+        },
+        {
+          "id": "bay",
+          "position": "far_right",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Yet she drifted across the yard, right up to the patch of moonlight in front of us."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "She pressed her palms together. Bowed her head. Then bowed again."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "A few words came from her throat. Vietnamese."
+        },
+        {
+          "speaker": "woman",
+          "text": "Father... Mother... please help me."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "exit"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Who was she calling for, here in an abandoned camp in Cambodia?"
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_path_night",
+      "bg_prompt": "a narrow path between two ruined stone walls disappearing into tall weeds, moonlight on the near end, pitch dark beyond",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "And why did she keep leading us toward the same place, night after night?"
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_out",
+      "actors": [],
+      "props": [
+        {
+          "id": "mine_warning_sign",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "This happened in late 1995."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "logging_forest_day",
+      "bg_prompt": "tropical forest in northern Cambodia with felled logs, a sawpit and stacked timber, daytime",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "luc",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Back then, I went to Cambodia with a group of Vietnamese laborers to work for a logging company."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "river_day",
+      "bg_prompt": "the wide Mekong River in northern Cambodia, daytime",
+      "camera": "pan_left",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "We were staying in Stung Treng province, along the route toward Siem Pang, not far from the Mekong River."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "logging_forest_day",
+      "bg_prompt": "tropical forest in northern Cambodia with felled logs, a sawpit and stacked timber, daytime",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "luc",
+          "position": "left",
+          "pose": "reach",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "right",
+          "pose": "reach",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "We worked in the forest all day."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "luc",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "hammock",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "At night, all we wanted was somewhere to hang our hammocks, cook some rice, and get enough sleep to do it all again."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "pan_left",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "enter"
+        },
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "enter"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The company put us in a few old buildings on the edge of an abandoned camp."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_day",
+      "bg_prompt": "inside a low white stone building with narrow slit windows letting in thin strips of daylight, hammocks between posts, a rough wooden table, dirt floor",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "hammock",
+          "position": "left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "They were low buildings, their white stone walls stained black by rain. The windows were so narrow that only strips of daylight reached inside."
+        }
+      ]
+    },
+    {
+      "bg_id": "camp_ruins_night",
+      "bg_prompt": "roofless ruined white stone buildings, trees grown through the floors, roots along the walls, dark doorways, weeds, moonlight",
+      "camera": "pan_right",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Some buildings had lost their roofs. In others, trees had grown through the floors, their roots spreading along the walls."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_path_night",
+      "bg_prompt": "a narrow path between two ruined stone walls disappearing into tall weeds, moonlight on the near end, pitch dark beyond",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Behind us stood a row of ruined buildings, hidden in weeds taller than a man. A narrow path ran between two walls and disappeared into the growth."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_day",
+      "bg_prompt": "yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in tall weeds behind, a narrow path between two broken walls, one big tree, harsh daylight",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "foreman",
+          "position": "left",
+          "pose": "point",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "me",
+          "position": "center",
+          "pose": "idle",
+          "expression": "surprised",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "mine_warning_sign",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The man who brought us there pointed toward it and told us not to go any farther. There were still land mines in the area."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_day",
+      "bg_prompt": "yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in tall weeds behind, a narrow path between two broken walls, one big tree, harsh daylight",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "mine_warning_sign",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Even when gathering firewood, we were to stay where other people had already walked."
+        },
+        {
+          "speaker": "narrator",
+          "text": "None of us forgot that warning."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "luc",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "There were six of us. Me, Bay, Luc, Tung, and two Khmer men named Sophal and Vanna."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "sophal",
+          "position": "left",
+          "pose": "talk",
+          "expression": "happy",
+          "action": "none"
+        },
+        {
+          "id": "vanna",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "me",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "They had come from elsewhere to find work too. Of the two, Sophal spoke the most Vietnamese."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Bay was the oldest. Strong, solidly built, and quiet. Whenever we had a problem, he was the one we turned to."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "luc",
+          "position": "center",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "oil_lamp",
+          "position": "far_left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Luc scared easily. At night, he would not even go outside unless someone waited at the door."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "luc",
+          "position": "left",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "right",
+          "pose": "shrug",
+          "expression": "smirk",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "oil_lamp",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Tung was the opposite. He had slept alone in the forest before. Whenever Luc said he had heard something, Tung told him it was probably an animal looking for food."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "me",
+          "position": "center",
+          "pose": "think",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "rice_pot",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "That was what I thought too."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Until that first pot of rice."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "rice_pot",
+          "position": "center"
+        },
+        {
+          "id": "oil_lamp",
+          "position": "far_left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "We had just washed the rice. The water came from the same place as always. When it finished cooking, we lifted the lid, and it smelled fine."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "scared",
+          "expression": "surprised",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "think",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "rice_pot",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "But by the time we came back from washing ourselves, the rice on top had turned to mush. Underneath, it had a strange, stale smell and a sickly sweet taste."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "think",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "rice_pot",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Bay thought we might not have cleaned the pot properly. The next day, he scrubbed it and washed the rice himself."
+        },
+        {
+          "speaker": "narrator",
+          "text": "The same thing happened."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "dried_fish_black",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Then there were the fish hanging under the eaves. In a single night, they turned black. None of us dared eat them."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "vanna",
+          "position": "center",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "approach"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Vanna carried them away and threw them out. When he came back, he stood outside, staring into the building for a while before he would go in."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "luc",
+          "position": "right",
+          "pose": "idle",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "oil_lamp",
+          "position": "far_left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "After that, we ate as soon as the food was cooked. We never left spare rice in the building overnight."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "cigarette_rock",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "But what really started to frighten me was a cigarette."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_ruins_night",
+      "bg_prompt": "roofless ruined white stone buildings, trees grown through the floors, roots along the walls, dark doorways, weeds, moonlight",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "approach"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "One evening, I heard rustling from the ruined buildings. I took a flashlight outside to look. The weeds were still. There was no wind."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_ruins_night",
+      "bg_prompt": "roofless ruined white stone buildings, trees grown through the floors, roots along the walls, dark doorways, weeds, moonlight",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "center",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Wherever I shone the light, all I saw were tree trunks and dark doorways."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "reach",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "cigarette_rock",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I was smoking a hand-rolled cigarette. For some reason, I rested it on a rock in the yard and went back inside."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "cigarette_rock",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "A little later, I looked out. The tip was glowing red."
+        },
+        {
+          "speaker": "narrator",
+          "text": "I thought a breeze must have caught it."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "cigarette_rock",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Then it glowed again. Faded. And flared red once more."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Slowly. Regularly."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "cigarette_rock",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "As if someone were sitting in the dark, taking one drag after another."
+        }
+      ],
+      "ambience": "forest_frogs",
+      "sfx": [
+        {
+          "id": "terror_sweep",
+          "line": 0
+        }
+      ]
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "cigarette_rock",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I called Bay over. We stood in the doorway without saying a word. The cigarette kept getting shorter until there was nothing left but a burning stub on the rock."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "cigarette_rock",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "That kind of tightly rolled tobacco often went out even when you were smoking it. And that night, there was not the slightest breeze."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "talk",
+          "expression": "angry",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Bay pulled me inside."
+        },
+        {
+          "speaker": "bay",
+          "text": "Enough. Don't try that again."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "tung",
+          "position": "center",
+          "pose": "talk",
+          "expression": "smirk",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "oil_lamp",
+          "position": "far_left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "But Tung did not believe us. If something was coming for food, he said, then all of us should see it."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "tung",
+          "position": "left",
+          "pose": "reach",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "rice_carrier_basket",
+          "position": "center"
+        },
+        {
+          "id": "oil_lamp",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The next evening, he put a metal rice carrier on the table, covered it with an upturned basket, and weighed the basket down with a piece of firewood."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "zoom_out",
+      "actors": [],
+      "props": [
+        {
+          "id": "hammock",
+          "position": "far_left"
+        },
+        {
+          "id": "rice_carrier_basket",
+          "position": "center"
+        },
+        {
+          "id": "oil_lamp",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "An oil lamp stood beside it. We lay in our hammocks around the room and pretended to sleep."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [],
+      "props": [
+        {
+          "id": "rice_carrier_basket",
+          "position": "center"
+        },
+        {
+          "id": "oil_lamp",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I lay facing the table. We waited so long that my eyes began closing. For a moment, I almost forgot what I was waiting for."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "rice_carrier_basket",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Then I heard a faint scraping sound."
+        },
+        {
+          "speaker": "narrator",
+          "text": "The basket had moved."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "rice_carrier_basket",
+          "position": "center"
+        },
+        {
+          "id": "oil_lamp",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The piece of wood on top trembled. Stopped. A little later, the whole basket shifted again."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "far_left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "rice_carrier_basket",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I held my breath and looked beneath the table. No dog. No cat. The table legs stood firmly on the dirt floor."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "tung",
+          "position": "center",
+          "pose": "idle",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "In the hammock opposite mine, Tung's eyes were open."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "rice_carrier_basket",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The rice carrier slid toward the edge. Its lid rattled against the basket."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Then everything fell."
+        }
+      ],
+      "ambience": "forest_frogs",
+      "sfx": [
+        {
+          "id": "can_clack",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "luc",
+          "position": "left",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "jump"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "reach",
+          "expression": "angry",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The crash of metal on the floor jolted Luc upright. He opened his mouth, but Bay raised a hand to silence him."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_day",
+      "bg_prompt": "inside a low white stone building with narrow slit windows letting in thin strips of daylight, hammocks between posts, a rough wooden table, dirt floor",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "tung",
+          "position": "center",
+          "pose": "reach",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "We stayed there until morning."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Tung was the one who finally went to pick up the carrier."
+        }
+      ]
+    },
+    {
+      "bg_id": "camp_interior_day",
+      "bg_prompt": "inside a low white stone building with narrow slit windows letting in thin strips of daylight, hammocks between posts, a rough wooden table, dirt floor",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "tung",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "He looked at the rice scattered on the ground, then out into the yard. After that, we never heard another word from him about wild animals."
+        }
+      ]
+    },
+    {
+      "bg_id": "camp_yard_day",
+      "bg_prompt": "yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in tall weeds behind, a narrow path between two broken walls, one big tree, harsh daylight",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "exit"
+        },
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "exit"
+        },
+        {
+          "id": "tung",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "exit"
+        }
+      ],
+      "props": [
+        {
+          "id": "hammock",
+          "position": "far_left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "We moved our hammocks into the next building. It was still inside the camp, but closer to the road. We left our tools in the old room."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_day",
+      "bg_prompt": "yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in tall weeds behind, a narrow path between two broken walls, one big tree, harsh daylight",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The job was not finished, and we had not been paid everything we were owed. Back then, leaving was not as simple as picking up a bag and walking away."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "red_dirt_road_night",
+      "bg_prompt": "a red dirt road at night with a few widely scattered poor Khmer wooden houses on stilts, no electricity, moonlight",
+      "camera": "pan_right",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "A little over a hundred meters away was a red dirt road. Across it stood a few widely scattered houses. The closest belonged to Mr. and Mrs. Chan."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "chan_yard_day",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts in the early morning, a short jackfruit tree, a gate of sticks, steps up to the house",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "mr_chan",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "They were only in their fifties, but they looked much older. He was thin, with a slight stoop."
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_yard_day",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts in the early morning, a short jackfruit tree, a gate of sticks, steps up to the house",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "mrs_chan",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "She often sat beside the cooking fire, fanning it while watching the yard. They had a grown daughter."
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_yard_day",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts in the early morning, a short jackfruit tree, a gate of sticks, steps up to the house",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "sophal",
+          "position": "left",
+          "pose": "wave",
+          "expression": "happy",
+          "action": "none"
+        },
+        {
+          "id": "vanna",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "mr_chan",
+          "position": "right",
+          "pose": "idle",
+          "expression": "happy",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Sophal and Vanna used to stop by for water and gradually got to know them."
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "pan_left",
+      "actors": [
+        {
+          "id": "sophal",
+          "position": "left",
+          "pose": "talk",
+          "expression": "happy",
+          "action": "none"
+        },
+        {
+          "id": "luc",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "oil_lamp",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "One afternoon, they had some fish to give the couple and invited Luc and Tung to come along. The family asked them to stay for dinner."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "hammock",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Bay and I were tired, so we stayed behind and went to bed early."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "red_dirt_road_night",
+      "bg_prompt": "a red dirt road at night with a few widely scattered poor Khmer wooden houses on stilts, no electricity, moonlight",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Close to three in the morning, we heard running on the road."
+        },
+        {
+          "speaker": "narrator",
+          "text": "More than one person."
+        }
+      ],
+      "ambience": "swamp_crickets",
+      "sfx": [
+        {
+          "id": "running_forest",
+          "line": 0
+        }
+      ]
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "scared",
+          "expression": "surprised",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "idle",
+          "expression": "surprised",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Feet slapping the dirt. Someone gasping for breath. Then a flashlight beam swept across our doorway."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "tung",
+          "position": "left",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "enter"
+        },
+        {
+          "id": "luc",
+          "position": "center",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "enter"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Tung burst in first. Luc came behind him, tripped at the entrance, and had to scramble inside on his hands."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "sophal",
+          "position": "center",
+          "pose": "point",
+          "expression": "scared",
+          "action": "enter"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Sophal came last. The moment he was through the door, he turned and shone his flashlight back down the road."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "tung",
+          "position": "center",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I had never seen Tung look like that. He stood with one hand braced against the wall, sweat dripping from his chin."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "talk",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "center",
+          "pose": "idle",
+          "expression": "scared",
+          "action": "shake"
+        },
+        {
+          "id": "luc",
+          "position": "right",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I asked what had happened. He just shook his head."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Luc tried several times before he could get the words out."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "luc",
+          "position": "center",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "tin_mug",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "luc",
+          "text": "At my feet... there was someone..."
+        },
+        {
+          "speaker": "narrator",
+          "text": "He had to drink half a mug of water before we could get the whole story."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "luc",
+          "position": "left",
+          "pose": "idle",
+          "expression": "surprised",
+          "action": "none"
+        },
+        {
+          "id": "sophal",
+          "position": "center",
+          "pose": "talk",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "ghost_boy",
+          "position": "far_right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "During dinner, Luc had already noticed shadows moving around the yard. First beside the jackfruit tree. Then near the gate."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "mr_chan",
+          "position": "center",
+          "pose": "talk",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "ghost_boy",
+          "position": "right",
+          "pose": "cower",
+          "expression": "neutral",
+          "action": "approach"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "At one point, a small shape crawled right up behind Mr. Chan."
+        }
+      ],
+      "ambience": "swamp_crickets",
+      "sfx": [
+        {
+          "id": "terror_transition",
+          "line": 0
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "luc",
+          "position": "left",
+          "pose": "think",
+          "expression": "surprised",
+          "action": "none"
+        },
+        {
+          "id": "mr_chan",
+          "position": "center",
+          "pose": "talk",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "mrs_chan",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "He thought it was a neighbor's child, so he said nothing. What struck him as odd was that nobody turned around to look."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "luc",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "bamboo_panel",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Late that night, the four of them laid out a bamboo panel to sleep on in the yard. It was hot and muggy, and the house was cramped."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "mr_chan",
+          "position": "left",
+          "pose": "talk",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "luc",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "bamboo_panel",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Mr. Chan gave them a woven mat as well and told them to call if they needed anything."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "sleepers_on_mat",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Luc lay on the outside edge. He was still half awake when something tickled the sole of his foot."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "sleepers_on_mat",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "He pulled his legs back."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Something cold stayed against his skin."
+        }
+      ],
+      "ambience": "swamp_crickets",
+      "sfx": [
+        {
+          "id": "terror_sweep",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "mother",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "sleepers_on_mat",
+          "position": "left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Luc opened his eyes just a little. The moonlight was faint, but he could make out a woman kneeling at the foot of the mat."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "mother",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "sleepers_on_mat",
+          "position": "left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Her head was bent low. Her hair hung down to the ground."
+        },
+        {
+          "speaker": "narrator",
+          "text": "She was licking his foot."
+        }
+      ],
+      "ambience": "swamp_crickets",
+      "sfx": [
+        {
+          "id": "terror_transition",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "mother",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "sleepers_on_mat",
+          "position": "left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "He went rigid. He wanted to kick her away, but his legs would not move. All he could do was reach sideways and dig his fingers into Tung's arm."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "mother",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "sleepers_on_mat",
+          "position": "left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Tung woke. He was about to speak, but when he saw Luc's face, he stayed quiet."
+        },
+        {
+          "speaker": "narrator",
+          "text": "He tilted his head and looked down."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "ghost_boy",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "child",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "mother",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Behind the woman stood a boy of about twelve. With one hand, he held a smaller child close beside him. Long hair covered most of the little one's face."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "child",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Whenever the child moved, the hair parted slightly."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Enough for Tung to see two pointed teeth reaching below its chin."
+        }
+      ],
+      "ambience": "swamp_crickets",
+      "sfx": [
+        {
+          "id": "terror_sweep",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "tung",
+          "position": "left",
+          "pose": "reach",
+          "expression": "scared",
+          "action": "jump"
+        },
+        {
+          "id": "luc",
+          "position": "center",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "jump"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Tung jerked his feet back and hauled Luc upright."
+        },
+        {
+          "speaker": "tung",
+          "text": "Run!"
+        }
+      ],
+      "ambience": "swamp_crickets",
+      "sfx": [
+        {
+          "id": "terror_transition",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "tung",
+          "position": "left",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "exit"
+        },
+        {
+          "id": "luc",
+          "position": "center",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "exit"
+        },
+        {
+          "id": "sophal",
+          "position": "right",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "exit"
+        }
+      ],
+      "props": [
+        {
+          "id": "bamboo_panel",
+          "position": "far_left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The bamboo panel tipped sideways. Sophal sprang up too. All three bolted for the gate without stopping to get their sandals on properly."
+        }
+      ],
+      "ambience": "swamp_crickets",
+      "sfx": [
+        {
+          "id": "running_forest",
+          "line": 0
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "vanna",
+          "position": "center",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "exit"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Vanna had been lying farther in, nearer the steps. Instead of following them, he scrambled into Mr. Chan's house."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "child",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "bamboo_panel",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "When he turned to pull the door shut, a small figure was still standing beside the bamboo panel in the yard."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "red_dirt_road_night",
+      "bg_prompt": "a red dirt road at night with a few widely scattered poor Khmer wooden houses on stilts, no electricity, moonlight",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "child",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "approach"
+        },
+        {
+          "id": "sophal",
+          "position": "right",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "exit"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Sophal said he heard something rustling close behind him as he ran. At one point, his flashlight caught a small, pitch-black figure following them."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "red_dirt_road_night",
+      "bg_prompt": "a red dirt road at night with a few widely scattered poor Khmer wooden houses on stilts, no electricity, moonlight",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "child",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "approach"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Its arms hung out in front, swinging with each step."
+        },
+        {
+          "speaker": "narrator",
+          "text": "He did not look back again."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "luc",
+          "position": "center",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "hammock",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "By the time Luc finished telling us, he had drawn both feet up into his hammock."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "luc",
+          "position": "center",
+          "pose": "cower",
+          "expression": "sad",
+          "action": "shake"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "He sat hugging his knees, rubbing the soles of his feet against his trousers over and over."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "talk",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I asked Tung whether he might have mistaken what he saw."
+        },
+        {
+          "speaker": "narrator",
+          "text": "He looked at me for a while."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "tung",
+          "position": "center",
+          "pose": "talk",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "tung",
+          "text": "Will you go and get my sandals tomorrow?"
+        },
+        {
+          "speaker": "narrator",
+          "text": "That was all he said."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "chan_yard_day",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts in the early morning, a short jackfruit tree, a gate of sticks, steps up to the house",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "enter"
+        },
+        {
+          "id": "sophal",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "enter"
+        }
+      ],
+      "props": [
+        {
+          "id": "bamboo_panel",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The next morning, Sophal and I went to Mr. Chan's house. The bamboo panel was still crooked in the yard."
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_yard_day",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts in the early morning, a short jackfruit tree, a gate of sticks, steps up to the house",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "sandals",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "One of Tung's sandals lay near the gate. The other was caught beneath the edge of the mat."
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_house_day",
+      "bg_prompt": "inside a poor Khmer stilt house, woven palm-leaf walls, a floor mat, a small teapot, soft morning light through the door",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "vanna",
+          "position": "center",
+          "pose": "cower",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Vanna sat in a corner of the house, his eyes bloodshot after a sleepless night."
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_house_day",
+      "bg_prompt": "inside a poor Khmer stilt house, woven palm-leaf walls, a floor mat, a small teapot, soft morning light through the door",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "sophal",
+          "position": "center",
+          "pose": "talk",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "mr_chan",
+          "position": "right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "teapot_cups",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Mr. Chan made tea. I asked about what had happened. After Sophal translated, he lowered his eyes to his cup. It took him a long time to begin."
+        }
+      ]
+    },
+    {
+      "bg_id": "camp_ruins_night",
+      "bg_prompt": "roofless ruined white stone buildings, trees grown through the floors, roots along the walls, dark doorways, weeds, moonlight",
+      "camera": "pan_left",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "According to him, the place where we were staying had been a labor camp under the Khmer Rouge. People brought there worked from morning until night."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "hammock",
+          "position": "left"
+        },
+        {
+          "id": "hammock",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Some fell ill. Others were called away in the middle of the night. By morning, their sleeping places were empty."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Men. Women. Children too."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "chan_house_day",
+      "bg_prompt": "inside a poor Khmer stilt house, woven palm-leaf walls, a floor mat, a small teapot, soft morning light through the door",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "mr_chan",
+          "position": "center",
+          "pose": "point",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "teapot_cups",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "He pointed behind the camp and told us there were two mass burial sites. Some of the remains had been taken away. The rest were still in the ground."
+        }
+      ]
+    },
+    {
+      "bg_id": "camp_path_night",
+      "bg_prompt": "a narrow path between two ruined stone walls disappearing into tall weeds, moonlight on the near end, pitch dark beyond",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I thought of the white walls. The narrow windows. The overgrown path behind the building where we slept."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "chan_house_day",
+      "bg_prompt": "inside a poor Khmer stilt house, woven palm-leaf walls, a floor mat, a small teapot, soft morning light through the door",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "mr_chan",
+          "position": "center",
+          "pose": "talk",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Mr. Chan said his family believed that people who had not been properly buried might remain near the place where they died."
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_yard_day",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts in the early morning, a short jackfruit tree, a gate of sticks, steps up to the house",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "mrs_chan",
+          "position": "left",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "incense_sticks",
+          "position": "center"
+        },
+        {
+          "id": "oil_lamp",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "So when something strange happened, he and his wife would leave a little rice, light incense, and pray for the dead to find peace."
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_house_day",
+      "bg_prompt": "inside a poor Khmer stilt house, woven palm-leaf walls, a floor mat, a small teapot, soft morning light through the door",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "center",
+          "pose": "think",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "That was what he believed. At the time, I did not know whether I believed it myself."
+        }
+      ]
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "cigarette_rock",
+          "position": "left"
+        },
+        {
+          "id": "rice_carrier_basket",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "But I had watched that cigarette burn. I had seen the rice carrier slide off the table."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "chan_yard_day",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts in the early morning, a short jackfruit tree, a gate of sticks, steps up to the house",
+      "camera": "static",
+      "actors": [],
+      "props": [
+        {
+          "id": "sandals",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "And I knew Tung was not the kind of man to abandon his sandals in the middle of the night over a bad dream."
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_house_day",
+      "bg_prompt": "inside a poor Khmer stilt house, woven palm-leaf walls, a floor mat, a small teapot, soft morning light through the door",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "mrs_chan",
+          "position": "center",
+          "pose": "talk",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Before we left, Mrs. Chan told us something else."
+        },
+        {
+          "speaker": "narrator",
+          "text": "A Vietnamese woman sometimes appeared around the camp."
+        },
+        {
+          "speaker": "narrator",
+          "text": "She had no legs."
+        }
+      ]
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Mrs. Chan said she had seen her several times. The woman never chased anyone. She only pressed her palms together and bowed, then drifted toward the ruined buildings."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "chan_house_day",
+      "bg_prompt": "inside a poor Khmer stilt house, woven palm-leaf walls, a floor mat, a small teapot, soft morning light through the door",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "mrs_chan",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Some nights, Mrs. Chan heard her crying. She could not understand the words, but she knew they were not Khmer."
+        }
+      ]
+    },
+    {
+      "bg_id": "chan_house_day",
+      "bg_prompt": "inside a poor Khmer stilt house, woven palm-leaf walls, a floor mat, a small teapot, soft morning light through the door",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "talk",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "mr_chan",
+          "position": "right",
+          "pose": "point",
+          "expression": "sad",
+          "action": "shake"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I asked if anyone had followed her."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Mr. Chan shook his head and pointed at the ground."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Land mines."
+        }
+      ]
+    },
+    {
+      "bg_id": "camp_path_night",
+      "bg_prompt": "a narrow path between two ruined stone walls disappearing into tall weeds, moonlight on the near end, pitch dark beyond",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "mine_warning_sign",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Nobody knew what lay beneath those weeds. Nobody dared go in to find out."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "luc",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "tin_mug",
+          "position": "far_left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Three nights later, we saw her."
+        },
+        {
+          "speaker": "narrator",
+          "text": "We were sitting outside, drinking water. The moon was bright. Even with the lamp out, we could see the cracks in the yard."
+        }
+      ],
+      "ambience": "forest_frogs",
+      "sfx": [
+        {
+          "id": "terror_sweep",
+          "line": 0
+        }
+      ]
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "luc",
+          "position": "center",
+          "pose": "point",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Luc sat near the door. He stopped halfway through a sentence, staring over my shoulder."
+        },
+        {
+          "speaker": "narrator",
+          "text": "I turned."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "far_right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "enter"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "A shape was drifting past the old building."
+        },
+        {
+          "speaker": "narrator",
+          "text": "At first, I thought it was someone bent almost double."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "approach"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "But the shape did not rise and fall. It crossed the uneven ground at exactly the same height."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "me",
+          "position": "center",
+          "pose": "reach",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "binoculars",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I picked up the binoculars I used in the forest and raised them to my eyes."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Then lowered them straight away."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "It was a woman. Thin shoulders. Loose hair. Her arms held in front of her chest."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Below her waist, her body disappeared into darkness. Beneath her was empty ground, faintly lit by the moon."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "She turned toward us, pressed her palms together, and bowed."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "luc",
+          "position": "center",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "idle",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "tin_mug",
+          "position": "far_left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "None of us dared stand. I heard Luc's mug hit the floor, but nobody bent to pick it up."
+        }
+      ],
+      "ambience": "forest_frogs",
+      "sfx": [
+        {
+          "id": "can_clack",
+          "line": 0
+        }
+      ]
+    },
+    {
+      "bg_id": "camp_path_night",
+      "bg_prompt": "a narrow path between two ruined stone walls disappearing into tall weeds, moonlight on the near end, pitch dark beyond",
+      "camera": "pan_left",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "exit"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "She bowed a few more times. Then she turned, drifted past the big tree, and entered that same narrow path between the two ruined buildings."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_path_night",
+      "bg_prompt": "a narrow path between two ruined stone walls disappearing into tall weeds, moonlight on the near end, pitch dark beyond",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The weeds hid her. We heard nothing more."
+        },
+        {
+          "speaker": "narrator",
+          "text": "The next night, she came again."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "woman",
+          "position": "far_right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "This time, Bay sat right in the doorway. He watched her from the moment she appeared at the far end of the yard until she was gone."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "left",
+          "pose": "reach",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "incense_sticks",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Afterward, he lit a stick of incense and set it outside."
+        },
+        {
+          "speaker": "narrator",
+          "text": "On the third night, she stayed longer."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I do not know whether it was because we were all watching her. I only remember her hands pressed together, her head bowing so low that her hair fell forward."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Then she cried."
+        },
+        {
+          "speaker": "woman",
+          "text": "Father... Mother... please help me."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "She had an accent from Nghe An, in north-central Vietnam. I recognized the old, familiar way she called for her parents. I could hear her voice catch at the end."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "logging_forest_day",
+      "bg_prompt": "tropical forest in northern Cambodia with felled logs, a sawpit and stacked timber, daytime",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "sophal",
+          "position": "left",
+          "pose": "talk",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "vanna",
+          "position": "right",
+          "pose": "talk",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "All day in that place, we heard saws and people calling to each other in Khmer."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Then, at night, there was a young woman calling for her parents in the language of home."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_path_night",
+      "bg_prompt": "a narrow path between two ruined stone walls disappearing into tall weeds, moonlight on the near end, pitch dark beyond",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "A chill ran along my arms."
+        },
+        {
+          "speaker": "narrator",
+          "text": "She turned toward the path. After drifting a short distance, she stopped and looked back at the yard."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "talk",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Bay spoke quietly."
+        },
+        {
+          "speaker": "bay",
+          "text": "Does she want us to follow her?"
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_path_night",
+      "bg_prompt": "a narrow path between two ruined stone walls disappearing into tall weeds, moonlight on the near end, pitch dark beyond",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Nobody answered. We all stared at the path. For the first time, I was afraid both that she would come back and that one night she might stop coming altogether."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_day",
+      "bg_prompt": "yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in tall weeds behind, a narrow path between two broken walls, one big tree, harsh daylight",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "rice_pot",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Two days later, in the middle of lunch, Bay put down his bowl."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_day",
+      "bg_prompt": "yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in tall weeds behind, a narrow path between two broken walls, one big tree, harsh daylight",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "exit"
+        }
+      ],
+      "props": [
+        {
+          "id": "machete",
+          "position": "left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "He stood, took the machete hanging by the door, and walked into the yard."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_day",
+      "bg_prompt": "yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in tall weeds behind, a narrow path between two broken walls, one big tree, harsh daylight",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "talk",
+          "expression": "surprised",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "exit"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I thought he was going to chop firewood. Only when he turned toward the ruined buildings did I call out."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "ruins_path_day",
+      "bg_prompt": "an overgrown path through collapsed stone walls and thick brush inside an abandoned camp, hot midday",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "reach",
+          "expression": "scared",
+          "action": "approach"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "He did not look back."
+        },
+        {
+          "speaker": "narrator",
+          "text": "I ran after him and caught his elbow."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "ruins_path_day",
+      "bg_prompt": "an overgrown path through collapsed stone walls and thick brush inside an abandoned camp, hot midday",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "reach",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "mine_warning_sign",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "me",
+          "text": "Bay. There are mines in there."
+        },
+        {
+          "speaker": "narrator",
+          "text": "He paused for a moment. His eyes stayed fixed ahead."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "ruins_path_day",
+      "bg_prompt": "an overgrown path through collapsed stone walls and thick brush inside an abandoned camp, hot midday",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "talk",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "bay",
+          "text": "Let me get there."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Then he pulled my hand away."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "ruins_path_day",
+      "bg_prompt": "an overgrown path through collapsed stone walls and thick brush inside an abandoned camp, hot midday",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "approach"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "His voice sounded normal. That was what frightened me. He had never been into that part of the camp."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "ruins_path_day",
+      "bg_prompt": "an overgrown path through collapsed stone walls and thick brush inside an abandoned camp, hot midday",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "approach"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Yet when he reached a fallen wall, he turned without hesitation. When the brush blocked his way, he went around it as if he knew where to go."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "ruins_path_day",
+      "bg_prompt": "an overgrown path through collapsed stone walls and thick brush inside an abandoned camp, hot midday",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "approach"
+        },
+        {
+          "id": "tung",
+          "position": "center",
+          "pose": "idle",
+          "expression": "scared",
+          "action": "approach"
+        },
+        {
+          "id": "bay",
+          "position": "far_right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "exit"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "We kept calling. He stopped answering. In the end, all we could do was follow, stepping exactly where he had stepped."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "ruins_path_day",
+      "bg_prompt": "an overgrown path through collapsed stone walls and thick brush inside an abandoned camp, hot midday",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "me",
+          "position": "center",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "mine_warning_sign",
+          "position": "far_left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I walked behind him, watching every footfall. Sweat ran into my eyes, but I did not dare lift a hand to wipe it away."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "dig_site_day",
+      "bg_prompt": "large almost leafless trees with a few blood-red flowers on the branches, a collapsed boundary wall barely knee-high, freshly cleared weeds, late afternoon",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "enter"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "After about two hundred meters, he stopped beneath some large trees that had lost almost all their leaves."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "dig_site_day",
+      "bg_prompt": "large almost leafless trees with a few blood-red flowers on the branches, a collapsed boundary wall barely knee-high, freshly cleared weeds, late afternoon",
+      "camera": "pan_left",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "A few red flowers remained on the branches. At their roots lay a collapsed boundary wall, barely knee-high."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "dig_site_day",
+      "bg_prompt": "large almost leafless trees with a few blood-red flowers on the branches, a collapsed boundary wall barely knee-high, freshly cleared weeds, late afternoon",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "talk",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "machete",
+          "position": "left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "He began cutting away the weeds beside it. After a while, he turned to us."
+        },
+        {
+          "speaker": "bay",
+          "text": "Where's the spade?"
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "dig_site_day",
+      "bg_prompt": "large almost leafless trees with a few blood-red flowers on the branches, a collapsed boundary wall barely knee-high, freshly cleared weeds, late afternoon",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "talk",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "point",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I asked what he was looking for."
+        },
+        {
+          "speaker": "narrator",
+          "text": "He pointed at the patch he had cleared."
+        },
+        {
+          "speaker": "bay",
+          "text": "Dig here."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "dig_site_day",
+      "bg_prompt": "large almost leafless trees with a few blood-red flowers on the branches, a collapsed boundary wall barely knee-high, freshly cleared weeds, late afternoon",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "mr_chan",
+          "position": "left",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "enter"
+        },
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "sophal",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "enter"
+        }
+      ],
+      "props": [
+        {
+          "id": "spade",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Tung went to get Mr. Chan. Sophal went back for tools. When they returned, Mr. Chan stood beside the cleared ground and watched Bay for a long time."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "dig_site_day",
+      "bg_prompt": "large almost leafless trees with a few blood-red flowers on the branches, a collapsed boundary wall barely knee-high, freshly cleared weeds, late afternoon",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "mr_chan",
+          "position": "center",
+          "pose": "talk",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "spade",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Then he told us to work slowly and not drive the tools hard into the earth."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "dig_site_day",
+      "bg_prompt": "large almost leafless trees with a few blood-red flowers on the branches, a collapsed boundary wall barely knee-high, freshly cleared weeds, late afternoon",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "left",
+          "pose": "reach",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "spade",
+          "position": "center"
+        },
+        {
+          "id": "dig_pit",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The top layer was dry and hard. Farther down, the soil was damp and dark. The spade brought up broken glass, medicine vials, rotten bandages, and scraps of old cloth."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "dig_site_day",
+      "bg_prompt": "large almost leafless trees with a few blood-red flowers on the branches, a collapsed boundary wall barely knee-high, freshly cleared weeds, late afternoon",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "center",
+          "pose": "think",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "dig_pit",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Perhaps there had once been a place nearby where the camp's sick were treated. That was only my guess. None of us had records or knew enough to say for certain."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "dig_site_day",
+      "bg_prompt": "large almost leafless trees with a few blood-red flowers on the branches, a collapsed boundary wall barely knee-high, freshly cleared weeds, late afternoon",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "left",
+          "pose": "reach",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "dig_pit",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The afternoon passed. A mound of earth grew beside the wall, but we found nothing."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "dig_site_day",
+      "bg_prompt": "large almost leafless trees with a few blood-red flowers on the branches, a collapsed boundary wall barely knee-high, freshly cleared weeds, late afternoon",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "think",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "reach",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "dig_pit",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I began to wonder whether Bay had let all those stories get into his head."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "dig_site_day",
+      "bg_prompt": "large almost leafless trees with a few blood-red flowers on the branches, a collapsed boundary wall barely knee-high, freshly cleared weeds, late afternoon",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "reach",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "dig_pit",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "But every time I was about to ask, he bent down and searched with his bare hands through the soil he had just loosened."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "tung",
+          "position": "left",
+          "pose": "talk",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "reach",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "dig_pit",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "As the light faded, Tung said we should leave. There was still brush along the way back. In the dark, we would have trouble seeing where to step."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "talk",
+          "expression": "neutral",
+          "action": "shake"
+        }
+      ],
+      "props": [
+        {
+          "id": "dig_pit",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Bay shook his head."
+        },
+        {
+          "speaker": "bay",
+          "text": "We're close."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Nobody asked how he knew."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "vanna",
+          "position": "left",
+          "pose": "idle",
+          "expression": "scared",
+          "action": "enter"
+        }
+      ],
+      "props": [
+        {
+          "id": "oil_lamp",
+          "position": "center"
+        },
+        {
+          "id": "dig_pit",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Vanna went back for a lamp. By the time he returned, the forest was dark."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "zoom_out",
+      "actors": [],
+      "props": [
+        {
+          "id": "oil_lamp",
+          "position": "left"
+        },
+        {
+          "id": "dig_pit",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The flame lit the sides of the hole and our muddy hands. Beyond its glow, the trees stood together like a black wall."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "cower",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "dig_pit",
+          "position": "right"
+        },
+        {
+          "id": "oil_lamp",
+          "position": "left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Then the spade stopped."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Bay knelt."
+        },
+        {
+          "speaker": "bay",
+          "text": "No more digging. Bring the light."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "dig_pit",
+          "position": "center"
+        },
+        {
+          "id": "oil_lamp",
+          "position": "left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "We brushed the soil away with our hands. A little at a time."
+        },
+        {
+          "speaker": "narrator",
+          "text": "The first thing I recognized was hair."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "hair_clip",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "A long lock, matted with damp earth. A tarnished stainless-steel clip was still caught in it, the kind women back home used to wear."
+        }
+      ],
+      "ambience": "forest_frogs",
+      "sfx": [
+        {
+          "id": "terror_sweep",
+          "line": 0
+        }
+      ]
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "scared",
+          "expression": "scared",
+          "action": "shake"
+        },
+        {
+          "id": "vanna",
+          "position": "center",
+          "pose": "reach",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "oil_lamp",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "My hand shook so badly as I held the lamp that Vanna had to steady my wrist."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "left",
+          "pose": "cower",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "center",
+          "pose": "cower",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "sophal",
+          "position": "right",
+          "pose": "cower",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "dig_pit",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Bay said nothing. He cleared a wider space. We all knelt to help. Nobody mentioned leaving anymore."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "static",
+      "actors": [],
+      "props": [
+        {
+          "id": "dig_pit",
+          "position": "center"
+        },
+        {
+          "id": "oil_lamp",
+          "position": "left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The remains lay beside the fallen wall."
+        },
+        {
+          "speaker": "narrator",
+          "text": "But they were not together."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "dig_pit",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The upper body lay in one place. We found the leg bones farther down and off to one side, buried separately."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "vanna",
+          "position": "right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "For a long time, we stopped working."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I remembered the empty space below the woman's waist. The way she drifted across the yard. Those hands pressed together, bowing again and again."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "oil_lamp",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "None of us knew what had happened to her. None of us could say why her remains lay that way."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "zoom_out",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "oil_lamp",
+          "position": "far_left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "But there in the dark, we were all thinking of the same woman."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "cower",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "spade",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Bay sat back against the wall. The spade fell beside him, and he made no move to pick it up."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "reach",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "talk",
+          "expression": "surprised",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "tin_mug",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I gave him some water. He took a sip and asked a question."
+        },
+        {
+          "speaker": "bay",
+          "text": "How long have we been in here?"
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "surprised",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "think",
+          "expression": "surprised",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "machete",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I looked at him. He looked at the open ground, then at the machete beside the cut weeds."
+        },
+        {
+          "speaker": "bay",
+          "text": "I was eating lunch."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "think",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I asked him about it many times afterward. He always said he remembered the meal. He remembered picking up the machete and walking out."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "shrug",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "But how he had found that exact spot, he could never explain."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "oil_lamp",
+          "position": "far_left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "That night, none of us wanted to leave her in that ground any longer."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "mr_chan",
+          "position": "left",
+          "pose": "point",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "sophal",
+          "position": "center",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "vanna",
+          "position": "right",
+          "pose": "idle",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Mr. Chan arranged a burial place at a cemetery about two kilometers away. Some of us went to buy clean wooden boards."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "tung",
+          "position": "left",
+          "pose": "reach",
+          "expression": "neutral",
+          "action": "none"
+        },
+        {
+          "id": "luc",
+          "position": "right",
+          "pose": "reach",
+          "expression": "neutral",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "wooden_casket",
+          "position": "center"
+        },
+        {
+          "id": "oil_lamp",
+          "position": "far_left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "We divided the work, sawing and hammering. The blows rang out clearly in the night."
+        }
+      ],
+      "ambience": "wind_trees",
+      "sfx": [
+        {
+          "id": "metal_hit",
+          "line": 0
+        }
+      ]
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "mrs_chan",
+          "position": "center",
+          "pose": "cower",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "wooden_casket",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Mrs. Chan brought a piece of cloth. She spread it out, smoothed each corner, and sat quietly beside it while we finished."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "hair_clip",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "What I remember most is Bay picking up the hair clip."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "left",
+          "pose": "reach",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "hair_clip",
+          "position": "center"
+        },
+        {
+          "id": "wooden_casket",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "He used a little water to rinse away the dirt. Very gently, as though afraid it might break. Then he placed it with her remains."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "wooden_casket",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Nobody knew her name. How old she was. Whether anyone back home was still waiting for her."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "All we had recognized was a voice in the night. It was enough for us to think of her as one of our own."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "tung",
+          "position": "center",
+          "pose": "reach",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "wooden_marker",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The grave was finished just before dawn. Tung set a wooden marker at its head."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "tung",
+          "position": "left",
+          "pose": "think",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "me",
+          "position": "right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "wooden_marker",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "He held a piece of charcoal, ready to write, then stood there for a while before asking me what name he should put down."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "wooden_marker",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I had no answer."
+        },
+        {
+          "speaker": "narrator",
+          "text": "In the end, the marker bore only a few words for a Vietnamese woman whose name we did not know."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "mr_chan",
+          "position": "left",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "mrs_chan",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "incense_sticks",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Mr. and Mrs. Chan promised to tend the grave and leave incense for her."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "zoom_out",
+      "actors": [
+        {
+          "id": "bay",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "wooden_marker",
+          "position": "right"
+        },
+        {
+          "id": "incense_sticks",
+          "position": "far_right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Bay stood before it with his palms together for a long time. When we went back, his shirt was still covered in mud."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "luc",
+          "position": "left",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "me",
+          "position": "right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "tin_mug",
+          "position": "far_left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The following night, we sat outside again. Luc's mug rested beside his feet. Tung sat against a post."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "pan_right",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "right",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Nobody said we were waiting, but every so often, one of us looked out into the yard."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_path_night",
+      "bg_prompt": "a narrow path between two ruined stone walls disappearing into tall weeds, moonlight on the near end, pitch dark beyond",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The moon rose above the trees."
+        },
+        {
+          "speaker": "narrator",
+          "text": "The narrow path between the ruined buildings stayed dark."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_path_night",
+      "bg_prompt": "a narrow path between two ruined stone walls disappearing into tall weeds, moonlight on the near end, pitch dark beyond",
+      "camera": "static",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "She did not come."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Nor did she come the next night."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_out",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "For the rest of our time in Stung Treng, none of us saw that woman again."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "pan_left",
+      "actors": [],
+      "props": [
+        {
+          "id": "bamboo_panel",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "I do not know what became of the shadows at Mr. Chan's house. And I would never claim to understand everything that happened in that camp."
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "luc",
+          "position": "left",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        },
+        {
+          "id": "me",
+          "position": "right",
+          "pose": "think",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "There were things all six of us saw, yet even later, when we told the story, we still had to ask one another whether we remembered them correctly."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "But I have never forgotten her voice."
+        },
+        {
+          "speaker": "woman",
+          "text": "Father... Mother... please help me."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "At first, hearing those words, I was only afraid she would come closer."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "wooden_marker",
+          "position": "center"
+        },
+        {
+          "id": "oil_lamp",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Standing beside her new grave with the lamp in my hand, I thought instead of her parents."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "village_path_night",
+      "bg_prompt": "a village road in north-central Vietnam at night, the edge of a village",
+      "camera": "pan_left",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Had they walked her to the edge of the village when she left? How many years had they waited? Had any word of her ever reached them?"
+        }
+      ],
+      "ambience": "pond_crickets"
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [
+        {
+          "id": "wooden_marker",
+          "position": "center"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "We had found her. But we still did not know how to bring her home."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "cemetery_night",
+      "bg_prompt": "a small rural cemetery in Cambodia at night before dawn, simple graves, a fresh mound of earth, trees around",
+      "camera": "zoom_in",
+      "actors": [],
+      "props": [
+        {
+          "id": "wooden_marker",
+          "position": "center"
+        },
+        {
+          "id": "incense_sticks",
+          "position": "right"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "All we could give her was a proper grave, near people who would light a stick of incense for her."
+        }
+      ],
+      "ambience": "wind_trees"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "static",
+      "actors": [
+        {
+          "id": "me",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Years later, what I remember most clearly about that night is not the darkness below her waist."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "It is her hands pressed together."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Her head bowing."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Then bowing again."
+        }
+      ],
+      "ambience": "forest_frogs"
+    }
+  ]
+}

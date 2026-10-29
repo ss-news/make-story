@@ -1,4 +1,4 @@
-# Short — The Woman with No Legs
+# Short — Cambodia’s Dark Secret | Why Did She Want Us to Follow?
 
 Target duration: 50–60 seconds, subject to a timed voice recording. Vertical 9:16.
 Content source: `story-vi.txt`, translated from `short-script-vi.md`. This is an adapted ghost story, not an independently verified account.
@@ -9,7 +9,7 @@ The woman had no legs.
 
 She floated across the yard, pressed her palms together, and sobbed:
 
-“Mother… Father… please help me.”
+“Father… Mother… please help me.”
 
 We were at an abandoned camp in Stung Treng, Cambodia.
 
@@ -53,7 +53,7 @@ Then Bay asked:
 
 - Escalation: plea for help → repeated appearances and an invitation to follow → Bay walks off without answering → buried hair and a gap in his memory.
 - Hold each image for no more than seven seconds; use angle changes within longer beats as indicated above. Keep subjects large in the vertical frame, with no black bars. Subtitles: no more than two lines, clear of the bottom and right-side interface overlays.
-- “Mother… Father…” translates the regional Vietnamese address “Thầy me.” “Bay” refers to the same character as “anh Bảy” in the Vietnamese script; use the Vietnamese pronunciation when recording.
+- “Father… Mother…” translates the regional Vietnamese address “Thầy me.” “Bay” refers to the same character as “anh Bảy” in the Vietnamese script; use the Vietnamese pronunciation when recording.
 - Do not invent supernatural rules or historical claims beyond the source story. Do not present entry into a mined area as practical guidance.
 - This document contains narration and editing directions, not a `storyvid.scenes/1` script. No new audio, subtitles, or render has been created. Machine checks, actual visuals, voice delivery, and audio levels remain unverified. A re-hook at two to three minutes does not apply to this Short.
 - Before publishing, the user should complete checklist section 8, including source rights and credit, a dedicated thumbnail, 1080p upload, SRT, and a Related video. Review analytics after 48 hours as described in section 9.
