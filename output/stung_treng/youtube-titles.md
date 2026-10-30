@@ -4,10 +4,11 @@ Long: The Secret of Our Trip to Cambodia | Vietnamese Ghost Story
 
 Short: Our Cambodia Trip Hid a Dark Secret | Vietnamese Ghost Story
 
-Thumbnail headline (both): CAMBODIA’S DARK SECRET
+Thumbnail headline (both): OUR CAMBODIA SECRET
+Subtitle (both): VIETNAMESE GHOST STORY
 
-Final thumbnails: thumbnails/long-en-v2.jpg (1920×1080), thumbnails/short-en-v2.jpg (1080×1920).
+Final thumbnails: thumbnails/long.jpg (1920×1080), thumbnails/short.jpg (1080×1920). PNG originals kept beside the JPG exports. Old long-en/short-en and v2 thumbnails deleted at the user's request.
 
-Created and edited with the built-in ImageGen tool. Final edit prompt: preserve the ghost, camp, dark palette and lighting; replace headline with CAMBODIA’S DARK SECRET, off-white CAMBODIA’S DARK and red SECRET, bold distressed type, safe margins; landscape left headline and portrait top headline.
+Created with built-in ImageGen. Prompt direction: a large pleading Vietnamese woman ghost without legs in the doorway of an abandoned Cambodian camp, a worker with an amber lamp witnessing her, deep charcoal shadows, ivory and amber type, landscape and portrait composed separately. Exact text: OUR CAMBODIA SECRET / VIETNAMESE GHOST STORY. No gore or added supernatural rules. Text and composition visually inspected; export sizes checked.
 
-Checks: scenes validator and asset validator pass. Text and composition visually inspected. Existing root video_short.mp4 predates the new script. No final long render found at the root; svg-test/video.mp4 is a test render. Video playback/audio review remains pending; local ffprobe fails because libx265.215.dylib is missing. These covers and titles do not establish video readiness. Source rights/credit and upload checklist remain required before publishing; review analytics after 48 hours.
+Video validation and remaining review issues: see review-round-1/handoff.md. Source rights and credit still require checking before publication.
