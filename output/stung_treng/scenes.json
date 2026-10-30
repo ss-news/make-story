@@ -6,7 +6,7 @@
     {
       "id": "me",
       "name": "Narrator",
-      "preset": "young_man",
+      "preset": "stung_narrator",
       "outfit": "cream",
       "accessory": "flashlight",
       "kind": "human"
@@ -14,7 +14,7 @@
     {
       "id": "bay",
       "name": "Bay",
-      "preset": "middle_man",
+      "preset": "stung_bay",
       "outfit": "moss",
       "accessory": "none",
       "kind": "human"
@@ -22,7 +22,7 @@
     {
       "id": "luc",
       "name": "Luc",
-      "preset": "young_man",
+      "preset": "stung_luc",
       "outfit": "indigo",
       "accessory": "none",
       "kind": "human"
@@ -30,7 +30,7 @@
     {
       "id": "tung",
       "name": "Tung",
-      "preset": "young_man",
+      "preset": "stung_tung",
       "outfit": "earth",
       "accessory": "bag",
       "kind": "human"
@@ -38,7 +38,7 @@
     {
       "id": "sophal",
       "name": "Sophal",
-      "preset": "middle_man",
+      "preset": "stung_sophal",
       "outfit": "indigo",
       "accessory": "flashlight",
       "kind": "human"
@@ -46,7 +46,7 @@
     {
       "id": "vanna",
       "name": "Vanna",
-      "preset": "young_man",
+      "preset": "stung_vanna",
       "outfit": "moss",
       "accessory": "scarf",
       "kind": "human"
@@ -54,7 +54,7 @@
     {
       "id": "foreman",
       "name": "Foreman",
-      "preset": "middle_man",
+      "preset": "stung_foreman",
       "outfit": "earth",
       "accessory": "bag",
       "kind": "human"
@@ -62,7 +62,7 @@
     {
       "id": "mr_chan",
       "name": "Mr. Chan",
-      "preset": "elder_man",
+      "preset": "stung_mr_chan",
       "outfit": "earth",
       "accessory": "none",
       "kind": "human"
@@ -70,7 +70,7 @@
     {
       "id": "mrs_chan",
       "name": "Mrs. Chan",
-      "preset": "elder_woman",
+      "preset": "stung_mrs_chan",
       "outfit": "indigo",
       "accessory": "scarf",
       "kind": "human"
@@ -94,7 +94,7 @@
     {
       "id": "ghost_boy",
       "name": "Boy",
-      "preset": "boy",
+      "preset": "stung_ghost_boy",
       "outfit": "earth",
       "accessory": "none",
       "kind": "ghost"
@@ -119,7 +119,8 @@
       3,
       4,
       5,
-      6
+      6,
+      7
     ]
   },
   "scenes": [
@@ -249,7 +250,25 @@
         {
           "speaker": "narrator",
           "text": "A few words came from her throat. Vietnamese."
-        },
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
+      "camera": "zoom_in",
+      "actors": [
+        {
+          "id": "woman",
+          "position": "center",
+          "pose": "idle",
+          "expression": "sad",
+          "action": "none"
+        }
+      ],
+      "props": [],
+      "lines": [
         {
           "speaker": "woman",
           "text": "Father... Mother... please help me."
@@ -349,8 +368,8 @@
       "ambience": "wind_trees"
     },
     {
-      "bg_id": "river_day",
-      "bg_prompt": "the wide Mekong River in northern Cambodia, daytime",
+      "bg_id": "river_night",
+      "bg_prompt": "the wide Mekong River in northern Cambodia under overcast night skies",
       "camera": "pan_left",
       "actors": [],
       "props": [],
@@ -508,8 +527,8 @@
       "ambience": "wind_trees"
     },
     {
-      "bg_id": "camp_yard_day",
-      "bg_prompt": "yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in tall weeds behind, a narrow path between two broken walls, one big tree, harsh daylight",
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
       "camera": "static",
       "actors": [
         {
@@ -549,8 +568,8 @@
       "ambience": "wind_trees"
     },
     {
-      "bg_id": "camp_yard_day",
-      "bg_prompt": "yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in tall weeds behind, a narrow path between two broken walls, one big tree, harsh daylight",
+      "bg_id": "camp_yard_night",
+      "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
       "camera": "zoom_in",
       "actors": [],
       "props": [
@@ -1082,7 +1101,22 @@
       "bg_id": "camp_yard_night",
       "bg_prompt": "moonlit yard of an abandoned camp in northern Cambodia, low white stone buildings stained black by rain, ruined buildings in weeds taller than a man behind, a narrow path between two broken walls, one big tree, very dark",
       "camera": "zoom_in",
-      "actors": [],
+      "actors": [
+        {
+          "id": "me",
+          "position": "left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "bay",
+          "position": "far_left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        }
+      ],
       "props": [
         {
           "id": "cigarette_rock",
@@ -1293,6 +1327,20 @@
         {
           "speaker": "narrator",
           "text": "I lay facing the table. We waited so long that my eyes began closing. For a moment, I almost forgot what I was waiting for."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "camp_interior_night",
+      "bg_prompt": "inside a low white stone building with narrow slit windows, hammocks strung between posts, a rough wooden table, dirt floor, only oil lamp light, deep shadows",
+      "camera": "static",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Wait."
         }
       ],
       "ambience": "forest_frogs"
@@ -1965,17 +2013,17 @@
       "actors": [
         {
           "id": "mr_chan",
-          "position": "center",
+          "position": "left",
           "pose": "talk",
           "expression": "neutral",
           "action": "none"
         },
         {
           "id": "ghost_boy",
-          "position": "right",
+          "position": "center",
           "pose": "cower",
           "expression": "neutral",
-          "action": "approach"
+          "action": "none"
         }
       ],
       "props": [],
@@ -2108,13 +2156,30 @@
       "bg_id": "chan_yard_night",
       "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
       "camera": "zoom_in",
-      "actors": [],
-      "props": [
+      "actors": [
         {
-          "id": "sleepers_on_mat",
-          "position": "center"
+          "id": "luc",
+          "position": "left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "far_left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "mother",
+          "position": "center",
+          "pose": "cower",
+          "expression": "neutral",
+          "action": "none"
         }
       ],
+      "props": [],
       "lines": [
         {
           "speaker": "narrator",
@@ -2127,13 +2192,30 @@
       "bg_id": "chan_yard_night",
       "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
       "camera": "zoom_in",
-      "actors": [],
-      "props": [
+      "actors": [
         {
-          "id": "sleepers_on_mat",
-          "position": "center"
+          "id": "luc",
+          "position": "left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "far_left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "mother",
+          "position": "center",
+          "pose": "cower",
+          "expression": "neutral",
+          "action": "none"
         }
       ],
+      "props": [],
       "lines": [
         {
           "speaker": "narrator",
@@ -2156,21 +2238,44 @@
       "bg_id": "chan_yard_night",
       "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
       "camera": "static",
+      "actors": [],
+      "props": [],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Then…"
+        }
+      ],
+      "ambience": "swamp_crickets"
+    },
+    {
+      "bg_id": "chan_yard_night",
+      "bg_prompt": "yard of a poor Khmer wooden house on stilts, a short jackfruit tree, a gate of sticks, steps up to the house, embers of a cooking fire, faint moonlight",
+      "camera": "static",
       "actors": [
+        {
+          "id": "luc",
+          "position": "left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "far_left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
         {
           "id": "mother",
           "position": "center",
-          "pose": "idle",
+          "pose": "cower",
           "expression": "neutral",
           "action": "none"
         }
       ],
-      "props": [
-        {
-          "id": "sleepers_on_mat",
-          "position": "left"
-        }
-      ],
+      "props": [],
       "lines": [
         {
           "speaker": "narrator",
@@ -2185,19 +2290,28 @@
       "camera": "zoom_in",
       "actors": [
         {
+          "id": "luc",
+          "position": "left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "far_left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
           "id": "mother",
           "position": "center",
-          "pose": "idle",
+          "pose": "cower",
           "expression": "neutral",
           "action": "none"
         }
       ],
-      "props": [
-        {
-          "id": "sleepers_on_mat",
-          "position": "left"
-        }
-      ],
+      "props": [],
       "lines": [
         {
           "speaker": "narrator",
@@ -2222,19 +2336,28 @@
       "camera": "static",
       "actors": [
         {
+          "id": "luc",
+          "position": "left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "far_left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
           "id": "mother",
           "position": "center",
-          "pose": "idle",
+          "pose": "cower",
           "expression": "neutral",
           "action": "none"
         }
       ],
-      "props": [
-        {
-          "id": "sleepers_on_mat",
-          "position": "left"
-        }
-      ],
+      "props": [],
       "lines": [
         {
           "speaker": "narrator",
@@ -2249,19 +2372,28 @@
       "camera": "static",
       "actors": [
         {
+          "id": "luc",
+          "position": "left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
+          "id": "tung",
+          "position": "far_left",
+          "pose": "cower",
+          "expression": "scared",
+          "action": "none"
+        },
+        {
           "id": "mother",
           "position": "center",
-          "pose": "idle",
+          "pose": "cower",
           "expression": "neutral",
           "action": "none"
         }
       ],
-      "props": [
-        {
-          "id": "sleepers_on_mat",
-          "position": "left"
-        }
-      ],
+      "props": [],
       "lines": [
         {
           "speaker": "narrator",
@@ -3211,12 +3343,7 @@
           "action": "none"
         }
       ],
-      "props": [
-        {
-          "id": "binoculars",
-          "position": "right"
-        }
-      ],
+      "props": [],
       "lines": [
         {
           "speaker": "narrator",
@@ -4420,6 +4547,25 @@
         {
           "speaker": "bay",
           "text": "No more digging. Bring the light."
+        }
+      ],
+      "ambience": "forest_frogs"
+    },
+    {
+      "bg_id": "dig_site_night",
+      "bg_prompt": "large leafless trees with a few red flowers, a collapsed knee-high wall, a freshly dug hole, lit only by one oil lamp, the forest beyond like a black wall",
+      "camera": "static",
+      "actors": [],
+      "props": [
+        {
+          "id": "oil_lamp",
+          "position": "left"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Then…"
         }
       ],
       "ambience": "forest_frogs"

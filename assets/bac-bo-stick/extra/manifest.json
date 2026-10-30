@@ -255,6 +255,222 @@
       "svg": "backgrounds/veranda_night.svg"
     },
     {
+      "id": "camp_yard_night",
+      "label": "camp yard night",
+      "group": "backgrounds",
+      "svg": "backgrounds/camp_yard_night.svg"
+    },
+    {
+      "id": "camp_path_night",
+      "label": "camp path night",
+      "group": "backgrounds",
+      "svg": "backgrounds/camp_path_night.svg"
+    },
+    {
+      "id": "logging_forest_day",
+      "label": "logging forest day · u ám",
+      "group": "backgrounds",
+      "svg": "backgrounds/logging_forest_day.svg"
+    },
+    {
+      "id": "camp_interior_night",
+      "label": "camp interior night",
+      "group": "backgrounds",
+      "svg": "backgrounds/camp_interior_night.svg"
+    },
+    {
+      "id": "camp_interior_day",
+      "label": "camp interior day · u ám",
+      "group": "backgrounds",
+      "svg": "backgrounds/camp_interior_day.svg"
+    },
+    {
+      "id": "camp_ruins_night",
+      "label": "camp ruins night",
+      "group": "backgrounds",
+      "svg": "backgrounds/camp_ruins_night.svg"
+    },
+    {
+      "id": "camp_yard_day",
+      "label": "camp yard day · u ám",
+      "group": "backgrounds",
+      "svg": "backgrounds/camp_yard_day.svg"
+    },
+    {
+      "id": "red_dirt_road_night",
+      "label": "red dirt road night",
+      "group": "backgrounds",
+      "svg": "backgrounds/red_dirt_road_night.svg"
+    },
+    {
+      "id": "chan_yard_day",
+      "label": "chan yard day · u ám",
+      "group": "backgrounds",
+      "svg": "backgrounds/chan_yard_day.svg"
+    },
+    {
+      "id": "chan_yard_night",
+      "label": "chan yard night",
+      "group": "backgrounds",
+      "svg": "backgrounds/chan_yard_night.svg"
+    },
+    {
+      "id": "chan_house_day",
+      "label": "chan house day · u ám",
+      "group": "backgrounds",
+      "svg": "backgrounds/chan_house_day.svg"
+    },
+    {
+      "id": "ruins_path_day",
+      "label": "ruins path day · u ám",
+      "group": "backgrounds",
+      "svg": "backgrounds/ruins_path_day.svg"
+    },
+    {
+      "id": "dig_site_day",
+      "label": "dig site day · u ám",
+      "group": "backgrounds",
+      "svg": "backgrounds/dig_site_day.svg"
+    },
+    {
+      "id": "dig_site_night",
+      "label": "dig site night",
+      "group": "backgrounds",
+      "svg": "backgrounds/dig_site_night.svg"
+    },
+    {
+      "id": "cemetery_night",
+      "label": "cemetery night",
+      "group": "backgrounds",
+      "svg": "backgrounds/cemetery_night.svg"
+    },
+    {
+      "id": "mine_warning_sign",
+      "label": "mine warning sign",
+      "group": "props",
+      "svg": "props/mine_warning_sign.svg",
+      "height": 0.3
+    },
+    {
+      "id": "hammock",
+      "label": "hammock",
+      "group": "props",
+      "svg": "props/hammock.svg",
+      "height": 0.3
+    },
+    {
+      "id": "rice_pot",
+      "label": "rice pot",
+      "group": "props",
+      "svg": "props/rice_pot.svg",
+      "height": 0.12
+    },
+    {
+      "id": "dried_fish_black",
+      "label": "dried fish black",
+      "group": "props",
+      "svg": "props/dried_fish_black.svg",
+      "height": 0.18
+    },
+    {
+      "id": "cigarette_rock",
+      "label": "Điếu thuốc đỏ rực trên đá · khói đêm",
+      "group": "props",
+      "svg": "props/cigarette_rock.svg",
+      "height": 0.3
+    },
+    {
+      "id": "rice_carrier_basket",
+      "label": "rice carrier basket",
+      "group": "props",
+      "svg": "props/rice_carrier_basket.svg",
+      "height": 0.34
+    },
+    {
+      "id": "tin_mug",
+      "label": "tin mug",
+      "group": "props",
+      "svg": "props/tin_mug.svg",
+      "height": 0.07
+    },
+    {
+      "id": "bamboo_panel",
+      "label": "bamboo panel",
+      "group": "props",
+      "svg": "props/bamboo_panel.svg",
+      "height": 0.08
+    },
+    {
+      "id": "sleepers_on_mat",
+      "label": "sleepers on mat",
+      "group": "props",
+      "svg": "props/sleepers_on_mat.svg",
+      "height": 0.16
+    },
+    {
+      "id": "sandals",
+      "label": "sandals",
+      "group": "props",
+      "svg": "props/sandals.svg",
+      "height": 0.05
+    },
+    {
+      "id": "teapot_cups",
+      "label": "teapot cups",
+      "group": "props",
+      "svg": "props/teapot_cups.svg",
+      "height": 0.1
+    },
+    {
+      "id": "binoculars",
+      "label": "binoculars",
+      "group": "props",
+      "svg": "props/binoculars.svg",
+      "height": 0.07
+    },
+    {
+      "id": "machete",
+      "label": "machete",
+      "group": "props",
+      "svg": "props/machete.svg",
+      "height": 0.14
+    },
+    {
+      "id": "spade",
+      "label": "spade",
+      "group": "props",
+      "svg": "props/spade.svg",
+      "height": 0.3
+    },
+    {
+      "id": "dig_pit",
+      "label": "dig pit",
+      "group": "props",
+      "svg": "props/dig_pit.svg",
+      "height": 0.16
+    },
+    {
+      "id": "hair_clip",
+      "label": "hair clip",
+      "group": "props",
+      "svg": "props/hair_clip.svg",
+      "height": 0.2
+    },
+    {
+      "id": "wooden_casket",
+      "label": "wooden casket",
+      "group": "props",
+      "svg": "props/wooden_casket.svg",
+      "height": 0.16
+    },
+    {
+      "id": "wooden_marker",
+      "label": "wooden marker",
+      "group": "props",
+      "svg": "props/wooden_marker.svg",
+      "height": 0.26
+    },
+    {
       "id": "stung_blush_cheeks",
       "label": "blush cheeks",
       "group": "effects",

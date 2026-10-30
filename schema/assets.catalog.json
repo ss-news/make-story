@@ -107,6 +107,66 @@
     [
       "veranda_night",
       "Hiên nhà với đèn dầu và mùng ngủ · đêm"
+    ],
+    [
+      "camp_yard_night",
+      "camp yard night"
+    ],
+    [
+      "camp_path_night",
+      "camp path night"
+    ],
+    [
+      "logging_forest_day",
+      "logging forest day · u ám"
+    ],
+    [
+      "camp_interior_night",
+      "camp interior night"
+    ],
+    [
+      "camp_interior_day",
+      "camp interior day · u ám"
+    ],
+    [
+      "camp_ruins_night",
+      "camp ruins night"
+    ],
+    [
+      "camp_yard_day",
+      "camp yard day · u ám"
+    ],
+    [
+      "red_dirt_road_night",
+      "red dirt road night"
+    ],
+    [
+      "chan_yard_day",
+      "chan yard day · u ám"
+    ],
+    [
+      "chan_yard_night",
+      "chan yard night"
+    ],
+    [
+      "chan_house_day",
+      "chan house day · u ám"
+    ],
+    [
+      "ruins_path_day",
+      "ruins path day · u ám"
+    ],
+    [
+      "dig_site_day",
+      "dig site day · u ám"
+    ],
+    [
+      "dig_site_night",
+      "dig site night"
+    ],
+    [
+      "cemetery_night",
+      "cemetery night"
     ]
   ],
   "animals": [
@@ -327,6 +387,78 @@
     [
       "upturned_bowl",
       "Chén sành úp"
+    ],
+    [
+      "mine_warning_sign",
+      "mine warning sign"
+    ],
+    [
+      "hammock",
+      "hammock"
+    ],
+    [
+      "rice_pot",
+      "rice pot"
+    ],
+    [
+      "dried_fish_black",
+      "dried fish black"
+    ],
+    [
+      "cigarette_rock",
+      "Điếu thuốc đỏ rực trên đá · khói đêm"
+    ],
+    [
+      "rice_carrier_basket",
+      "rice carrier basket"
+    ],
+    [
+      "tin_mug",
+      "tin mug"
+    ],
+    [
+      "bamboo_panel",
+      "bamboo panel"
+    ],
+    [
+      "sleepers_on_mat",
+      "sleepers on mat"
+    ],
+    [
+      "sandals",
+      "sandals"
+    ],
+    [
+      "teapot_cups",
+      "teapot cups"
+    ],
+    [
+      "binoculars",
+      "binoculars"
+    ],
+    [
+      "machete",
+      "machete"
+    ],
+    [
+      "spade",
+      "spade"
+    ],
+    [
+      "dig_pit",
+      "dig pit"
+    ],
+    [
+      "hair_clip",
+      "hair clip"
+    ],
+    [
+      "wooden_casket",
+      "wooden casket"
+    ],
+    [
+      "wooden_marker",
+      "wooden marker"
     ]
   ],
   "characters": [

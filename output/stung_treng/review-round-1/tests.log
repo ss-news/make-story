@@ -1,0 +1,18 @@
+.................................................../Users/thang/Documents/video/tests/test_subtitles.py:81: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+  white = sum(1 for px in close.getdata() if px == (255, 255, 255))
+.
+----------------------------------------------------------------------
+Ran 52 tests in 17.248s
+
+OK
+  render   0.0s / 1.0s
+  render   0.0s / 1.0s
+  render   0.0s / 0.2s
+    elevenlabs: 8 characters
+  background yard: pack courtyard_day
+    edge-tts retry 1/5 for line.mp3: dropped
+    edge-tts retry 1/5 for line.mp3: dropped
+    edge-tts retry 2/5 for line.mp3: dropped
+    edge-tts retry 3/5 for line.mp3: dropped
+    edge-tts retry 4/5 for line.mp3: dropped
+    edge-tts retry 5/5 for line.mp3: dropped
