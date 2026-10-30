@@ -1,0 +1,20 @@
+OK output/stung_treng/scenes.json
+[short] scenes [0, 1, 2, 3, 4, 5, 6, 7]
+[2/4] Narrating with en-US-AndrewNeural...
+  voice 1/8: 2.4s, 1 line(s)
+  voice 2/8: 5.9s, 1 line(s)
+  voice 3/8: 5.0s, 1 line(s)
+  voice 4/8: 4.4s, 1 line(s)
+  voice 5/8: 3.4s, 1 line(s)
+  voice 6/8: 5.0s, 1 line(s)
+  voice 7/8: 4.2s, 1 line(s)
+  voice 8/8: 4.4s, 1 line(s)
+  subtitles -> output/stung_treng/video_short.srt
+  mixing music and sound effects
+[3/4] Backgrounds...
+[4/4] Rendering 34.5s at 1080x1920...
+  render   0.0s / 34.5s
+  render  10.0s / 34.5s
+  render  20.0s / 34.5s
+  render  30.0s / 34.5s
+Done in 69s -> output/stung_treng/video_short.mp4

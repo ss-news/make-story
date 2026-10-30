@@ -1,0 +1,341 @@
+OK output/stung_treng/scenes.json
+[2/4] Narrating with en-US-AndrewNeural...
+  voice 1/202: 2.4s, 1 line(s)
+  voice 2/202: 5.9s, 1 line(s)
+  voice 3/202: 5.0s, 1 line(s)
+  voice 4/202: 4.4s, 1 line(s)
+  voice 5/202: 3.4s, 1 line(s)
+  voice 6/202: 5.0s, 1 line(s)
+  voice 7/202: 4.2s, 1 line(s)
+  voice 8/202: 4.4s, 1 line(s)
+  voice 9/202: 2.7s, 1 line(s)
+  voice 10/202: 6.2s, 1 line(s)
+  voice 11/202: 6.8s, 1 line(s)
+  voice 12/202: 2.2s, 1 line(s)
+  voice 13/202: 6.9s, 1 line(s)
+  voice 14/202: 4.7s, 1 line(s)
+  voice 15/202: 9.2s, 1 line(s)
+  voice 16/202: 7.6s, 1 line(s)
+  voice 17/202: 10.0s, 1 line(s)
+  voice 18/202: 6.8s, 1 line(s)
+  voice 19/202: 7.1s, 2 line(s)
+  voice 20/202: 7.2s, 1 line(s)
+  voice 21/202: 5.8s, 1 line(s)
+  voice 22/202: 7.3s, 1 line(s)
+  voice 23/202: 5.9s, 1 line(s)
+  voice 24/202: 9.7s, 1 line(s)
+  voice 25/202: 4.3s, 2 line(s)
+  voice 26/202: 8.4s, 1 line(s)
+  voice 27/202: 10.5s, 1 line(s)
+  voice 28/202: 8.6s, 2 line(s)
+  voice 29/202: 6.6s, 1 line(s)
+  voice 30/202: 8.3s, 1 line(s)
+  voice 31/202: 6.4s, 1 line(s)
+  voice 32/202: 3.3s, 1 line(s)
+  voice 33/202: 8.6s, 1 line(s)
+  voice 34/202: 5.2s, 1 line(s)
+  voice 35/202: 6.9s, 1 line(s)
+  voice 36/202: 6.0s, 2 line(s)
+  voice 37/202: 6.2s, 2 line(s)
+  voice 38/202: 4.5s, 1 line(s)
+  voice 39/202: 9.5s, 1 line(s)
+  voice 40/202: 7.8s, 1 line(s)
+  voice 41/202: 6.1s, 2 line(s)
+  voice 42/202: 6.7s, 1 line(s)
+  voice 43/202: 8.5s, 1 line(s)
+  voice 44/202: 5.7s, 1 line(s)
+  voice 45/202: 8.2s, 1 line(s)
+  voice 46/202: 1.1s, 1 line(s)
+  voice 47/202: 4.5s, 2 line(s)
+  voice 48/202: 6.0s, 1 line(s)
+  voice 49/202: 7.8s, 1 line(s)
+  voice 50/202: 3.7s, 1 line(s)
+  voice 51/202: 7.2s, 2 line(s)
+  voice 52/202: 7.2s, 1 line(s)
+  voice 53/202: 5.3s, 2 line(s)
+  voice 54/202: 8.2s, 1 line(s)
+  voice 55/202: 7.7s, 1 line(s)
+  voice 56/202: 9.3s, 1 line(s)
+  voice 57/202: 9.7s, 1 line(s)
+  voice 58/202: 6.0s, 1 line(s)
+  voice 59/202: 6.3s, 1 line(s)
+  voice 60/202: 4.7s, 1 line(s)
+  voice 61/202: 7.8s, 1 line(s)
+  voice 62/202: 4.6s, 1 line(s)
+  voice 63/202: 5.5s, 2 line(s)
+  voice 64/202: 6.7s, 1 line(s)
+  voice 65/202: 7.2s, 1 line(s)
+  voice 66/202: 6.7s, 1 line(s)
+  voice 67/202: 6.9s, 1 line(s)
+  voice 68/202: 6.5s, 2 line(s)
+  voice 69/202: 7.3s, 2 line(s)
+  voice 70/202: 7.8s, 1 line(s)
+  voice 71/202: 4.4s, 1 line(s)
+  voice 72/202: 6.3s, 1 line(s)
+  voice 73/202: 8.0s, 1 line(s)
+  voice 74/202: 5.1s, 1 line(s)
+  voice 75/202: 6.1s, 1 line(s)
+  voice 76/202: 4.8s, 2 line(s)
+  voice 77/202: 1.1s, 1 line(s)
+  voice 78/202: 6.9s, 1 line(s)
+  voice 79/202: 5.9s, 2 line(s)
+  voice 80/202: 8.7s, 1 line(s)
+  voice 81/202: 8.1s, 2 line(s)
+  voice 82/202: 9.6s, 1 line(s)
+  voice 83/202: 7.7s, 2 line(s)
+  voice 84/202: 5.3s, 2 line(s)
+  voice 85/202: 8.5s, 1 line(s)
+  voice 86/202: 7.5s, 1 line(s)
+  voice 87/202: 6.5s, 1 line(s)
+  voice 88/202: 9.2s, 1 line(s)
+  voice 89/202: 6.0s, 2 line(s)
+  voice 90/202: 5.1s, 1 line(s)
+  voice 91/202: 5.8s, 1 line(s)
+  voice 92/202: 5.4s, 2 line(s)
+  voice 93/202: 5.4s, 2 line(s)
+  voice 94/202: 6.6s, 1 line(s)
+  voice 95/202: 5.3s, 1 line(s)
+  voice 96/202: 5.2s, 1 line(s)
+  voice 97/202: 9.2s, 1 line(s)
+  voice 98/202: 8.1s, 1 line(s)
+  voice 99/202: 9.4s, 2 line(s)
+  voice 100/202: 8.4s, 1 line(s)
+  voice 101/202: 6.5s, 1 line(s)
+  voice 102/202: 6.8s, 1 line(s)
+  voice 103/202: 8.3s, 1 line(s)
+  voice 104/202: 5.3s, 1 line(s)
+  voice 105/202: 5.0s, 1 line(s)
+  voice 106/202: 6.1s, 1 line(s)
+  voice 107/202: 8.9s, 3 line(s)
+  voice 108/202: 10.6s, 1 line(s)
+  voice 109/202: 6.8s, 1 line(s)
+  voice 110/202: 7.6s, 3 line(s)
+  voice 111/202: 5.1s, 1 line(s)
+  voice 112/202: 9.7s, 2 line(s)
+  voice 113/202: 7.5s, 2 line(s)
+  voice 114/202: 6.3s, 2 line(s)
+  voice 115/202: 6.2s, 1 line(s)
+  voice 116/202: 6.8s, 2 line(s)
+  voice 117/202: 5.7s, 1 line(s)
+  voice 118/202: 8.0s, 1 line(s)
+  voice 119/202: 4.1s, 1 line(s)
+  voice 120/202: 5.4s, 1 line(s)
+  voice 121/202: 9.1s, 1 line(s)
+  voice 122/202: 5.1s, 2 line(s)
+  voice 123/202: 7.6s, 1 line(s)
+  voice 124/202: 6.7s, 2 line(s)
+  voice 125/202: 9.3s, 1 line(s)
+  voice 126/202: 7.0s, 2 line(s)
+  voice 127/202: 9.9s, 1 line(s)
+  voice 128/202: 5.1s, 1 line(s)
+  voice 129/202: 5.3s, 1 line(s)
+  voice 130/202: 8.4s, 2 line(s)
+  voice 131/202: 5.0s, 2 line(s)
+  voice 132/202: 9.2s, 1 line(s)
+  voice 133/202: 4.3s, 1 line(s)
+  voice 134/202: 5.0s, 1 line(s)
+  voice 135/202: 5.6s, 1 line(s)
+  voice 136/202: 4.8s, 2 line(s)
+  voice 137/202: 7.5s, 2 line(s)
+  voice 138/202: 4.4s, 2 line(s)
+  voice 139/202: 5.8s, 1 line(s)
+  voice 140/202: 9.0s, 1 line(s)
+  voice 141/202: 7.5s, 1 line(s)
+  voice 142/202: 8.0s, 1 line(s)
+  voice 143/202: 6.4s, 1 line(s)
+  voice 144/202: 6.9s, 1 line(s)
+  voice 145/202: 7.2s, 2 line(s)
+  voice 146/202: 6.5s, 3 line(s)
+  voice 147/202: 9.4s, 1 line(s)
+  voice 148/202: 4.6s, 1 line(s)
+  voice 149/202: 11.6s, 1 line(s)
+  voice 150/202: 9.1s, 1 line(s)
+  voice 151/202: 5.7s, 1 line(s)
+  voice 152/202: 4.4s, 1 line(s)
+  voice 153/202: 6.7s, 1 line(s)
+  voice 154/202: 8.4s, 1 line(s)
+  voice 155/202: 6.4s, 3 line(s)
+  voice 156/202: 5.0s, 1 line(s)
+  voice 157/202: 7.9s, 1 line(s)
+  voice 158/202: 8.3s, 3 line(s)
+  voice 159/202: 1.1s, 1 line(s)
+  voice 160/202: 6.4s, 2 line(s)
+  voice 161/202: 8.1s, 1 line(s)
+  voice 162/202: 5.2s, 1 line(s)
+  voice 163/202: 6.5s, 1 line(s)
+  voice 164/202: 4.9s, 2 line(s)
+  voice 165/202: 7.1s, 1 line(s)
+  voice 166/202: 2.7s, 1 line(s)
+  voice 167/202: 9.0s, 1 line(s)
+  voice 168/202: 5.6s, 1 line(s)
+  voice 169/202: 3.8s, 1 line(s)
+  voice 170/202: 5.9s, 1 line(s)
+  voice 171/202: 6.4s, 2 line(s)
+  voice 172/202: 8.1s, 2 line(s)
+  voice 173/202: 7.8s, 1 line(s)
+  voice 174/202: 3.9s, 1 line(s)
+  voice 175/202: 4.4s, 1 line(s)
+  voice 176/202: 7.5s, 1 line(s)
+  voice 177/202: 5.4s, 1 line(s)
+  voice 178/202: 7.8s, 1 line(s)
+  voice 179/202: 3.3s, 1 line(s)
+  voice 180/202: 7.8s, 1 line(s)
+  voice 181/202: 6.1s, 1 line(s)
+  voice 182/202: 6.0s, 1 line(s)
+  voice 183/202: 4.9s, 1 line(s)
+  voice 184/202: 7.0s, 1 line(s)
+  voice 185/202: 8.5s, 2 line(s)
+  voice 186/202: 4.9s, 1 line(s)
+  voice 187/202: 6.9s, 1 line(s)
+  voice 188/202: 6.9s, 1 line(s)
+  voice 189/202: 5.4s, 1 line(s)
+  voice 190/202: 6.1s, 2 line(s)
+  voice 191/202: 4.3s, 2 line(s)
+  voice 192/202: 4.6s, 1 line(s)
+  voice 193/202: 7.8s, 1 line(s)
+  voice 194/202: 8.8s, 1 line(s)
+  voice 195/202: 7.4s, 2 line(s)
+  voice 196/202: 5.1s, 1 line(s)
+  voice 197/202: 5.8s, 1 line(s)
+  voice 198/202: 6.8s, 1 line(s)
+  voice 199/202: 3.8s, 1 line(s)
+  voice 200/202: 5.5s, 1 line(s)
+  voice 201/202: 6.4s, 1 line(s)
+  voice 202/202: 6.5s, 3 line(s)
+  subtitles -> output/stung_treng/video.srt
+  mixing music and sound effects
+[3/4] Backgrounds...
+[4/4] Rendering 1313.8s at 1920x1080...
+  render   0.0s / 1313.8s
+  render  10.0s / 1313.8s
+  render  20.0s / 1313.8s
+  render  30.0s / 1313.8s
+  render  40.0s / 1313.8s
+  render  50.0s / 1313.8s
+  render  60.0s / 1313.8s
+  render  70.0s / 1313.8s
+  render  80.0s / 1313.8s
+  render  90.0s / 1313.8s
+  render 100.0s / 1313.8s
+  render 110.0s / 1313.8s
+  render 120.0s / 1313.8s
+  render 130.0s / 1313.8s
+  render 140.0s / 1313.8s
+  render 150.0s / 1313.8s
+  render 160.0s / 1313.8s
+  render 170.0s / 1313.8s
+  render 180.0s / 1313.8s
+  render 190.0s / 1313.8s
+  render 200.0s / 1313.8s
+  render 210.0s / 1313.8s
+  render 220.0s / 1313.8s
+  render 230.0s / 1313.8s
+  render 240.0s / 1313.8s
+  render 250.0s / 1313.8s
+  render 260.0s / 1313.8s
+  render 270.0s / 1313.8s
+  render 280.0s / 1313.8s
+  render 290.0s / 1313.8s
+  render 300.0s / 1313.8s
+  render 310.0s / 1313.8s
+  render 320.0s / 1313.8s
+  render 330.0s / 1313.8s
+  render 340.0s / 1313.8s
+  render 350.0s / 1313.8s
+  render 360.0s / 1313.8s
+  render 370.0s / 1313.8s
+  render 380.0s / 1313.8s
+  render 390.0s / 1313.8s
+  render 400.0s / 1313.8s
+  render 410.0s / 1313.8s
+  render 420.0s / 1313.8s
+  render 430.0s / 1313.8s
+  render 440.0s / 1313.8s
+  render 450.0s / 1313.8s
+  render 460.0s / 1313.8s
+  render 470.0s / 1313.8s
+  render 480.0s / 1313.8s
+  render 490.0s / 1313.8s
+  render 500.0s / 1313.8s
+  render 510.0s / 1313.8s
+  render 520.0s / 1313.8s
+  render 530.0s / 1313.8s
+  render 540.0s / 1313.8s
+  render 550.0s / 1313.8s
+  render 560.0s / 1313.8s
+  render 570.0s / 1313.8s
+  render 580.0s / 1313.8s
+  render 590.0s / 1313.8s
+  render 600.0s / 1313.8s
+  render 610.0s / 1313.8s
+  render 620.0s / 1313.8s
+  render 630.0s / 1313.8s
+  render 640.0s / 1313.8s
+  render 650.0s / 1313.8s
+  render 660.0s / 1313.8s
+  render 670.0s / 1313.8s
+  render 680.0s / 1313.8s
+  render 690.0s / 1313.8s
+  render 700.0s / 1313.8s
+  render 710.0s / 1313.8s
+  render 720.0s / 1313.8s
+  render 730.0s / 1313.8s
+  render 740.0s / 1313.8s
+  render 750.0s / 1313.8s
+  render 760.0s / 1313.8s
+  render 770.0s / 1313.8s
+  render 780.0s / 1313.8s
+  render 790.0s / 1313.8s
+  render 800.0s / 1313.8s
+  render 810.0s / 1313.8s
+  render 820.0s / 1313.8s
+  render 830.0s / 1313.8s
+  render 840.0s / 1313.8s
+  render 850.0s / 1313.8s
+  render 860.0s / 1313.8s
+  render 870.0s / 1313.8s
+  render 880.0s / 1313.8s
+  render 890.0s / 1313.8s
+  render 900.0s / 1313.8s
+  render 910.0s / 1313.8s
+  render 920.0s / 1313.8s
+  render 930.0s / 1313.8s
+  render 940.0s / 1313.8s
+  render 950.0s / 1313.8s
+  render 960.0s / 1313.8s
+  render 970.0s / 1313.8s
+  render 980.0s / 1313.8s
+  render 990.0s / 1313.8s
+  render 1000.0s / 1313.8s
+  render 1010.0s / 1313.8s
+  render 1020.0s / 1313.8s
+  render 1030.0s / 1313.8s
+  render 1040.0s / 1313.8s
+  render 1050.0s / 1313.8s
+  render 1060.0s / 1313.8s
+  render 1070.0s / 1313.8s
+  render 1080.0s / 1313.8s
+  render 1090.0s / 1313.8s
+  render 1100.0s / 1313.8s
+  render 1110.0s / 1313.8s
+  render 1120.0s / 1313.8s
+  render 1130.0s / 1313.8s
+  render 1140.0s / 1313.8s
+  render 1150.0s / 1313.8s
+  render 1160.0s / 1313.8s
+  render 1170.0s / 1313.8s
+  render 1180.0s / 1313.8s
+  render 1190.0s / 1313.8s
+  render 1200.0s / 1313.8s
+  render 1210.0s / 1313.8s
+  render 1220.0s / 1313.8s
+  render 1230.0s / 1313.8s
+  render 1240.0s / 1313.8s
+  render 1250.0s / 1313.8s
+  render 1260.0s / 1313.8s
+  render 1270.0s / 1313.8s
+  render 1280.0s / 1313.8s
+  render 1290.0s / 1313.8s
+  render 1300.0s / 1313.8s
+  render 1310.0s / 1313.8s
+Done in 1886s -> output/stung_treng/video.mp4

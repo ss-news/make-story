@@ -28,3 +28,12 @@ Không chỉnh review.json; verdict vẫn là fix, chờ Claude kiểm định l
 ## Người dùng
 
 Phần 8–9: quyền/ghi công nguồn, thumbnail riêng, tải 1080p và SRT, Related video, cài đặt đối tượng; xem lại CTR/retention/đề xuất sau 48 giờ.
+
+## Kiểm tra bổ sung
+
+- Short giải mã toàn bộ bằng ffmpeg: exit 0; H.264 1080×1920, 30 fps, 34.53 giây, âm thanh AAC.
+- Mức âm mix bản dài: mean -20.3 dB, max -1.9 dB; không có đỉnh vượt 0 dBFS. Chưa thay thế nghe thủ công.
+- SRT bản dài 753 cue, Short 21 cue. Cue cuối bản dài kết thúc ở 21:52.534, Short ở 00:33.795.
+- Bản dài dựng thành công bằng lệnh TTS_PROVIDER=edge ... --res 1080, không fallback: video.mp4, 1313.8 giây (~21:54), khoảng 83 MB. Short cũng dựng bằng lệnh yêu cầu, không fallback. Video và audio chỉ giữ local.
+- Khung từ bản dài cuối lưu ở final-contact.jpg: điếu thuốc đỏ và khói rõ; Luc/Tung đã xuất hiện cạnh mother. Child vẫn nhỏ dù một mình và zoom_in; hook woman cũng chưa thật lớn ở bản ngang. Các mục ★ về chủ thể to/rõ chưa thể đánh dấu đạt; cần lượt xử lý renderer/scale được người dùng cho phép. Không tự sửa code để vượt ràng buộc.
+- Bản dài xác nhận H.264 1920×1080, 30 fps, 21:53.76, AAC. Giải mã toàn bộ file exit 0 (long-decode.log).
