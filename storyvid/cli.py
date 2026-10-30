@@ -17,7 +17,7 @@ from .check import check_script
 from .contract import FORMAT
 from .render import Renderer, ShortRenderer
 from .script import write_script
-from .tts import narrate, tts_provider
+from .tts import narrate, tts_provider, write_srt
 
 ROOT = Path(__file__).resolve().parent.parent
 RESOLUTIONS = {"480": (854, 480), "720": (1280, 720), "1080": (1920, 1080)}
@@ -132,6 +132,7 @@ def main():
     provider = tts_provider()
     print(f"[2/4] Narrating with {voice if provider == 'edge' else provider}...")
     timeline = narrate(script, voice, out_dir, args.lang)
+    print(f"  subtitles -> {write_srt(timeline['cues'], out_dir / 'video.srt')}")
     add_sound(script, timeline, out_dir)
 
     size = RESOLUTIONS[args.res]
@@ -167,14 +168,15 @@ def render_short(script: dict, channel: dict, voice: str, out_dir: Path, args) -
     provider = tts_provider()
     print(f"[2/4] Narrating with {voice if provider == 'edge' else provider}...")
     timeline = narrate(short, voice, out_dir / "short", args.lang)
+    print(f"  subtitles -> {write_srt(timeline['cues'], out_dir / 'video_short.srt')}")
     add_sound(short, timeline, out_dir / "short")
     if timeline["duration"] > 60:
         print(f"  warning: {timeline['duration']:.0f}s is longer than 60 s; pick fewer scenes in short.scenes")
     width = RESOLUTIONS[args.res][1]  # 720 -> a 720x1280 Short
     print("[3/4] Backgrounds...")
-    stage = int(width * 1.15)
-    bg_paths = make_backgrounds(short, (stage, stage), ROOT / "cache" / "backgrounds")
     renderer = ShortRenderer(channel, width, args.fps, script["title"], args.lang)
+    stage = int(renderer.H * 1.15)  # the vertical stage is cover-filled from a background this tall
+    bg_paths = make_backgrounds(short, (stage, stage), ROOT / "cache" / "backgrounds")
     print(f"[4/4] Rendering {timeline['duration']:.1f}s at {renderer.out_size[0]}x{renderer.out_size[1]}...")
     renderer.render(short, timeline, bg_paths, out_dir / "video_short.mp4")
 

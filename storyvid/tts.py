@@ -1,6 +1,10 @@
 """Step 2: narrate each scene (edge-tts or ElevenLabs) and build subtitle cues from word timings."""
+import hashlib
+import json
 import os
 import subprocess
+import threading
+import time
 import wave
 from pathlib import Path
 
@@ -14,6 +18,13 @@ SAMPLE_RATE = 24000
 SCENE_PAD = 0.35  # seconds of silence after each scene
 LINE_PAD = 0.2    # pause between two lines inside a scene
 MAX_WORDS_PER_CUE = 8
+# Never end a subtitle line on one of these: the next line starts with it instead
+TITLES = {"mr.", "mrs.", "ms.", "dr."}  # end with a full stop but never end a sentence
+WEAK_END = {"a", "an", "the", "to", "in", "of", "on", "at", "for", "and", "or", "but", "with", "from", "by",
+            "my", "his", "her", "our", "their", "your", "its"} | TITLES
+EDGE_CACHE = Path(__file__).resolve().parents[1] / "cache" / "edge"
+EDGE_TIMEOUT = 60   # seconds before a hung edge-tts request is abandoned
+EDGE_TRIES = 5
 
 # Character voices per language, by gender. Narration keeps the channel voice.
 VOICE_POOL = {
@@ -75,7 +86,7 @@ def cast_voices(script: dict, narrator_voice: str, lang: str) -> dict:
     return voices
 
 
-def _synthesize(text: str, voice: str, mp3_path: Path, rate: str = "+0%", pitch: str = "+0Hz") -> list:
+def _edge_request(text: str, voice: str, mp3_path: Path, rate: str, pitch: str) -> list:
     words = []
     communicate = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch, boundary="WordBoundary")
     with open(mp3_path, "wb") as f:
@@ -87,6 +98,38 @@ def _synthesize(text: str, voice: str, mp3_path: Path, rate: str = "+0%", pitch:
                 start = chunk["offset"] / 1e7
                 words.append((start, start + chunk["duration"] / 1e7, chunk["text"]))
     return words
+
+
+def _synthesize(text: str, voice: str, mp3_path: Path, rate: str = "+0%", pitch: str = "+0Hz") -> list:
+    """edge-tts with a cache per line, and a timeout + retry: the service sometimes stalls without an error."""
+    digest = hashlib.sha256(json.dumps([voice, rate, pitch, text]).encode()).hexdigest()[:24]
+    cached_mp3, cached_json = EDGE_CACHE / f"{digest}.mp3", EDGE_CACHE / f"{digest}.json"
+    if not (cached_mp3.exists() and cached_json.exists()):
+        EDGE_CACHE.mkdir(parents=True, exist_ok=True)
+        for attempt in range(1, EDGE_TRIES + 1):
+            part = EDGE_CACHE / f"{digest}.{attempt}.part"  # a stalled thread may still write to its own file
+            result: dict = {}
+
+            def run():
+                try:
+                    result["words"] = _edge_request(text, voice, part, rate, pitch)
+                except Exception as e:  # noqa: BLE001 - reported below, then retried
+                    result["error"] = e
+
+            worker = threading.Thread(target=run, daemon=True)
+            worker.start()
+            worker.join(EDGE_TIMEOUT)
+            if "words" in result and part.stat().st_size > 0:
+                part.replace(cached_mp3)
+                cached_json.write_text(json.dumps(result["words"]))
+                break
+            reason = result.get("error") or f"no answer in {EDGE_TIMEOUT}s"
+            print(f"    edge-tts retry {attempt}/{EDGE_TRIES} for {mp3_path.name}: {reason}")
+            time.sleep(3 * attempt)
+        else:
+            raise RuntimeError(f"edge-tts failed {EDGE_TRIES} times for {mp3_path.name}")
+    mp3_path.write_bytes(cached_mp3.read_bytes())
+    return [tuple(w) for w in json.loads(cached_json.read_text())]
 
 
 def _decode(mp3_path: Path) -> np.ndarray:
@@ -125,15 +168,36 @@ def _cues(words: list, offset: float) -> list[dict]:
     cues, current = [], []
     for w in words:
         current.append(w)
-        if len(current) >= MAX_WORDS_PER_CUE or w[2].endswith((".", "!", "?", ",", "…", ":", ";")):
+        if w[2].endswith((".", "!", "?", ",", "…", ":", ";")) and w[2].lower() not in TITLES:
             cues.append(current)
             current = []
+        elif len(current) >= MAX_WORDS_PER_CUE:
+            carry = []  # move trailing weak words ("in", "the", "Mr.") to the start of the next line
+            while len(current) > 1 and current[-1][2].lower() in WEAK_END:
+                carry.insert(0, current.pop())
+            cues.append(current)
+            current = carry
     if current:
         cues.append(current)
     return [
         {"start": offset + c[0][0], "end": offset + c[-1][1], "text": " ".join(w[2] for w in c if w[2])}
         for c in cues
     ]
+
+
+def _srt_time(t: float) -> str:
+    ms = max(0, round(t * 1000))
+    return f"{ms // 3600000:02d}:{ms // 60000 % 60:02d}:{ms // 1000 % 60:02d},{ms % 1000:03d}"
+
+
+def write_srt(cues: list[dict], path: Path) -> Path:
+    """Subtitle file to upload next to the video (the picture also has them burned in)."""
+    blocks = []
+    for n, c in enumerate(cues, 1):
+        text = f"{c['speaker']}: {c['text']}" if c.get("speaker") else c["text"]
+        blocks.append(f"{n}\n{_srt_time(c['start'])} --> {_srt_time(c['end'])}\n{text}\n")
+    path.write_text("\n".join(blocks), encoding="utf-8")
+    return path
 
 
 def narrate(script: dict, voice: str, work_dir: Path, lang: str = "") -> dict:

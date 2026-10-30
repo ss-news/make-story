@@ -26,6 +26,8 @@ FADE_TIME = 0.35     # crossfade between different backgrounds
 POS_X = {"far_left": 0.13, "left": 0.3, "center": 0.5, "right": 0.7, "far_right": 0.87}
 GHOST_TINT = (205, 228, 238)
 CHARACTER_HEIGHT = 0.54  # of the frame height
+# zoom_in / zoom_out scale the whole stage (cast included) toward the actors: (start, end) magnification
+ZOOM = {"zoom_in": (1.12, 1.40), "zoom_out": (1.30, 1.0)}
 # Comic marks drawn around the head for an expression
 EXPRESSION_EFFECT = {"surprised": "surprise", "angry": "anger", "scared": "sweat"}
 
@@ -168,14 +170,26 @@ class Renderer:
 
     # ---------- per frame ----------
     def _camera(self, bg: Image.Image, camera: str, p: float) -> Image.Image:
+        """The background for this moment: pans move across the overscan; zooms happen later, on the whole stage."""
         bw, bh = bg.size
         p = _ease(p)
-        zoom = {"zoom_in": 1 + 0.10 * p, "zoom_out": 1.10 - 0.10 * p}.get(camera, 1.04)
+        zoom = 1.04
         cw, ch = bw / OVERSCAN / zoom, bh / OVERSCAN / zoom  # zoom 1 = exactly one frame of the overscan
         free_x, free_y = bw - cw, bh - ch
         fx = {"pan_left": 1 - p, "pan_right": p}.get(camera, 0.5)
         x0, y0 = free_x * fx, free_y * 0.5
         return bg.resize((self.W, self.H), Image.BILINEAR, box=(x0, y0, x0 + cw, y0 + ch))
+
+    def _zoom(self, frame: Image.Image, camera: str, p: float, focus: tuple[float, float]) -> Image.Image:
+        """Magnify the composed stage around focus (pixels), so a zoom_in becomes a close-up of the actors."""
+        if camera not in ZOOM:
+            return frame
+        start, end = ZOOM[camera]
+        z = start + (end - start) * _ease(p)
+        cw, ch = self.W / z, self.H / z
+        x0 = min(max(0.0, focus[0] - cw / 2), self.W - cw)
+        y0 = min(max(0.0, focus[1] - ch / 2), self.H - ch)
+        return frame.resize((self.W, self.H), Image.BILINEAR, box=(x0, y0, x0 + cw, y0 + ch))
 
     # ---------- cast ----------
     def _setup_cast(self, script: dict) -> None:
@@ -191,13 +205,13 @@ class Renderer:
         self._prop_cache = {}
 
     def _ghostly(self, aid: str, sprite: Image.Image, key) -> Image.Image:
-        """Pale, see-through version that fades out toward the feet."""
+        """Pale, see-through version that fades out toward the feet; face and outline stay readable."""
         if (aid, key) not in self._ghost_cache:
             arr = np.asarray(sprite).astype(np.float32)
             tint = np.array(GHOST_TINT, dtype=np.float32)
-            arr[..., :3] = arr[..., :3] * 0.4 + tint * 0.6
+            arr[..., :3] = arr[..., :3] * 0.6 + tint * 0.4
             fade = np.clip((1.0 - np.linspace(0, 1, arr.shape[0])) * 2.2, 0, 1) ** 0.8
-            arr[..., 3] *= 0.62 * fade[:, None]
+            arr[..., 3] *= 0.85 * fade[:, None]
             self._ghost_cache[(aid, key)] = Image.fromarray(arr.astype(np.uint8), "RGBA")
         return self._ghost_cache[(aid, key)]
 
@@ -372,6 +386,10 @@ class Renderer:
                     cy = int(char_bottom - sprite.height + bob)
                     frame.paste(sprite, (cx, cy), sprite)
                     self._draw_effects(frame, a, info, (cx - dx, cy), facing_left, since, walking, direction)
+                # close-ups aim at the actors' upper bodies, or the middle of the stage when nobody is there
+                fx = sum(targets.values()) / len(targets) * W if targets else W / 2
+                fy = char_bottom - H * self.char_height * 0.55 if targets else H / 2
+                frame = self._zoom(frame, scene["camera"], since / dur, (fx, fy))
                 frame.paste(self.overlay, (0, 0), self.overlay)
 
                 while ci < len(cues) and t > cues[ci]["end"]:
@@ -397,60 +415,53 @@ END_CARD_TIME = 3.0  # seconds
 
 
 class ShortRenderer(Renderer):
-    """9:16 Short: channel badge and title on top, a square stage in the middle, big subtitles below."""
-    char_height = 0.5
-    spread = 0.85
+    """9:16 Short: the stage fills the whole vertical frame; channel badge, title and big subtitles are drawn
+    over it on dark gradients (no black bars)."""
+    char_height = 0.42
+    spread = 0.8
 
     def __init__(self, channel: dict, width: int, fps: int, title: str, lang: str):
-        super().__init__(channel, (width, width), fps)
-        self.out_size = (width, round(width * 16 / 9) // 2 * 2)
-        self.band_h = int(self.H * 0.03)  # the stage has no subtitle band: feet stand near its bottom edge
-        self.header_h = int(self.out_size[1] * 0.2)
+        self.title = title
+        super().__init__(channel, (width, round(width * 16 / 9) // 2 * 2), fps)
+        self.band_h = int(self.H * 0.23)  # feet stand above the subtitle zone at the bottom of the picture
         self.sub_font = _font(FONT_BOLD, int(width * 0.06))
         self.end_text = FULL_STORY.get(lang, FULL_STORY["en"])
-        self.canvas = self._canvas(title)
 
     def _chrome(self) -> Image.Image:
-        img = Image.new("RGBA", (self.W, self.H), (0, 0, 0, 0))
+        """Vignette, top and bottom gradients, channel badge and title, drawn once over the stage."""
+        W, H = self.W, self.H
+        img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         _vignette(img, 70)
-        return img
-
-    def _canvas(self, title: str) -> Image.Image:
-        """Everything outside the stage, drawn once: channel badge, title, dark background."""
-        W, H = self.out_size
-        img = Image.new("RGBA", (W, H), (14, 14, 16, 255))
-        d = ImageDraw.Draw(img)
+        shade = Image.new("L", (1, H), 0)
+        for y in range(H):
+            top, bottom = 1 - y / (H * 0.2), (y - H * 0.7) / (H * 0.3)
+            shade.putpixel((0, y), int(215 * max(0.0, min(1.0, max(top, bottom))) ** 1.2))
+        img.paste((8, 8, 10, 255), (0, 0), shade.resize((W, H)))
         logo = int(W * 0.1)
         _badge(img, self.channel, W / 2, H * 0.02, logo, center=True)
-        top_h = int(H * 0.03 + logo)
         font = _font(FONT_BOLD, int(W * 0.065))
-        lines = _wrap(title, font, W * 0.88)[:2]
         lh = int(font.size * 1.2)
-        y = top_h + (self.header_h - top_h - lh * len(lines)) / 2 + lh / 2
-        for i, ln in enumerate(lines):
-            d.text((W / 2, y + i * lh), ln, font=font, fill=(245, 240, 230), anchor="mm",
-                   stroke_width=2, stroke_fill=(0, 0, 0))
-        return img.convert("RGB")
+        for i, ln in enumerate(_wrap(self.title, font, W * 0.88)[:2]):
+            ImageDraw.Draw(img).text((W / 2, H * 0.03 + logo + lh * (i + 0.9)), ln, font=font, fill=(245, 240, 230),
+                                     anchor="mm", stroke_width=2, stroke_fill=(0, 0, 0))
+        return img
 
     def _finish(self, frame: Image.Image, cue: dict | None, t: float, total: float) -> Image.Image:
-        out = self.canvas.copy()
-        out.paste(frame, (0, self.header_h))
-        bottom = self.header_h + self.H
-        zone = self.out_size[1] - bottom
+        zone_top = self.H - self.band_h
         if cue:
             sub = self._subtitle(cue["text"], cue.get("speaker", ""))
-            out.paste(sub, (0, bottom + int(zone * 0.12)), sub)
+            frame.paste(sub, (0, zone_top + int(self.band_h * 0.2)), sub)
         if t > total - END_CARD_TIME:
-            d = ImageDraw.Draw(out)
+            d = ImageDraw.Draw(frame)
             font = _font(FONT_BOLD, int(self.W * 0.05))
             tri = font.size * 0.7  # play triangle after the text (the font has no ▶ glyph)
             text_w = font.getlength(self.end_text)
             w = text_w + tri * 1.6 + self.W * 0.08
-            cx, cy = self.W / 2, bottom + zone * 0.8
+            cx, cy = self.W / 2, zone_top + self.band_h * 0.78
             h = font.size * 1.6
             d.rounded_rectangle([cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2], radius=h / 2, fill=(178, 22, 30))
             x0 = cx - (text_w + tri * 1.6) / 2
             d.text((x0, cy), self.end_text, font=font, fill=(255, 255, 255), anchor="lm")
             tx = x0 + text_w + tri * 0.6
             d.polygon([(tx, cy - tri / 2), (tx + tri * 0.9, cy), (tx, cy + tri / 2)], fill=(255, 255, 255))
-        return out
+        return frame

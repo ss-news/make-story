@@ -70,6 +70,7 @@ Quy tắc (bộ kiểm tra báo lỗi kèm đường dẫn, ví dụ `$.scenes[2
 - Mỗi cảnh: 0–3 diễn viên, 0–3 đồ vật, 1–6 câu thoại. Diễn viên là id trong `cast` hoặc `host`, không lặp trong một cảnh.
 - `speaker` là `narrator`, hoặc một id trong `cast` **đang đứng trên sân khấu** ở cảnh đó.
 - Giá trị cố định (`position`, `pose`, `expression`, `action`, `camera`, `outfit`, `accessory`, `kind`, `lang`) lấy đúng trong schema.
+- `camera`: `zoom_in` là cận cảnh, phóng cả sân khấu (nền, đồ vật, nhân vật) quanh nửa trên người các diễn viên trong cảnh, từ 1,12 lên 1,4 lần; `zoom_out` lùi từ 1,3 về 1 lần. `pan_left`/`pan_right` chỉ lia nền. Muốn chủ thể to, rõ (cảnh hook, cảnh dọa) thì dùng `zoom_in` với ít diễn viên.
 - `bg_id`, `props[].id` và `cast[].preset` chưa có trong bộ **không phải lỗi**: chúng thành yêu cầu asset.
 
 ## Yêu cầu asset: `storyvid.asset-requests/1`
@@ -178,12 +179,13 @@ output/<id>/
   asset_requests.json   chỉ có khi thiếu asset; tự xóa khi đủ
   review.json           báo cáo kiểm định của Claude
   backgrounds.json      ảnh nền đã raster cho từng bg_id
-  audio/, narration.wav giọng đọc
+  audio/, narration.wav giọng đọc (edge-tts lưu từng câu trong cache/edge/, câu treo quá 60 giây được thử lại tối đa 5 lần)
+  video.srt             phụ đề để tải lên YouTube (Short: video_short.srt)
   mix.wav               giọng đọc đã trộn nhạc và hiệu ứng (chỉ có khi kịch bản có âm thanh)
   credits.txt           dòng ghi công cho mô tả video (chỉ khi dùng âm thanh CC-BY)
   video.mp4             video 16:9
   short/                giọng đọc riêng của Short
-  video_short.mp4       Short 9:16 (1080x1920 với --res 1080)
+  video_short.mp4       Short 9:16 (1080x1920 với --res 1080), hình phủ kín khung dọc, tiêu đề và phụ đề nằm đè lên hình
   log.txt               nhật ký lần chạy gần nhất (web UI)
 ```
 
