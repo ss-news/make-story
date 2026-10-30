@@ -28,6 +28,8 @@ GHOST_TINT = (205, 228, 238)
 CHARACTER_HEIGHT = 0.54  # of the frame height
 # zoom_in / zoom_out scale the whole stage (cast included) toward the actors: (start, end) magnification
 ZOOM = {"zoom_in": (1.12, 1.40), "zoom_out": (1.30, 1.0)}
+CLOSE_UP_FILL = 0.6  # at the tightest point of a zoom the tallest actor should fill this much of the frame height
+ZOOM_MAX = 1.8       # beyond this the upscaled frame gets visibly soft
 # Comic marks drawn around the head for an expression
 EXPRESSION_EFFECT = {"surprised": "surprise", "angry": "anger", "scared": "sweat"}
 
@@ -180,11 +182,34 @@ class Renderer:
         x0, y0 = free_x * fx, free_y * 0.5
         return bg.resize((self.W, self.H), Image.BILINEAR, box=(x0, y0, x0 + cw, y0 + ch))
 
-    def _zoom(self, frame: Image.Image, camera: str, p: float, focus: tuple[float, float]) -> Image.Image:
-        """Magnify the composed stage around focus (pixels), so a zoom_in becomes a close-up of the actors."""
+    def _drawn_box(self, sprite: Image.Image) -> tuple[int, int, int, int]:
+        """Where the figure is actually drawn inside a sprite canvas (cached per sprite object)."""
+        key = id(sprite)
+        if key not in self._box_cache:
+            self._box_cache[key] = (sprite, sprite.getchannel("A").getbbox() or (0, 0, *sprite.size))
+        return self._box_cache[key][1]
+
+    def _focus(self, actor_boxes: list, prop_boxes: list) -> tuple[float, float]:
+        """Close-ups aim at the upper part of the actors as drawn (so short ghosts are not left at the bottom),
+        else at the props, else at the middle of the stage."""
+        boxes = actor_boxes or prop_boxes
+        if not boxes:
+            return self.W / 2, self.H / 2
+        x0, y0 = min(b[0] for b in boxes), min(b[1] for b in boxes)
+        x1, y1 = max(b[2] for b in boxes), max(b[3] for b in boxes)
+        return (x0 + x1) / 2, y0 + (y1 - y0) * (0.4 if actor_boxes else 0.5)
+
+    def _zoom(self, frame: Image.Image, camera: str, p: float, focus: tuple[float, float],
+              actor_boxes: list = ()) -> Image.Image:
+        """Magnify the composed stage around focus (pixels), so a zoom_in becomes a close-up of the actors.
+        Small figures (a child, a kneeling ghost) get a stronger close-up, up to ZOOM_MAX."""
         if camera not in ZOOM:
             return frame
         start, end = ZOOM[camera]
+        if actor_boxes:
+            tallest = max(b[3] - b[1] for b in actor_boxes)
+            boost = min(ZOOM_MAX / max(start, end), max(1.0, CLOSE_UP_FILL * self.H / max(1, tallest) / max(start, end)))
+            start, end = start * boost, end * boost
         z = start + (end - start) * _ease(p)
         cw, ch = self.W / z, self.H / z
         x0 = min(max(0.0, focus[0] - cw / 2), self.W - cw)
@@ -203,6 +228,7 @@ class Renderer:
                                   "kind": c.get("kind", "human"), "name": c.get("name", c["id"])}
         self._ghost_cache = {}
         self._prop_cache = {}
+        self._box_cache = {}
 
     def _ghostly(self, aid: str, sprite: Image.Image, key) -> Image.Image:
         """Pale, see-through version that fades out toward the feet; face and outline stay readable."""
@@ -210,7 +236,10 @@ class Renderer:
             arr = np.asarray(sprite).astype(np.float32)
             tint = np.array(GHOST_TINT, dtype=np.float32)
             arr[..., :3] = arr[..., :3] * 0.6 + tint * 0.4
-            fade = np.clip((1.0 - np.linspace(0, 1, arr.shape[0])) * 2.2, 0, 1) ** 0.8
+            # fade over the drawn figure, not the canvas: kneeling and child figures only fill its lower part
+            rows = np.nonzero(arr[..., 3].max(axis=1) > 0)[0]
+            top, bottom = (rows[0], rows[-1] + 1) if len(rows) else (0, arr.shape[0])
+            fade = np.clip((1.0 - (np.arange(arr.shape[0]) - top) / max(1, bottom - top)) * 2.2, 0, 1) ** 0.8
             arr[..., 3] *= 0.85 * fade[:, None]
             self._ghost_cache[(aid, key)] = Image.fromarray(arr.astype(np.uint8), "RGBA")
         return self._ghost_cache[(aid, key)]
@@ -332,6 +361,7 @@ class Renderer:
                 speaker = next((ln["speaker"] for ln in lines if ln["start"] <= t < ln["end"]), None)
                 talking = HOST if speaker == NARRATOR else speaker
 
+                prop_boxes, actor_boxes = [], []  # drawn areas, for aiming close-ups
                 for pr in scene.get("props", []):
                     if pr["id"] not in prop_ids:
                         continue  # a requested asset that does not exist yet (only with --fallback)
@@ -340,7 +370,9 @@ class Renderer:
                     looks = pack.facing(pr["id"])  # objects (None) are never mirrored
                     img = self._prop(pr["id"], flip=looks is not None and looks != toward_middle)
                     left = min(max(0, int(px * W - img.width / 2)), W - img.width)  # keep it inside the frame
-                    frame.paste(img, (left, int(char_bottom - img.height - H * 0.01)), img)
+                    top = int(char_bottom - img.height - H * 0.01)
+                    frame.paste(img, (left, top), img)
+                    prop_boxes.append((left, top, left + img.width, top + img.height))
 
                 actors = [a for a in scene["actors"] if a["id"] in self.cast]
                 targets = {a["id"]: self._x(a["position"]) for a in actors}
@@ -386,10 +418,11 @@ class Renderer:
                     cy = int(char_bottom - sprite.height + bob)
                     frame.paste(sprite, (cx, cy), sprite)
                     self._draw_effects(frame, a, info, (cx - dx, cy), facing_left, since, walking, direction)
-                # close-ups aim at the actors' upper bodies, or the middle of the stage when nobody is there
-                fx = sum(targets.values()) / len(targets) * W if targets else W / 2
-                fy = char_bottom - H * self.char_height * 0.55 if targets else H / 2
-                frame = self._zoom(frame, scene["camera"], since / dur, (fx, fy))
+                    box = self._drawn_box(sprite)
+                    rest = int(char_bottom - sprite.height)  # without the bob, so the camera does not bounce
+                    actor_boxes.append((cx + box[0], rest + box[1], cx + box[2], rest + box[3]))
+                frame = self._zoom(frame, scene["camera"], since / dur, self._focus(actor_boxes, prop_boxes),
+                                   actor_boxes)
                 frame.paste(self.overlay, (0, 0), self.overlay)
 
                 while ci < len(cues) and t > cues[ci]["end"]:
@@ -439,9 +472,15 @@ class ShortRenderer(Renderer):
         img.paste((8, 8, 10, 255), (0, 0), shade.resize((W, H)))
         logo = int(W * 0.1)
         _badge(img, self.channel, W / 2, H * 0.02, logo, center=True)
-        font = _font(FONT_BOLD, int(W * 0.065))
+        size = int(W * 0.065)  # shrink the title until it fits in two lines
+        while True:
+            font = _font(FONT_BOLD, size)
+            lines = _wrap(self.title, font, W * 0.88)
+            if len(lines) <= 2 or size <= W * 0.035:
+                break
+            size -= 2
         lh = int(font.size * 1.2)
-        for i, ln in enumerate(_wrap(self.title, font, W * 0.88)[:2]):
+        for i, ln in enumerate(lines[:2]):
             ImageDraw.Draw(img).text((W / 2, H * 0.03 + logo + lh * (i + 0.9)), ln, font=font, fill=(245, 240, 230),
                                      anchor="mm", stroke_width=2, stroke_fill=(0, 0, 0))
         return img

@@ -82,5 +82,23 @@ class ZoomTests(unittest.TestCase):
         self.assertGreater(white, 400 * 1.2 ** 2)  # the square grew with the camera
 
 
+class GhostAndFocusTests(unittest.TestCase):
+    def test_ghost_fade_follows_the_drawn_figure(self):
+        from storyvid.render import Renderer
+        r = Renderer({'host': {}, 'channel_name': 'C'}, (200, 100), 10)
+        r._ghost_cache = {}
+        low = Image.new('RGBA', (40, 100), (0, 0, 0, 0))
+        low.paste((0, 0, 0, 255), (10, 60, 30, 100))  # a short figure in the lower part of its canvas
+        top_row = r._ghostly('child', low, 1).getpixel((20, 60))
+        self.assertGreater(top_row[3], 200)  # its head is as solid as a tall ghost's head
+
+    def test_focus_aims_at_drawn_actors_then_props(self):
+        from storyvid.render import Renderer
+        r = Renderer({'host': {}, 'channel_name': 'C'}, (200, 100), 10)
+        self.assertEqual(r._focus([(80, 60, 120, 100)], [(0, 0, 10, 10)]), (100, 76.0))
+        self.assertEqual(r._focus([], [(80, 80, 120, 100)]), (100, 90.0))
+        self.assertEqual(r._focus([], []), (100, 50))
+
+
 if __name__ == '__main__':
     unittest.main()
