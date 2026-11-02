@@ -31,6 +31,14 @@ SECRET_KEYS = {"LLM_API_KEY", "ELEVENLABS_API_KEY"}
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 app.json.sort_keys = False  # keep channel.json and language lists in their written order
 jobs: dict[str, subprocess.Popen] = {}
+
+
+@app.after_request
+def no_stale_ui(response):
+    """The page and its scripts change with the app; make the browser revalidate them every time."""
+    if request.path == "/" or request.path.startswith("/static/"):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
 jobs_lock = threading.Lock()
 
 
