@@ -63,3 +63,31 @@ class ScriptReviewTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class KeepTextTest(unittest.TestCase):
+    def scene(self, text):
+        return {'bg_id': 'river_night', 'bg_prompt': 'x', 'camera': 'static', 'actors': [], 'props': [],
+                'lines': [{'speaker': 'narrator', 'text': text}]}
+
+    def test_dedupe_drops_repeats_but_keeps_short_refrains(self):
+        long = 'Tám chữ trở lên thì coi là một câu lặp thật sự.'
+        script = {'scenes': [self.scene(long), self.scene('Đó là hành vi.'), self.scene('Đó là hành vi.'),
+                             self.scene('Khác hẳn.'), self.scene('Khác hẳn nữa.'), self.scene(long)]}
+        out, changed = script_review.dedupe(script)
+        self.assertEqual(changed, [2, 5])
+        self.assertEqual(len(out['scenes']), 4)
+
+    def test_ai_cannot_change_fixed_narration(self):
+        script = {'title': 'T', 'lang': 'vi', 'cast': [], 'scenes': [self.scene('Câu một của cảnh.'), self.scene('Câu hai.')]}
+        source = 'Câu một của cảnh. Câu hai.'
+        changed_text = {'replacements': [{'index': 0, 'scenes': [self.scene('Câu một của cảnh, thêm bịa.')]}]}
+        restaged = {'replacements': [{'index': 1, 'scenes': [{**self.scene('Câu hai.'), 'bg_prompt': 'new place'}]}]}
+        issue = lambda i: {'scene': i, 'severity': 'minor', 'problem': 'p', 'fix': 'f'}  # noqa: E731
+        with mock.patch.object(script_review, '_ask', return_value=changed_text):
+            out, _ = script_review.revise(script, source, [issue(0)], 'muse', 'explainer', 'vi', keep_text=True)
+        self.assertEqual(out['scenes'][0]['lines'][0]['text'], 'Câu một của cảnh.')
+        with mock.patch.object(script_review, '_ask', return_value=restaged):
+            out, changed = script_review.revise(script, source, [issue(1)], 'muse', 'explainer', 'vi', keep_text=True)
+        self.assertEqual(out['scenes'][1]['bg_prompt'], 'new place')
+        self.assertEqual(changed, [1])
