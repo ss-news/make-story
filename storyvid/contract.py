@@ -364,7 +364,8 @@ def json_schema() -> dict:
 
 
 VISUALS_KEYS = {"format", "scenes_file", "ratio", "style", "cast", "scenes"}
-VISUALS_OPTIONAL_KEYS = {"style_refs"}  # images that show the style, attached to every sheet and scene image
+VISUALS_OPTIONAL_KEYS = {"style_refs", "continuity"}  # style images; how clips link to the previous scene's end
+CONTINUITY = ["auto", "all", "off"]  # auto: link when two scenes in a row share bg_id (same place and time)
 VISUAL_CAST_KEYS = {"id", "look", "sheet"}
 VISUAL_SCENE_KEYS = {"image_prompt", "video_prompt", "negative", "image", "clip"}
 VISUAL_OPTIONAL_KEYS = {"error"}  # last generation error, written by the tool
@@ -392,6 +393,8 @@ def validate_visuals(visuals, script: dict | None = None, base: Path | None = No
     errors: list[str] = []
     if not _keys(visuals, VISUALS_KEYS, "$", errors, VISUALS_OPTIONAL_KEYS):
         return errors
+    if "continuity" in visuals:
+        _enum(visuals["continuity"], CONTINUITY, "$.continuity", errors)
     refs = visuals.get("style_refs", [])
     if not isinstance(refs, list):
         errors.append("$.style_refs: must be a list")
@@ -457,6 +460,10 @@ def visuals_schema() -> dict:
             "style_refs": {"type": "array", "items": {"type": "string", "minLength": 1},
                            "description": "Optional. Images inside the project folder that show the style; "
                                           "attached to every character sheet and scene image."},
+            "continuity": {"type": "string", "enum": CONTINUITY,
+                           "description": "Optional, default auto. A linked clip starts from the last frame of the "
+                                          "previous scene's clip. auto links scenes in a row with the same bg_id; "
+                                          "all links every scene; off links none."},
             "cast": {"type": "array", "items": {
                 "type": "object", "required": sorted(VISUAL_CAST_KEYS), "additionalProperties": False,
                 "properties": {"id": {"type": "string", "pattern": SLUG,

@@ -3,6 +3,10 @@
     python -m storyvid.visuals prompts output/<id> [--provider offline|muse|openai|codex] [--ratio 16:9|9:16]
     python -m storyvid.visuals cast output/<id> [--only <cast id>] [--redo]
     python -m storyvid.visuals scenes output/<id> [--only <scene index>] [--redo] [--images-only|--clips-only]
+
+Clips can continue from the previous scene's last frame (visuals.json "continuity": auto = when two scenes in
+a row share the same place, all, or off). Linked scenes make their clips one after another; separate chains run
+at the same time on different accounts.
     python -m storyvid.visuals status
 
 The script must be approved by a person first (web UI, tab Kịch bản, "Duyệt kịch bản"; meta.json
@@ -323,6 +327,40 @@ def make_cast(project: Path, only: str | None, redo: bool) -> int:
     return failed
 
 
+CONTINUITY_NOTE = ("CONTINUITY: attached image 1 is the exact last frame of the previous clip. Start this clip from "
+                   "exactly that frame (same characters, pose, place, camera and light) and continue the motion "
+                   "naturally, with no cut, jump or fade at the start. Attached image 2 shows how this scene should "
+                   "look as it goes on.")
+
+
+def linked(script: dict, visuals: dict) -> list[bool]:
+    """linked[i]: scene i's clip continues from scene i-1's last frame."""
+    mode = visuals.get("continuity", "auto")
+    scenes = script["scenes"]
+    return [i > 0 and (mode == "all" or (mode == "auto" and scenes[i]["bg_id"] == scenes[i - 1]["bg_id"]))
+            for i in range(len(scenes))]
+
+
+def chains(links: list[bool], todo: list[int]) -> list[list[int]]:
+    """Group the scenes to clip into runs that must go in order (each linked to the one before)."""
+    out: list[list[int]] = []
+    for i in sorted(todo):
+        if out and links[i] and out[-1][-1] == i - 1:
+            out[-1].append(i)
+        else:
+            out.append([i])
+    return out
+
+
+def last_frame(clip: Path, out: Path) -> Path | None:
+    from .ffmpeg import ffmpeg_exe
+    import subprocess
+    out.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run([ffmpeg_exe(), "-v", "error", "-y", "-sseof", "-0.15", "-i", str(clip), "-frames:v", "1",
+                    "-update", "1", str(out)], capture_output=True)
+    return out if out.is_file() and out.stat().st_size else None
+
+
 def make_scenes(project: Path, only: int | None, redo: bool, images_only: bool, clips_only: bool = False) -> int:
     script, visuals = load(project)
     if not visuals:
@@ -331,38 +369,61 @@ def make_scenes(project: Path, only: int | None, redo: bool, images_only: bool, 
     sheets = {c["id"]: project / c["sheet"] for c in visuals["cast"] if c["sheet"] and (project / c["sheet"]).is_file()}
     styling = style_refs(project, visuals)
     todo = [i for i in range(len(visuals["scenes"])) if only is None or i == only]
-    if clips_only:  # clips start from an opening image; scenes without one wait for "images"
-        todo = [i for i in todo if visuals["scenes"][i]["image"] and (project / visuals["scenes"][i]["image"]).is_file()]
-    failed = []
+    has = lambda key, i: bool(visuals["scenes"][i][key]) and (project / visuals["scenes"][i][key]).is_file()  # noqa: E731
+    failed: set[int] = set()
 
-    def one(i: int) -> None:
-        s = visuals["scenes"][i]
-        try:
-            if not clips_only and (redo or not s["image"] or not (project / s["image"]).is_file()):
-                print(f"[scene {i + 1}] image")
-                refs = [sheets[a["id"]] for a in script["scenes"][i]["actors"] if a["id"] in sheets][:MAX_SHEETS]
-                refs = (refs + styling)[:MAX_REFS]
-                file = _generate("image", scene_image_prompt(visuals, i, script, names), visuals["ratio"],
-                                 project / "muse" / f"scene_{i:02d}.png", refs, s["negative"])
-                s["image"], s["clip"] = file.relative_to(project).as_posix(), ""
-                save(project, visuals)
-            if not images_only and (redo or not s["clip"] or not (project / s["clip"]).is_file()):
-                print(f"[scene {i + 1}] clip")
-                prompt = f"{s['video_prompt']}\n\nVisual style: {visuals['style']}"
-                file = _generate("video", prompt, visuals["ratio"], project / "muse" / f"scene_{i:02d}.mp4",
-                                 [project / s["image"]], s["negative"])
-                s["clip"] = file.relative_to(project).as_posix()
-            s.pop("error", None)
-        except RuntimeError as e:
-            failed.append(i)
-            s["error"] = str(e)[:500]
-            print(f"[scene {i + 1}] failed: {e}")
+    def fail(i: int, e: Exception) -> None:
+        failed.add(i)
+        visuals["scenes"][i]["error"] = str(e)[:500]
+        print(f"[scene {i + 1}] failed: {e}")
         save(project, visuals)
 
-    # one scene per signed-in account at a time; with a single account the scenes run in order
-    workers = max(1, min(ready_accounts(), len(todo)))
-    with ThreadPoolExecutor(max_workers=workers) as pool:
-        list(pool.map(one, todo))
+    def image(i: int) -> None:
+        s = visuals["scenes"][i]
+        try:
+            print(f"[scene {i + 1}] image")
+            refs = [sheets[a["id"]] for a in script["scenes"][i]["actors"] if a["id"] in sheets][:MAX_SHEETS]
+            refs = (refs + styling)[:MAX_REFS]
+            file = _generate("image", scene_image_prompt(visuals, i, script, names), visuals["ratio"],
+                             project / "muse" / f"scene_{i:02d}.png", refs, s["negative"])
+            s["image"], s["clip"] = file.relative_to(project).as_posix(), ""
+            s.pop("error", None)
+            save(project, visuals)
+        except RuntimeError as e:
+            fail(i, e)
+
+    links = linked(script, visuals)
+
+    def clip(i: int) -> None:
+        s = visuals["scenes"][i]
+        prompt, refs = f"{s['video_prompt']}\n\nVisual style: {visuals['style']}", [project / s["image"]]
+        if links[i] and has("clip", i - 1):
+            end = last_frame(project / visuals["scenes"][i - 1]["clip"], project / "muse" / f"scene_{i - 1:02d}_end.png")
+            if end:
+                prompt, refs = f"{prompt}\n\n{CONTINUITY_NOTE}", [end, project / s["image"]]
+        elif links[i]:
+            print(f"[scene {i + 1}] previous clip missing: starting from this scene's own image")
+        try:
+            print(f"[scene {i + 1}] clip" + (" (continues from scene %d)" % i if len(refs) == 2 else ""))
+            file = _generate("video", prompt, visuals["ratio"], project / "muse" / f"scene_{i:02d}.mp4", refs,
+                             s["negative"])
+            s["clip"] = file.relative_to(project).as_posix()
+            s.pop("error", None)
+            save(project, visuals)
+            nxt = i + 1
+            if only is not None and nxt < len(links) and links[nxt] and has("clip", nxt):
+                print(f"  note: scene {nxt + 1} continues from this clip; make its clip again if the seam shows")
+        except RuntimeError as e:
+            fail(i, e)
+
+    workers = max(1, ready_accounts())  # one generation per signed-in account at a time
+    with ThreadPoolExecutor(max_workers=max(1, min(workers, len(todo)))) as pool:
+        if not clips_only:  # opening images do not depend on each other
+            list(pool.map(image, [i for i in todo if redo or not has("image", i)]))
+        if not images_only:
+            # a chain of linked scenes goes in order; separate chains run side by side
+            wanted = [i for i in todo if has("image", i) and (redo or not has("clip", i))]
+            list(pool.map(lambda chain: [clip(i) for i in chain], chains(links, wanted)))
     return len(failed)
 
 
@@ -407,6 +468,7 @@ def main() -> None:
             refs.append(target.relative_to(project).as_posix())
         if refs:
             visuals["style_refs"] = refs
+        visuals["continuity"] = (old or {}).get("continuity") or info.get("continuity") or "auto"
         visuals = merge_files(visuals, old)
         errors = validate_visuals(visuals, script, project)
         if errors:

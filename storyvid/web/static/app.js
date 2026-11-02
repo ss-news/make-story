@@ -670,6 +670,10 @@ function renderMuse() {
   $("#useMuse").checked = !!v && clips > 0;
   if (!v) return;
   $("#museStyle").value = v.style;
+  $("#museContinuity").value = v.continuity || "auto";
+  $("#museContinuity").onchange = (e) => { v.continuity = e.target.value; state.visualsDirty = true; renderMuse(); };
+  const mode = v.continuity || "auto", sc = script?.scenes || [];
+  const linkedTo = (i) => i > 0 && (mode === "all" || (mode === "auto" && sc[i]?.bg_id === sc[i - 1]?.bg_id));
   $("#museStyle").oninput = (e) => { v.style = e.target.value; state.visualsDirty = true; };
   const names = Object.fromEntries((script?.cast || []).map((c) => [c.id, c.name]));
   names[HOST_ID] = state.settings?.channel?.host?.name || "Người dẫn";
@@ -705,7 +709,7 @@ function renderMuse() {
       <div class="muse-media"><div class="files"></div>
         <button class="btn small muse-redo" data-redo="clip">↻ Tạo lại clip</button>
         <button class="btn small muse-redo" data-redo="all">↻ Tạo lại ảnh + clip</button></div>`;
-    el.querySelector("p").textContent = narration;
+    el.querySelector("p").textContent = (linkedTo(i) ? `⛓ nối tiếp từ khung cuối cảnh ${i} · ` : "") + narration;
     for (const ta of el.querySelectorAll("textarea")) {
       ta.value = sc[ta.dataset.k];
       ta.oninput = () => { sc[ta.dataset.k] = ta.value; state.visualsDirty = true; };

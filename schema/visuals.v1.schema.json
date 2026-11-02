@@ -40,6 +40,15 @@
       },
       "description": "Optional. Images inside the project folder that show the style; attached to every character sheet and scene image."
     },
+    "continuity": {
+      "type": "string",
+      "enum": [
+        "auto",
+        "all",
+        "off"
+      ],
+      "description": "Optional, default auto. A linked clip starts from the last frame of the previous scene's clip. auto links scenes in a row with the same bg_id; all links every scene; off links none."
+    },
     "cast": {
       "type": "array",
       "items": {

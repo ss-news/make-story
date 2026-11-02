@@ -136,3 +136,25 @@ class FlowTest(unittest.TestCase):
             out = script_mod.write_script('story', CHANNEL, 'en', 1, 'muse')
         self.assertEqual(call.call_args[0][0], '/api/chat')
         self.assertEqual(contract.validate(out)[0], [])
+
+
+class ContinuityTest(unittest.TestCase):
+    def test_auto_links_scenes_in_the_same_place(self):
+        script = {'scenes': [{'bg_id': 'river_night'}, {'bg_id': 'river_night'}, {'bg_id': 'pond_day'},
+                             {'bg_id': 'pond_day'}]}
+        self.assertEqual(visuals.linked(script, {'continuity': 'auto'}), [False, True, False, True])
+        self.assertEqual(visuals.linked(script, {}), [False, True, False, True])  # auto is the default
+        self.assertEqual(visuals.linked(script, {'continuity': 'all'}), [False, True, True, True])
+        self.assertEqual(visuals.linked(script, {'continuity': 'off'}), [False] * 4)
+
+    def test_linked_scenes_form_ordered_chains(self):
+        links = [False, True, True, False, True, False]
+        self.assertEqual(visuals.chains(links, range(6)), [[0, 1, 2], [3, 4], [5]])
+        self.assertEqual(visuals.chains(links, [1, 2, 4]), [[1, 2], [4]])  # scene 0 and 3 already have clips
+
+    def test_contract_accepts_only_known_modes(self):
+        plan = visuals.write_prompts(SAMPLE, CHANNEL, '9:16', 'offline')
+        plan['continuity'] = 'all'
+        self.assertEqual(contract.validate_visuals(plan, SAMPLE), [])
+        plan['continuity'] = 'sometimes'
+        self.assertIn("'sometimes' is not one of", '\n'.join(contract.validate_visuals(plan, SAMPLE)))

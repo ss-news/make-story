@@ -199,6 +199,7 @@ scenes.json (đã đạt check)
 - Prompt ảnh chỉ mô tả các nhân vật **đang đứng trên sân khấu** ở cảnh đó (theo `actors` trong `scenes.json`), không dồn cả dàn nhân vật vào mọi prompt.
 - Muse luôn trả clip khoảng 10 giây. Khi dựng, độ dài cảnh theo giọng đọc: lời ngắn thì cắt clip; lời dài thì clip chạy chậm lại tối đa 1,35 lần, phần còn lại giữ khung cuối và đẩy máy nhẹ. Cảnh lời quá dài nên tách thành hai cảnh.
 - Viết lại prompt (`prompts`) giữ lại ảnh và clip của những cảnh có prompt không đổi.
+- **Nối khung cuối** (`continuity` trong `visuals.json`, chọn trên tab Hình Muse): clip của cảnh được nối bắt đầu từ khung cuối clip cảnh trước (gửi kèm 2 ảnh: khung cuối đó và ảnh mở cảnh). `auto` (mặc định) nối hai cảnh liền nhau có cùng `bg_id`, tức cùng nơi và cùng thời điểm; `all` nối mọi cảnh; `off` không nối. Các cảnh nối với nhau tạo clip lần lượt; các chuỗi khác nhau vẫn chạy song song trên các tài khoản. Clip cảnh trước lỗi thì cảnh sau bắt đầu từ ảnh của chính nó. Tạo lại clip một cảnh thì cảnh nối sau nó vẫn dùng khung cuối cũ; tạo lại cả cảnh sau nếu thấy chỗ nối bị lệch.
 
 Quy tắc của `visuals.json`: đủ trường, không trường lạ (tùy chọn: `style_refs` ở cấp gốc, `error` trong nhân vật và cảnh, do tool ghi). `scenes` có đúng số cảnh của `scenes.json`, cùng thứ tự. `cast[].id` là id trong `cast` của `scenes.json` hoặc `host`. Đường dẫn file nằm trong thư mục dự án; `""` là chưa tạo. Schema: `schema/visuals.v1.schema.json`. Tất cả làm được trong web UI, tab **3. Hình Muse**.
 
