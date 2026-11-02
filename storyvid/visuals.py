@@ -14,7 +14,8 @@ The script must be approved by a person first (web UI, tab Kịch bản, "Duyệ
 
 prompts writes the plan (style, a fixed look per character, an opening-frame and a motion prompt per scene).
 cast makes one reference sheet per character; scenes makes each scene's opening image (with the sheets of the
-actors in that scene attached) and then a clip from that image. Generation goes through MuseFlow
+actors in that scene attached, plus a photo of any real place from refs/places.json the scene shows, see
+storyvid/places.py) and then a clip from that image. Generation goes through MuseFlow
 (museflow/, `npm start`), which drives the signed-in Muse accounts; it must be running.
 Render with: python -m storyvid.cli --script output/<id>/scenes.json --visuals
 """
@@ -30,6 +31,7 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+from . import places
 from .contract import HOST, VISUALS_FORMAT, validate_visuals
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -383,8 +385,13 @@ def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: 
         try:
             print(f"[scene {i + 1}] image")
             refs = [sheets[a["id"]] for a in script["scenes"][i]["actors"] if a["id"] in sheets][:MAX_SHEETS]
+            prompt = scene_image_prompt(visuals, i, script, names)
+            for name, photos in places.for_scene(project, script, visuals, i):
+                if len(refs) + len(photos) <= MAX_REFS:
+                    refs += photos
+                    prompt += "\n\n" + places.PLACE_NOTE.format(name=name)
             refs = (refs + styling)[:MAX_REFS]
-            file = _generate("image", scene_image_prompt(visuals, i, script, names), visuals["ratio"],
+            file = _generate("image", prompt, visuals["ratio"],
                              project / "muse" / f"scene_{i:02d}.png", refs, s["negative"])
             s["image"], s["clip"] = file.relative_to(project).as_posix(), ""
             s.pop("error", None)

@@ -34,5 +34,7 @@ contextBridge.exposeInMainWorld('museDesktop', {
   generate: request => ipcRenderer.invoke('muse:generate', request),
   chat: request => ipcRenderer.invoke('muse:chat', request),
   stop: requestId => ipcRenderer.invoke('muse:stop', requestId ?? null),
-  openMediaFolder: () => ipcRenderer.invoke('media:folder')
+  openMediaFolder: () => ipcRenderer.invoke('media:folder'),
+  storyvidStatus: () => ipcRenderer.invoke('storyvid:status'),
+  restartStoryvid: () => ipcRenderer.invoke('storyvid:restart')
 });

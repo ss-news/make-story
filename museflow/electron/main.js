@@ -3,7 +3,10 @@
 // - Keeps one persistent Electron session per Muse account ("profile"), each in its own window
 //   with muse-bridge.js preloaded, so several signed-in accounts can generate in parallel.
 // - Schedules generation/chat jobs onto whichever signed-in profile is free.
+// - Starts the storyvid web UI (python -m storyvid.web in the parent repo) and shows it in the "Video projects" tab.
 const { app, BrowserWindow, ipcMain, protocol, session, shell } = require('electron');
+const { spawn } = require('node:child_process');
+const http = require('node:http');
 const path = require('node:path');
 const fs = require('node:fs');
 const fsp = require('node:fs/promises');
@@ -20,6 +23,12 @@ protocol.registerSchemesAsPrivileged([{
   scheme: 'museflow',
   privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true, corsEnabled: true }
 }]);
+
+// storyvid lives one folder up (the video repo); STORYVID_PYTHON / STORYVID_WEB_PORT override the defaults.
+const REPO = path.join(ROOT, '..');
+const STORYVID_PORT = Number(process.env.STORYVID_WEB_PORT) || 8765;
+const STORYVID_URL = `http://127.0.0.1:${STORYVID_PORT}/`;
+let storyvid = { proc: null, state: 'starting', error: '' };
 
 let appWindow = null;
 let quitting = false;
@@ -369,6 +378,48 @@ function registerIpc() {
     return true;
   });
   ipcMain.handle('media:folder', () => { shell.openPath(mediaDir); return mediaDir; });
+  ipcMain.handle('storyvid:status', () => ({ url: STORYVID_URL, state: storyvid.state, error: storyvid.error }));
+  ipcMain.handle('storyvid:restart', async () => { stopStoryvid(); await startStoryvid(); return { url: STORYVID_URL, state: storyvid.state, error: storyvid.error }; });
+}
+
+// ---------- storyvid web UI ----------
+
+function storyvidAnswers() {
+  return new Promise(resolve => {
+    const req = http.get(STORYVID_URL, { timeout: 1500 }, res => { res.resume(); resolve(res.statusCode === 200); });
+    req.on('error', () => resolve(false));
+    req.on('timeout', () => { req.destroy(); resolve(false); });
+  });
+}
+
+// Reuses a server that is already running (started from a terminal); otherwise starts one and stops it on quit.
+async function startStoryvid() {
+  storyvid = { proc: null, state: 'starting', error: '' };
+  if (await storyvidAnswers()) return (storyvid.state = 'ready');
+  const python = process.env.STORYVID_PYTHON || path.join(REPO, '.venv', 'bin', 'python');
+  if (!fs.existsSync(python)) {
+    storyvid = { proc: null, state: 'error', error: `Python not found at ${python}. Create the venv in ${REPO} (python3 -m venv .venv && .venv/bin/pip install -r requirements.txt) or set STORYVID_PYTHON.` };
+    return storyvid.state;
+  }
+  const logFile = path.join(dataDir, 'storyvid-web.log');
+  const log = fs.openSync(logFile, 'a');
+  const proc = spawn(python, ['-m', 'storyvid.web'], { cwd: REPO, env: { ...process.env, PORT: String(STORYVID_PORT) }, stdio: ['ignore', log, log] });
+  storyvid.proc = proc;
+  proc.on('exit', code => {
+    if (storyvid.proc !== proc) return;
+    storyvid = { proc: null, state: 'error', error: `storyvid web UI stopped (exit ${code}). Log: ${logFile}` };
+  });
+  for (let i = 0; i < 60 && storyvid.proc === proc; i++) {
+    if (await storyvidAnswers()) return (storyvid.state = 'ready');
+    await new Promise(r => setTimeout(r, 500));
+  }
+  if (storyvid.state === 'starting') storyvid = { proc, state: 'error', error: `storyvid web UI did not answer on ${STORYVID_URL}. Log: ${logFile}` };
+  return storyvid.state;
+}
+
+function stopStoryvid() {
+  if (storyvid.proc && storyvid.proc.exitCode === null) storyvid.proc.kill('SIGTERM');
+  storyvid.proc = null;
 }
 
 // ---------- App lifecycle ----------
@@ -409,6 +460,7 @@ app.whenReady().then(() => {
     createProfileWindow(p);
   }
   createAppWindow();
+  startStoryvid();
   startApi({
     port: Number(process.env.MUSEFLOW_API_PORT) || 8770,
     listProfiles,
@@ -420,4 +472,5 @@ app.whenReady().then(() => {
 });
 
 app.on('before-quit', () => { quitting = true; });
+app.on('will-quit', stopStoryvid);
 app.on('window-all-closed', () => app.quit());

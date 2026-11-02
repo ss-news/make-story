@@ -85,7 +85,7 @@ async function openProject(id, tab) {
   $("#pKeepText").checked = !!p.meta.keep_text;
   loadScriptReviews();
   loadFinish();
-  await Promise.all([loadVisuals(), loadStyles(), loadVoices()]);
+  await Promise.all([loadVisuals(), loadStyles(), loadVoices(), loadPlaces()]);
   checkMuse();
   renderJob(p.status);
   selectTab(tab || (!p.meta.style ? "style" : !p.script ? "story" : !p.approved ? "script"
@@ -914,6 +914,91 @@ function renderMuse() {
   });
 }
 
+// ---------- real places (refs/places.json) ----------
+async function loadPlaces() {
+  renderPlaces((await api(`/api/projects/${state.current.id}/places`)).places);
+}
+
+async function uploadPhotos(place, files) {
+  const form = new FormData();
+  for (const f of files) form.append("photos", f);
+  const res = await fetch(`/api/projects/${state.current.id}/places/${place.id}/photos`, { method: "POST", body: form });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error || `Lỗi ${res.status}`);
+  renderPlaces(data.places);
+}
+
+function renderPlaces(places) {
+  const list = $("#placesList"), base = `/api/projects/${state.current.id}/places`;
+  list.innerHTML = places.length ? "" : `<p class="muted small">Chưa có địa điểm nào.</p>`;
+  for (const p of places) {
+    const el = document.createElement("div");
+    el.className = "place";
+    el.innerHTML = `<div class="place-fields">
+        <label>Tên<input data-k="name"></label>
+        <label>Từ khóa (tiếng Anh, cách nhau dấu phẩy)<input data-k="keywords" placeholder="house, gate, yard"></label>
+        <label>Luôn dùng ở cảnh<input data-k="scenes" placeholder="3, 7"></label>
+        <label>Không dùng ở cảnh<input data-k="skip" placeholder="12"></label>
+      </div>
+      <p class="muted small place-used"></p>
+      <div class="place-photos"></div>
+      <div class="actions">
+        <label class="btn small place-upload">＋ Ảnh từ máy<input type="file" accept="image/*" multiple hidden></label>
+        <input class="place-url" placeholder="hoặc dán link ảnh https://…">
+        <button class="btn small" data-act="url">Tải về</button>
+        <span class="grow"></span>
+        <button class="btn small" data-act="save">Lưu</button>
+        <button class="btn small ghost" data-act="delete">Xóa địa điểm</button>
+      </div>`;
+    const field = (k) => el.querySelector(`[data-k="${k}"]`);
+    field("name").value = p.name;
+    field("keywords").value = p.keywords.join(", ");
+    field("scenes").value = p.scenes.join(", ");
+    field("skip").value = p.skip.join(", ");
+    el.querySelector(".place-used").textContent = !p.files.length ? "Chưa có ảnh: thêm ít nhất một ảnh."
+      : p.used_in.length ? `Gửi kèm ảnh đầu tiên ở ${p.used_in.length} cảnh: ${p.used_in.join(", ")}`
+      : "Chưa khớp cảnh nào: thêm từ khóa có trong mô tả nền, hoặc ghi số cảnh.";
+    const photos = el.querySelector(".place-photos");
+    p.files.forEach((file, k) => {
+      const fig = document.createElement("figure");
+      fig.innerHTML = `<img alt=""><figcaption></figcaption><button class="btn small ghost" title="Xóa ảnh">×</button>`;
+      fig.querySelector("img").src = `/files/${state.current.id}/${file}`;
+      fig.querySelector("figcaption").textContent = (k === 0 ? "★ " : "") + file.split("/").pop();
+      fig.querySelector("button").onclick = run(async () => {
+        if (!confirm("Xóa ảnh này?")) return;
+        const name = file.split("/").slice(2).join("/");
+        renderPlaces((await api(`${base}/${p.id}/photos/${encodeURIComponent(name)}`, { method: "DELETE" })).places);
+      });
+      photos.appendChild(fig);
+    });
+    const picker = el.querySelector('input[type="file"]');
+    picker.onchange = run(async () => { if (picker.files.length) await uploadPhotos(p, picker.files); });
+    el.ondragover = (e) => { e.preventDefault(); el.classList.add("drop"); };
+    el.ondragleave = () => el.classList.remove("drop");
+    el.ondrop = run(async (e) => {
+      e.preventDefault(); el.classList.remove("drop");
+      const files = [...e.dataTransfer.files].filter((f) => f.type.startsWith("image/"));
+      if (files.length) await uploadPhotos(p, files);
+    });
+    el.querySelector('[data-act="url"]').onclick = run(async () => {
+      const url = el.querySelector(".place-url").value.trim();
+      if (!url) return toast("Dán link ảnh trước", true);
+      renderPlaces((await api(`${base}/${p.id}/photos`, { method: "POST", body: { url } })).places);
+      toast("Đã tải ảnh về");
+    });
+    el.querySelector('[data-act="save"]').onclick = run(async () => {
+      const body = Object.fromEntries(["name", "keywords", "scenes", "skip"].map((k) => [k, field(k).value]));
+      renderPlaces((await api(`${base}/${p.id}`, { method: "PUT", body })).places);
+      toast("Đã lưu địa điểm");
+    });
+    el.querySelector('[data-act="delete"]').onclick = run(async () => {
+      if (!confirm(`Xóa địa điểm “${p.name}” và ảnh của nó?`)) return;
+      renderPlaces((await api(`${base}/${p.id}`, { method: "DELETE" })).places);
+    });
+    list.appendChild(el);
+  }
+}
+
 async function saveVisuals() {
   if (!state.visuals) return;
   await api(`/api/projects/${state.current.id}/visuals`, { method: "PUT", body: state.visuals });
@@ -1038,6 +1123,12 @@ async function init() {
   $("#renderBtn").onclick = run(() => renderVideoJob(false));
   $("#renderShortBtn").onclick = run(() => renderVideoJob(true));
   $("#museCheckBtn").onclick = run(checkMuse);
+  $("#placeAddBtn").onclick = run(async () => {
+    const name = $("#placeName").value.trim();
+    if (!name) return toast("Nhập tên địa điểm", true);
+    renderPlaces((await api(`/api/projects/${state.current.id}/places`, { method: "POST", body: { name } })).places);
+    $("#placeName").value = "";
+  });
   $("#musePromptsBtn").onclick = run(() => runVisuals("prompts", { provider: $("#museProvider").value, ratio: state.current.meta.ratio }));
   $("#museSaveBtn").onclick = run(async () => { await saveVisuals(); toast("Đã lưu prompt hình"); });
   $("#museCastBtn").onclick = run(() => runVisuals("cast"));

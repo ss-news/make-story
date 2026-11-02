@@ -197,6 +197,8 @@ scenes.json (đã đạt check)
 ```
 
 - Muse được điều khiển qua **MuseFlow** (`museflow/`, `npm start`): app Electron giữ nhiều tài khoản Muse đã đăng nhập và mở API nội bộ ở `127.0.0.1:8770` (`MUSEFLOW_API` trong `.env`). Mỗi tài khoản sẵn sàng chạy một cảnh; một tài khoản thì các cảnh chạy lần lượt.
+- Mở `npm start` trong `museflow/` là đủ: app tự chạy web UI storyvid (`.venv/bin/python -m storyvid.web`, cổng 8765; đổi bằng `STORYVID_PYTHON`, `STORYVID_WEB_PORT`) và hiện nó ở tab **🎬 Dự án video**; tab **🧩 Canvas** là canvas MuseFlow cũ. Nếu web UI đã chạy sẵn (mở từ terminal) thì app dùng lại server đó và không tắt nó khi thoát. Nhật ký server: `storyvid-web.log` trong thư mục dữ liệu của app.
+- **Ảnh thật của địa điểm** (`refs/places.json`, chuẩn `storyvid.places/1`, `storyvid/places.py`; panel trên tab Hình Muse): mỗi địa điểm có tên, từ khóa tiếng Anh, ảnh, danh sách cảnh luôn dùng (`scenes`) và cảnh không dùng (`skip`), số cảnh tính từ 1. Cảnh có từ khóa (nguyên từ, cả số nhiều) trong `bg_prompt` hoặc prompt ảnh thì được gửi kèm ảnh đầu tiên của địa điểm, kèm lời dặn Muse vẽ lại theo phong cách của dự án, không chép ảnh. Ảnh báo chí chỉ dùng làm tham khảo, không đưa thẳng vào video; ghi nguồn trong `sources`.
 - Muse bị từ chối thì tự thử lại một lần với phiên bản an toàn hơn. Lỗi còn lại ghi vào trường `error` của nhân vật hoặc cảnh; chạy lại bằng `--only <id hoặc số cảnh>` (thêm `--redo` để tạo lại cả file đã có).
 - Prompt ảnh chỉ mô tả các nhân vật **đang đứng trên sân khấu** ở cảnh đó (theo `actors` trong `scenes.json`), không dồn cả dàn nhân vật vào mọi prompt.
 - Muse luôn trả clip khoảng 10 giây. Khi dựng, độ dài cảnh theo giọng đọc: lời ngắn thì cắt clip; lời dài thì clip chạy chậm lại tối đa 1,35 lần, phần còn lại giữ khung cuối và đẩy máy nhẹ. Cảnh lời quá dài nên tách thành hai cảnh.
@@ -238,6 +240,7 @@ output/<id>/
   visuals.json          kế hoạch hình Muse storyvid.visuals/1 (chỉ khi dùng Muse)
   muse/                 ảnh mẫu nhân vật (cast/), ảnh tham chiếu phong cách (style/), mẫu phong cách tự viết
                         (styles/), ảnh mở cảnh và clip của từng cảnh
+  refs/                 ảnh thật của địa điểm: places.json và một thư mục ảnh cho mỗi địa điểm
   render.json           bản dựng từ kịch bản nào, mốc thời gian từng cảnh
   finish.json           kết quả máy kiểm tra, kiểm định và gói đăng
   publish/              frames/ (khung hình từng cảnh, bảng kiểm định), youtube.md, publish.json, thumbnail_*.jpg

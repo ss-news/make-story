@@ -9,6 +9,8 @@ npm install
 npm start
 ```
 
+App mở ở tab **🎬 Dự án video**: web UI storyvid (dự án, kịch bản, duyệt, hình Muse, giọng đọc, dựng, hoàn thành), do app tự chạy bằng `../.venv/bin/python -m storyvid.web`. Tab **🧩 Canvas** là canvas MuseFlow bên dưới.
+
 1. Bấm **Accounts** → **＋ Add account**. Một cửa sổ Muse riêng mở ra (cookie riêng cho từng tài khoản). Đăng nhập rồi mở trang chat của Muse.
 2. Lặp lại cho các tài khoản khác. Tài khoản xanh = sẵn sàng. Đóng cửa sổ Muse chỉ ẩn nó, app vẫn dùng được.
 3. Bấm **📖 Truyện → Video**, dán truyện, chọn số giây mỗi cảnh, khung hình, phong cách → **▶ Tạo video**.
@@ -23,10 +25,11 @@ Luồng tự động: Muse viết kịch bản theo template `templates/museflow
 
 | File | Vai trò |
 |---|---|
-| `electron/main.js` | Protocol `museflow://`, quản lý tài khoản (mỗi tài khoản một `persist:muse-<id>` partition + cửa sổ), hàng đợi chia job cho tài khoản rảnh, tải video về `userData/media`. |
+| `electron/main.js` | Chạy và tắt web UI storyvid (`STORYVID_PYTHON`, `STORYVID_WEB_PORT`), protocol `museflow://`, quản lý tài khoản (mỗi tài khoản một `persist:muse-<id>` partition + cửa sổ), hàng đợi chia job cho tài khoản rảnh, tải video về `userData/media`. |
 | `electron/muse-preload.js` | Nạp `muse-bridge.js` vào trang Muse, nối `chrome.runtime.onMessage` sang IPC. |
 | `electron/app-preload.js`, `desktop-shim.js` | API `museDesktop` + shim `chrome.storage`/`chrome.runtime` cho `app.js`. |
 | `muse-bridge.js` | Điều khiển DOM chat Muse (giữ từ extension) + lệnh mới `MUSEFLOW_CHAT` để lấy câu trả lời dạng text. |
+| `storyvid-view.js` | Tab Dự án video / Canvas, hiện web UI storyvid trong khung. |
 | `app.js` | Canvas/timeline gốc; vòng chạy workflow chạy song song theo phụ thuộc; panel Accounts; luồng Truyện → Video. |
 
 ## Test không cần tài khoản thật

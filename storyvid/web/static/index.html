@@ -155,6 +155,14 @@
           <button class="btn" id="museImagesBtn">3. Ảnh các cảnh</button>
           <button class="btn primary" id="museClipsBtn">4. Clip từ ảnh</button>
         </div>
+        <div class="card places" id="placesBox">
+          <div class="places-head"><strong>Ảnh thật của địa điểm</strong>
+            <span class="muted small">Cảnh nào có từ khóa trong mô tả nền sẽ được gửi kèm một ảnh, để Muse vẽ lại đúng hình dáng theo phong cách đã chọn. Ảnh không được đưa thẳng vào video.</span>
+            <span class="grow"></span>
+            <input id="placeName" placeholder="Tên địa điểm, ví dụ Nhà 300 Kim Mã">
+            <button class="btn small" id="placeAddBtn">＋ Thêm địa điểm</button></div>
+          <div id="placesList"></div>
+        </div>
         <p class="muted" id="museEmpty">Chưa có prompt hình. Bấm “Viết prompt hình” sau khi kịch bản đã xong.</p>
         <div id="museBody" class="hidden">
           <div class="card"><label class="block">Phong cách chung (thêm vào mọi prompt)<textarea id="museStyle" rows="2"></textarea></label></div>

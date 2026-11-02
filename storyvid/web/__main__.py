@@ -539,6 +539,111 @@ def publish_file(pid, name):
     return send_file(path, conditional=True)
 
 
+# ---------- real places (storyvid/places.py): photos attached to the scenes that show them ----------
+def places_reply(d: Path):
+    from .. import places
+    data, script, visuals = places.load(d), read_json(d / "scenes.json", {}), read_json(d / "visuals.json")
+    return jsonify(places=[{**p, "used_in": places.scenes_of(p, script, visuals) if script else []}
+                           for p in data["places"]])
+
+
+def find_place(data: dict, place_id: str) -> dict:
+    for p in data["places"]:
+        if p["id"] == place_id:
+            return p
+    abort(404, "No such place")
+
+
+@app.get("/api/projects/<pid>/places")
+def get_places(pid):
+    return places_reply(project_dir(pid))
+
+
+@app.post("/api/projects/<pid>/places")
+def add_place(pid):
+    from .. import places
+    d = project_dir(pid)
+    body = request.get_json(silent=True) or {}
+    name = str(body.get("name", "")).strip()
+    if not name:
+        abort(400, "Give the place a name")
+    data = places.load(d)
+    place_id = places.slug(name, {p["id"] for p in data["places"]})
+    data["places"].append(places.clean({"id": place_id, "name": name, "keywords": body.get("keywords", [])}))
+    places.save(d, data)
+    return places_reply(d)
+
+
+@app.put("/api/projects/<pid>/places/<place_id>")
+def edit_place(pid, place_id):
+    from .. import places
+    d = project_dir(pid)
+    data = places.load(d)
+    place = find_place(data, place_id)
+    body = request.get_json(silent=True) or {}
+    place.update(places.clean({**place, **{k: body[k] for k in ("name", "keywords", "scenes", "skip") if k in body}}))
+    places.save(d, data)
+    return places_reply(d)
+
+
+@app.delete("/api/projects/<pid>/places/<place_id>")
+def delete_place(pid, place_id):
+    from .. import places
+    d = project_dir(pid)
+    data = places.load(d)
+    find_place(data, place_id)
+    data["places"] = [p for p in data["places"] if p["id"] != place_id]
+    places.save(d, data)
+    shutil.rmtree(d / "refs" / place_id, ignore_errors=True)
+    return places_reply(d)
+
+
+@app.post("/api/projects/<pid>/places/<place_id>/photos")
+def add_place_photos(pid, place_id):
+    """Multipart files ("photos"), or JSON {"url": "..."} to download one image."""
+    from .. import places
+    d = project_dir(pid)
+    data = places.load(d)
+    place = find_place(data, place_id)
+    try:
+        if request.files:
+            for f in request.files.getlist("photos"):
+                place["files"].append(places.add_photo(d, place, f.read(), f.filename or "photo"))
+        else:
+            url = str((request.get_json(silent=True) or {}).get("url", "")).strip()
+            raw, name = places.download(url)
+            place["files"].append(places.add_photo(d, place, raw, name))
+            place["sources"].append(url)
+    except (ValueError, OSError) as e:
+        abort(400, str(e))
+    places.save(d, data)
+    return places_reply(d)
+
+
+@app.delete("/api/projects/<pid>/places/<place_id>/photos/<path:name>")
+def delete_place_photo(pid, place_id, name):
+    from .. import places
+    d = project_dir(pid)
+    data = places.load(d)
+    place = find_place(data, place_id)
+    rel = f"refs/{place_id}/{name}"
+    if rel not in place["files"]:
+        abort(404, "No such photo")
+    place["files"].remove(rel)
+    (d / rel).unlink(missing_ok=True)
+    places.save(d, data)
+    return places_reply(d)
+
+
+@app.get("/files/<pid>/refs/<path:name>")
+def ref_file(pid, name):
+    d = project_dir(pid)
+    path = (d / "refs" / name).resolve()
+    if not path.is_relative_to((d / "refs").resolve()) or not path.is_file():
+        abort(404)
+    return send_file(path, conditional=True)
+
+
 @app.get("/files/<pid>/muse/<path:name>")
 def muse_file(pid, name):
     d = project_dir(pid)

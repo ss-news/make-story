@@ -215,3 +215,16 @@ body{grid-template-rows:58px auto minmax(0,1fr) auto}
 .character-card .character-empty{display:grid;place-items:center;aspect-ratio:3/4;background:#0b0c10;border-radius:7px;color:#a0a3af;font-size:12px;padding:8px;text-align:center}
 .character-card strong{font-size:13px}.character-card small{color:#a0a3af;font-size:11px}
 #characterReviewStatus{min-height:18px;font-size:12px}
+
+/* View tabs: storyvid video projects vs. the workflow canvas */
+.view-tabs{display:flex;gap:4px;flex:0 0 auto;padding:3px;border-radius:9px;background:rgba(127,127,127,.14)}
+.view-tabs>button{padding:6px 10px;font-size:11px;white-space:nowrap;border:0;background:transparent}
+.view-tabs>button[aria-selected="true"]{background:var(--panel,#fff);box-shadow:0 1px 3px rgba(0,0,0,.18);font-weight:600}
+.storyvid-view{grid-row:3/5;grid-column:1/-1;position:relative;min-height:0;display:flex;background:#fff}
+.storyvid-view.hidden{display:none}
+.storyvid-view iframe{flex:1;width:100%;height:100%;border:0}
+.storyvid-message{margin:auto;max-width:640px;padding:24px;text-align:center;line-height:1.6;color:#334}
+.storyvid-message button{margin-top:12px}
+body.view-storyvid #viewport,body.view-storyvid #timelineDock,body.view-storyvid .toolbar-tools,
+body.view-storyvid #saveBtn,body.view-storyvid #workflowExportBtn,body.view-storyvid #workflowImportBtn,
+body.view-storyvid #resetBtn,body.view-storyvid #runBtn{display:none}

@@ -232,3 +232,20 @@ label.block { display: flex; flex-direction: column; gap: 6px; }
 .thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin: 8px 0; }
 .thumbs img { width: 100%; border-radius: 6px; }
 .finish-checklist label { display: flex; gap: 8px; align-items: center; margin: 3px 0; }
+
+/* real places: reference photos for scene images */
+.places { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; margin: 12px 0; }
+.places-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.places-head .muted { flex: 1 1 320px; }
+.place { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 12px; }
+.place.drop { outline: 2px dashed var(--accent); outline-offset: 4px; }
+.place-fields { display: grid; grid-template-columns: 1.2fr 2fr 1fr 1fr; gap: 10px; }
+.place-used { margin: 8px 0 !important; }
+.place-photos { display: flex; gap: 10px; flex-wrap: wrap; }
+.place-photos figure { margin: 0; width: 180px; position: relative; }
+.place-photos img { width: 180px; height: 112px; object-fit: cover; border-radius: 6px; display: block; }
+.place-photos figcaption { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.place-photos figure button { position: absolute; top: 4px; right: 4px; background: var(--panel); }
+.place-upload { display: inline-flex; flex-direction: row; cursor: pointer; font-weight: 400; color: var(--text); }
+.place-url { flex: 1 1 260px; }
+@media (max-width: 800px) { .place-fields { grid-template-columns: 1fr 1fr; } }
