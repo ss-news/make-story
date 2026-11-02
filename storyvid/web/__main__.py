@@ -547,6 +547,16 @@ def voice_preview():
 
 
 # ---------- finishing (storyvid/finish.py) ----------
+@app.get("/api/projects/<pid>/flow")
+def get_flow(pid):
+    """The progress diagram (storyvid/flow.py), drawn by MuseFlow's Canvas tab."""
+    from ..flow import steps
+    d = project_dir(pid)
+    meta = read_json(d / "meta.json", {})
+    status = job_status(pid, d)
+    return jsonify(id=pid, name=meta.get("name", pid), job=status, steps=steps(d, status))
+
+
 @app.get("/api/projects/<pid>/finish")
 def get_finish(pid):
     d = project_dir(pid)

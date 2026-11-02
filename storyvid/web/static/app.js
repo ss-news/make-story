@@ -70,6 +70,7 @@ async function openProject(id, tab) {
   if (state.dirty && !confirm("Kịch bản chưa lưu. Bỏ thay đổi?")) return;
   const p = await api(`/api/projects/${id}`);
   state.current = p;
+  if (window.parent !== window) window.parent.postMessage({ type: "storyvid:project", id }, "*");  // MuseFlow's diagram
   state.musePage = 0;
   state.museFilter = "all";
   state.script = p.script ? structuredClone(p.script) : null;
@@ -1147,6 +1148,15 @@ async function saveSettings() {
 }
 
 // ---------- wiring ----------
+// MuseFlow (the desktop app around this page) asks to show a project's tab when a diagram step is clicked.
+window.addEventListener("message", run(async (e) => {
+  if (e.source !== window.parent || e.data?.type !== "storyvid:open") return;
+  const { id, tab } = e.data;
+  if (!/^[a-z0-9_]+$/.test(id || "")) return;
+  if (state.current?.id !== id) await openProject(id, tab);
+  else if (tab) selectTab(tab);
+}));
+
 async function init() {
   state.options = await api("/api/options");
   for (const [id, list] of [["videoCharacter", "characters"], ["videoOutfit", "outfits"], ["videoAccessory", "accessories"]]) {

@@ -71,6 +71,22 @@ class CastGateTest(unittest.TestCase):
             step.assert_not_called()
 
 
+class FlowTest(unittest.TestCase):
+    def test_flow_marks_waiting_running_and_done_steps(self):
+        from storyvid import flow
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            project(d, sheets=True)
+            (d / 'story.txt').write_text('Once upon a time')
+            states = {s['key']: s['state'] for s in flow.steps(d)}
+            self.assertEqual([states[k] for k in ('story', 'approve', 'prompts', 'cast', 'approve_cast', 'images')],
+                             ['done', 'done', 'done', 'done', 'wait', 'todo'])
+            running = {s['key']: s['state'] for s in flow.steps(d, {'state': 'running', 'kind': 'auto'})}
+            self.assertEqual(running['style'], 'running')  # first unfinished step that is not waiting for a person
+            running = {s['key']: s['state'] for s in flow.steps(d, {'state': 'running', 'kind': 'render'})}
+            self.assertEqual(running['video'], 'running')
+
+
 class StopTest(unittest.TestCase):
     def test_stop_ends_the_job_and_the_step_it_started(self):
         import os

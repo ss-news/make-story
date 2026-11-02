@@ -9,7 +9,7 @@ npm install
 npm start
 ```
 
-App mở ở tab **🎬 Dự án video**: web UI storyvid (dự án, kịch bản, duyệt, hình Muse, giọng đọc, dựng, hoàn thành), do app tự chạy bằng `../.venv/bin/python -m storyvid.web`. Tab **🧩 Canvas** là canvas MuseFlow bên dưới.
+App mở ở tab **🎬 Dự án video**: web UI storyvid (dự án, kịch bản, duyệt, hình Muse, giọng đọc, dựng, hoàn thành), do app tự chạy bằng `../.venv/bin/python -m storyvid.web`. Tab **🧩 Canvas** là canvas MuseFlow bên dưới, với bảng **Flow dự án** ở trên cùng: tiến độ từng bước của dự án video, bấm một bước để mở nó.
 
 1. Bấm **Accounts** → **＋ Add account**. Một cửa sổ Muse riêng mở ra (cookie riêng cho từng tài khoản). Đăng nhập rồi mở trang chat của Muse.
 2. Lặp lại cho các tài khoản khác. Tài khoản xanh = sẵn sàng. Đóng cửa sổ Muse chỉ ẩn nó, app vẫn dùng được.

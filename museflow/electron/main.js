@@ -378,6 +378,18 @@ function registerIpc() {
     return true;
   });
   ipcMain.handle('media:folder', () => { shell.openPath(mediaDir); return mediaDir; });
+  // Read-only storyvid data for the Canvas progress diagram (the main process has no CORS limits).
+  ipcMain.handle('storyvid:get', (_e, apiPath) => new Promise((resolve, reject) => {
+    if (!/^\/api\/projects(\/[a-z0-9_]+\/flow)?$/.test(String(apiPath))) return reject(new Error('Not allowed: ' + apiPath));
+    const req = http.get(STORYVID_URL.replace(/\/$/, '') + apiPath, { timeout: 5000 }, res => {
+      let body = '';
+      res.setEncoding('utf8');
+      res.on('data', chunk => { body += chunk; });
+      res.on('end', () => { try { resolve(JSON.parse(body)); } catch (error) { reject(error); } });
+    });
+    req.on('error', reject);
+    req.on('timeout', () => req.destroy(new Error('storyvid did not answer')));
+  }));
   ipcMain.handle('storyvid:status', () => ({ url: STORYVID_URL, state: storyvid.state, error: storyvid.error }));
   ipcMain.handle('storyvid:restart', async () => { stopStoryvid(); await startStoryvid(); return { url: STORYVID_URL, state: storyvid.state, error: storyvid.error }; });
 }

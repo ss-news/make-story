@@ -76,6 +76,17 @@
     <div id="timelineDropZone" class="timeline-drop-zone">Drag a Generate Video node or video clip here</div>
     <div class="timeline-dock-content"><div id="timelineTrack" class="timeline-dock-track"></div></div>
   </section>
+  <section id="flowPanel" class="flow-panel hidden" aria-label="Video project progress">
+    <header class="flow-head">
+      <strong>Flow dự án</strong>
+      <select id="flowProject" aria-label="Project"></select>
+      <span id="flowJob" class="flow-job"></span>
+      <span class="flow-spacer"></span>
+      <button id="flowOpenBtn" type="button">Mở trong Dự án video</button>
+      <button id="flowToggleBtn" type="button" aria-expanded="true" title="Thu gọn">▾</button>
+    </header>
+    <div id="flowSteps" class="flow-steps"></div>
+  </section>
   <section id="storyvidView" class="storyvid-view hidden" aria-label="Video projects">
     <div id="storyvidMessage" class="storyvid-message">Đang mở storyvid…</div>
     <iframe id="storyvidFrame" title="storyvid" hidden></iframe>
