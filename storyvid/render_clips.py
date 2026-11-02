@@ -41,7 +41,8 @@ class _ClipFrames:
               f"crop={w}:{h}")
         self.size = size
         self.proc = subprocess.Popen([ffmpeg_exe(), "-v", "error", "-i", str(path), "-an", "-vf", vf,
-                                      "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], stdout=subprocess.PIPE)
+                                      "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
+                                     stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)  # closed early on purpose
 
     def next(self) -> Image.Image | None:
         n = self.size[0] * self.size[1] * 3
