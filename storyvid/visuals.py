@@ -381,6 +381,26 @@ def last_frame(clip: Path, out: Path) -> Path | None:
     return out if out.is_file() and out.stat().st_size else None
 
 
+def same_as(project: Path, visuals: dict, i: int, key: str, file: Path) -> int | None:
+    """1-based number of another scene whose image/clip is byte for byte this file (Muse handed back an old result)."""
+    data = None
+    for n, other in enumerate(visuals["scenes"]):
+        path = project / other[key] if n != i and other.get(key) else None
+        if path and path.is_file() and path != file and path.stat().st_size == file.stat().st_size:
+            data = data or hashlib.sha256(file.read_bytes()).digest()
+            if hashlib.sha256(path.read_bytes()).digest() == data:
+                return n + 1
+    return None
+
+
+def checked(project: Path, visuals: dict, i: int, key: str, file: Path) -> Path:
+    twin = same_as(project, visuals, i, key, file)
+    if twin:
+        file.unlink()
+        raise RuntimeError(f"Muse returned scene {twin}'s {key} again instead of a new one; run this scene again")
+    return file
+
+
 def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: bool, clips_only: bool = False) -> int:
     script, visuals = load(project)
     if not visuals:
@@ -409,8 +429,8 @@ def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: 
                     refs += photos
                     prompt += "\n\n" + places.PLACE_NOTE.format(name=name)
             refs = (refs + styling)[:MAX_REFS]
-            file = _generate("image", prompt, visuals["ratio"],
-                             project / "muse" / f"scene_{i:02d}.png", refs, s["negative"])
+            file = checked(project, visuals, i, "image", _generate("image", prompt, visuals["ratio"],
+                           project / "muse" / f"scene_{i:02d}.png", refs, s["negative"]))
             s["image"], s["clip"] = file.relative_to(project).as_posix(), ""
             s.pop("error", None)
             save(project, visuals)
@@ -430,8 +450,8 @@ def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: 
             print(f"[scene {i + 1}] previous clip missing: starting from this scene's own image")
         try:
             print(f"[scene {i + 1}] clip" + (" (continues from scene %d)" % i if len(refs) == 2 else ""))
-            file = _generate("video", prompt, visuals["ratio"], project / "muse" / f"scene_{i:02d}.mp4", refs,
-                             s["negative"])
+            file = checked(project, visuals, i, "clip", _generate("video", prompt, visuals["ratio"],
+                           project / "muse" / f"scene_{i:02d}.mp4", refs, s["negative"]))
             s["clip"] = file.relative_to(project).as_posix()
             s.pop("error", None)
             save(project, visuals)
@@ -447,7 +467,8 @@ def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: 
             list(pool.map(image, [i for i in todo if redo or not has("image", i)]))
         if not images_only:
             # a chain of linked scenes goes in order; separate chains run side by side
-            wanted = [i for i in todo if has("image", i) and (redo or not has("clip", i))]
+            # a scene whose new image failed keeps its old image: making a clip from that would hide the failure
+            wanted = [i for i in todo if i not in failed and has("image", i) and (redo or not has("clip", i))]
             list(pool.map(lambda chain: [clip(i) for i in chain], chains(links, wanted)))
     return len(failed)
 

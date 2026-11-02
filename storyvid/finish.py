@@ -358,6 +358,9 @@ def publish(project: Path, provider: str, count: int = 3) -> dict:
         except RuntimeError as e:
             print(f"  thumbnail {k} failed: {e}")
     credits = meta.get("credits", "").strip()
+    sounds = project / "credits.txt"  # music and sound credits written by the render (storyvid/cli.py)
+    if sounds.exists():
+        credits = "\n".join(filter(None, [credits, sounds.read_text(encoding="utf-8").strip()]))
     note = ("Hình ảnh và chuyển động trong video được tạo bằng AI; kịch bản và lời kể do kênh biên soạn."
             if lang == "Vietnamese" else
             "Images and motion in this video were made with AI; the script and narration were written by the channel.")

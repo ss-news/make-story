@@ -87,6 +87,21 @@ class FlowTest(unittest.TestCase):
             self.assertEqual(running['video'], 'running')
 
 
+class DuplicateResultTest(unittest.TestCase):
+    def test_a_clip_identical_to_another_scene_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            (d / 'a.mp4').write_bytes(b'clip one')
+            (d / 'b.mp4').write_bytes(b'clip one')
+            (d / 'c.mp4').write_bytes(b'clip two')
+            plan = {'scenes': [{'clip': 'a.mp4'}, {'clip': ''}, {'clip': ''}]}
+            self.assertEqual(visuals.same_as(d, plan, 1, 'clip', d / 'b.mp4'), 1)
+            self.assertIsNone(visuals.same_as(d, plan, 2, 'clip', d / 'c.mp4'))
+            with self.assertRaisesRegex(RuntimeError, "scene 1's clip"):
+                visuals.checked(d, plan, 1, 'clip', d / 'b.mp4')
+            self.assertFalse((d / 'b.mp4').exists())
+
+
 class StopTest(unittest.TestCase):
     def test_stop_ends_the_job_and_the_step_it_started(self):
         import os

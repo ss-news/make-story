@@ -19,5 +19,9 @@
     "de": "de-DE-ConradNeural",
     "fr": "fr-FR-HenriNeural",
     "es": "es-ES-AlvaroNeural"
+  },
+  "end_screen": {
+    "seconds": 12,
+    "music": "house_on_the_hill"
   }
 }

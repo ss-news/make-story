@@ -72,6 +72,32 @@ def attributions(script: dict) -> list[str]:
     return lines
 
 
+def end_screen(timeline: dict, seconds: float, music_id: str, out_path: Path) -> None:
+    """Hold the last picture `seconds` longer than the narration, under music, so YouTube end-screen cards fit.
+    timeline["audio"] (narration or mix) gets the music tail; the picture follows timeline["scenes"][-1]["end"]."""
+    with wave.open(str(timeline["audio"]), "rb") as w:
+        sound = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float32) / 32768.0
+    tail = int(seconds * SAMPLE_RATE)
+    music = _loop(_decoded(music_id), tail).copy()
+    rise, fall = min(tail // 4, int(1.5 * SAMPLE_RATE)), min(tail // 2, int(3.0 * SAMPLE_RATE))
+    music[:rise] *= np.linspace(0, 1, rise, dtype=np.float32)
+    music[-fall:] *= np.linspace(1, 0, fall, dtype=np.float32)
+    out = np.concatenate([sound, music])
+    with wave.open(str(out_path), "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(SAMPLE_RATE)
+        w.writeframes((np.clip(out, -0.98, 0.98) * 32767).astype(np.int16).tobytes())
+    timeline["samples"] = np.concatenate([timeline["samples"], np.zeros(tail, dtype=timeline["samples"].dtype)])
+    timeline["audio"], timeline["duration"] = out_path, timeline["duration"] + seconds
+    timeline["scenes"][-1]["end"] += seconds
+
+
+def credit(sound_id: str) -> str:
+    item = entry(sound_id)
+    return item.get("attribution") or f"Music: {item.get('label', sound_id)} ({item.get('license', '')})"
+
+
 @lru_cache(maxsize=64)
 def _decoded(sound_id: str) -> np.ndarray:
     """Mono float32 samples at the narration sample rate. Music and ambience are levelled to TARGET_RMS (a

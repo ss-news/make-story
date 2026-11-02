@@ -79,6 +79,10 @@
     }).filter(a=>a.src);
   }
 
+  // An old result whose signed URL Muse refreshed must not look new: compare URLs without their query string.
+  function mediaKey(src){if(/^(?:data|blob):/.test(src))return src;try{const url=new URL(src,location.href);return url.origin+url.pathname;}catch{return src;}}
+  function userBubbles(){return [...document.querySelectorAll('[class*="chat-user-bubble"],[data-message-author-role="user"]')];}
+
   function waitForAttachmentChange(timeoutMs,signal){
     return new Promise(resolve=>{
       let timer;
@@ -198,7 +202,8 @@
     const referenceList=Array.isArray(referenceImages)&&referenceImages.length?referenceImages:referenceImage?[referenceImage]:[];
     if(referenceList.length)await attachReferences(referenceList,signal);
     throwIfAborted();
-    const baseline=new Set(attachments().map(a=>a.src));
+    const before=attachments(),baseline=new Set(before.map(a=>a.src)),baselineKeys=new Set(before.map(a=>mediaKey(a.src)));
+    const userCount=userBubbles().length;
     const priorBubbleTexts=new Map(assistantMessageElements().map(el=>[el,(el.innerText||el.textContent||'').replace(/\s+/g,' ').trim()]));
     await submitComposer(composer,prompt,signal);
     const deadline=Date.now()+Math.min(900,Math.max(30,Number(timeoutSec)||600))*1000;
@@ -206,7 +211,9 @@
     let refusalContext='',refusalContextSince=0;
     while(Date.now()<deadline){
       throwIfAborted();
-      const fresh=attachments().filter(a=>!baseline.has(a.src));
+      // only results after the message just sent: an earlier clip in this chat once came back as a new scene's clip
+      const sent=userBubbles(),anchor=sent.length>userCount?sent[sent.length-1]:null;
+      const fresh=attachments().filter(a=>!baseline.has(a.src)&&!baselineKeys.has(mediaKey(a.src))&&(!anchor||anchor.compareDocumentPosition(a.el)&Node.DOCUMENT_POSITION_FOLLOWING));
       const matching=fresh.filter(a=>mediaType==='video'?a.isVideo:!a.isVideo);
       const wrongMedia=fresh.find(a=>mediaType==='image'?a.isVideo:!a.isVideo);
       if(wrongMedia){if(!wrongMediaSince)wrongMediaSince=Date.now();if(Date.now()-wrongMediaSince>=1800){const expected=mediaType==='image'?'image':'video',actual=mediaType==='image'?'video':'image';const error=new Error(`Muse returned a ${actual} for a Generate ${expected==='image'?'Image':'Video'} node. Switch the Muse composer to ${expected} generation, then retry.`);error.code='MEDIA_TYPE_MISMATCH';throw error;}}
