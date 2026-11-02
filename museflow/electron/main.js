@@ -381,7 +381,7 @@ function registerIpc() {
   // Read-only storyvid data for the Canvas progress diagram (the main process has no CORS limits).
   ipcMain.handle('storyvid:get', (_e, apiPath) => new Promise((resolve, reject) => {
     if (!/^\/api\/projects(\/[a-z0-9_]+\/flow)?$/.test(String(apiPath))) return reject(new Error('Not allowed: ' + apiPath));
-    const req = http.get(STORYVID_URL.replace(/\/$/, '') + apiPath, { timeout: 5000 }, res => {
+    const req = http.get(STORYVID_URL.replace(/\/$/, '') + apiPath, { timeout: 15000 }, res => {
       let body = '';
       res.setEncoding('utf8');
       res.on('data', chunk => { body += chunk; });

@@ -13,35 +13,66 @@
   const picker = document.getElementById('flowProject');
   const STATE_TEXT = { done: 'xong', running: 'đang chạy', wait: 'chờ bạn', error: 'có lỗi', todo: 'chưa làm' };
   let flowTimer = null;
-  let projectId = '';
-  try { projectId = localStorage.getItem('museflow.flowProject') || ''; } catch {}
+  let projectId = null;  // '' = the shared canvas that is not tied to a project, null = not chosen yet
+  try { projectId = localStorage.getItem('museflow.flowProject'); } catch {}
+
+  // Each project has its own canvas workflow (app.js museflowSwitchWorkflow); the canvas follows the picker.
+  async function switchCanvas() {
+    if (panel.classList.contains('hidden') || !window.museflowSwitchWorkflow) return;
+    const key = projectId ? `museflow:${projectId}` : 'museflow';
+    if (!(await window.museflowSwitchWorkflow(key))) flowNote('Workflow đang chạy: canvas giữ nguyên đến khi chạy xong.', true);
+  }
 
   function setProject(id) {
+    const changed = id !== projectId;
     projectId = id;
     try { localStorage.setItem('museflow.flowProject', id); } catch {}
+    if (changed) switchCanvas();
   }
+
+  function flowNote(text, warn) {
+    const box = document.getElementById('flowJob');
+    box.textContent = text;
+    box.classList.toggle('warn', !!warn);
+  }
+
+  // the canvas starts under the panel instead of behind it
+  const statusbar = document.querySelector('.statusbar');
+  function layoutPanel() {
+    const on = !panel.classList.contains('hidden');
+    document.body.style.setProperty('--flow-top', `${statusbar.getBoundingClientRect().bottom}px`);
+    document.body.style.setProperty('--flow-h', on ? `${panel.offsetHeight + 12}px` : '0px');
+    window.dispatchEvent(new Event('resize'));  // app.js redraws the wires
+  }
+  new ResizeObserver(layoutPanel).observe(panel);
+  new ResizeObserver(layoutPanel).observe(statusbar);
 
   // storyvid tells which project is open (see openProject in storyvid/web/static/app.js)
   window.addEventListener('message', event => {
     if (event.source !== frame.contentWindow || event.data?.type !== 'storyvid:project') return;
-    if (/^[a-z0-9_]+$/.test(event.data.id || '')) setProject(event.data.id);
+    if (/^[a-z0-9_]+$/.test(event.data.id || '') && event.data.id !== projectId) {
+      setProject(event.data.id);
+      if (picker.options.length) picker.value = projectId;
+    }
   });
 
   function openInStoryvid(tab) {
     show('storyvid');
+    if (!projectId) return;
     const post = () => frame.contentWindow?.postMessage({ type: 'storyvid:open', id: projectId, tab }, '*');
     if (loaded) post(); else frame.addEventListener('load', post, { once: true });
   }
 
   async function loadProjects() {
     const projects = await desktop.storyvidGet('/api/projects');
-    if (!projectId || !projects.some(p => p.id === projectId)) setProject(projects[0]?.id || '');
-    picker.replaceChildren(...projects.map(p => new Option(p.name || p.id, p.id, false, p.id === projectId)));
+    if (projectId === null || (projectId && !projects.some(p => p.id === projectId))) setProject(projects[0]?.id || '');
+    picker.replaceChildren(new Option('Canvas chung (không gắn dự án)', ''),
+      ...projects.map(p => new Option(p.name || p.id, p.id)));
+    picker.value = projectId;
   }
 
   function drawFlow(flow) {
-    const job = flow.job?.state === 'running' ? 'Đang chạy…' : '';
-    document.getElementById('flowJob').textContent = job;
+    flowNote(flow.job?.state === 'running' ? 'Đang chạy…' : '');
     stepsBox.replaceChildren();
     flow.steps.forEach((step, index) => {
       if (index) {
@@ -67,19 +98,26 @@
   async function refreshFlow() {
     try {
       if (!picker.options.length) await loadProjects();
-      if (!projectId) { stepsBox.textContent = 'Chưa có dự án video nào.'; return; }
+      if (!projectId) {
+        flowNote('');
+        stepsBox.innerHTML = '<span class="flow-hint">Canvas chung. Chọn một dự án video ở trên để xem tiến độ và canvas riêng của dự án đó.</span>';
+        return;
+      }
       drawFlow(await desktop.storyvidGet(`/api/projects/${projectId}/flow`));
     } catch (error) {
-      stepsBox.textContent = `Chưa lấy được tiến độ từ storyvid: ${error.message || error}`;
+      // keep the last diagram: storyvid can be slow for a moment while a job writes files
+      flowNote(`Chưa cập nhật được: ${String(error.message || error).replace(/^Error invoking remote method '[^']+': (Error: )?/, '')}`, true);
+      if (!stepsBox.children.length) stepsBox.textContent = 'Đang đợi storyvid…';
     }
   }
 
   function watchFlow(on) {
     clearInterval(flowTimer);
     panel.classList.toggle('hidden', !on);
+    layoutPanel();
     if (!on) return;
     picker.replaceChildren();  // pick up new projects and the one opened last
-    refreshFlow();
+    refreshFlow().then(switchCanvas);
     flowTimer = setInterval(refreshFlow, 3000);
   }
 
