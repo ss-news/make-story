@@ -79,6 +79,7 @@ Tùy chọn: `--provider auto|openai|codex|claude|offline`, `--res 480|720|1080`
 | `CODEX_BIN`, `CODEX_MODEL` | Dùng cho `codex` (mặc định lệnh `codex`) |
 | `TTS_PROVIDER` | `edge`: giọng Edge miễn phí (không chính thức, giọng đặt theo ngôn ngữ trong `channel.json`); `elevenlabs`: ElevenLabs API |
 | `ELEVENLABS_API_KEY` | Dùng cho `elevenlabs` |
+| `ELEVENLABS_EXTRA_KEYS` | Key ElevenLabs dự phòng, cách nhau bằng dấu phẩy (ô "ElevenLabs key dự phòng" ở tab Cài đặt). Khi key trước hết quota, câu tiếp theo tự đọc bằng key sau |
 | `ELEVENLABS_MODEL` | Tùy chọn. Mặc định `eleven_multilingual_v2`; tiếng Việt dùng `eleven_flash_v2_5` vì v2 không có tiếng Việt |
 | `ELEVENLABS_NARRATOR_VOICE` | Tùy chọn. Id hoặc tên giọng người dẫn chuyện; để trống thì chọn một giọng nam trung niên trong tài khoản |
 | `VIENEU_NARRATOR_VOICE` | Dùng cho `TTS_PROVIDER=vieneu`. Tùy chọn, mặc định `Thiện Minh`; nhân vật được chia các giọng VieNeu khác theo giới tính |
@@ -86,7 +87,7 @@ Tùy chọn: `--provider auto|openai|codex|claude|offline`, `--res 480|720|1080`
 
 `vieneu`: [VieNeu-TTS](https://github.com/pnnbao97/VieNeu-TTS), giọng tiếng Việt chạy ngay trên CPU của máy, miễn phí (Apache-2.0), 25 giọng Bắc, Trung, Nam. Cài bằng `.venv/bin/pip install vieneu`; lần đầu tải model khoảng 0,5 GB vào `cache/vieneu/`. Chỉ đọc tiếng Việt. VieNeu không trả mốc thời gian từng chữ, nên phụ đề được chia theo độ dài chữ (lệch nhẹ so với ElevenLabs).
 
-Với ElevenLabs, mỗi nhân vật được chọn một giọng riêng trong tài khoản theo giới tính và tuổi. ElevenLabs không chỉnh được cao độ, nên tuổi và ma chỉ làm chậm tốc độ đọc. Mỗi câu đã đọc được lưu trong `cache/tts/`, nên dựng lại video không tốn thêm ký tự. Gói Free có khoảng 10.000 ký tự/tháng và **không được dùng cho kênh bật kiếm tiền**.
+Với ElevenLabs, mỗi nhân vật được chọn một giọng riêng trong tài khoản theo giới tính và tuổi. ElevenLabs không chỉnh được cao độ, nên tuổi và ma chỉ làm chậm tốc độ đọc. Mỗi câu đã đọc được lưu trong `cache/tts/`, nên dựng lại video không tốn thêm ký tự. Gói Free có khoảng 10.000 ký tự/tháng và **không được dùng cho kênh bật kiếm tiền**. Khi dùng nhiều key, danh sách giọng luôn lấy bằng key chính, nên giọng nhân vật và cache không đổi dù câu được đọc bằng key nào; vì vậy hãy dùng giọng mà mọi tài khoản đều có (các giọng mặc định của ElevenLabs).
 
 ### Dùng Codex (tính vào gói ChatGPT, không cần API key)
 

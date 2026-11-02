@@ -218,13 +218,11 @@ def narrate(script: dict, voice: str, work_dir: Path, lang: str = "") -> dict:
         def synthesize(text, v, mp3, rate, pitch):
             try:
                 return elevenlabs.synthesize(text, v, mp3, elevenlabs.speed_from_rate(rate), model)
-            except RuntimeError as e:
-                if "quota" not in str(e):
-                    raise
+            except elevenlabs.QuotaError as e:
                 raise RuntimeError(f"{e}\nThis video still needs about {sum(map(len, left))} ElevenLabs characters "
                                    f"({len(left)} lines). Lines already voiced are cached and cost nothing on the next "
-                                   f"run: top up the ElevenLabs plan or wait for the monthly reset, then render "
-                                   f"again.") from None
+                                   f"run: add a key to ELEVENLABS_EXTRA_KEYS (tab Cài đặt), top up the plan or wait "
+                                   f"for the monthly reset, then render again.") from None
     elif provider == "vieneu":
         if (lang or script.get("lang")) != "vi":
             raise RuntimeError("VieNeu-TTS only speaks Vietnamese; use TTS_PROVIDER=edge or elevenlabs for this video")
