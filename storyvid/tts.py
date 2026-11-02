@@ -209,8 +209,22 @@ def narrate(script: dict, voice: str, work_dir: Path, lang: str = "") -> dict:
     if provider == "elevenlabs":
         voices = cast_voices_elevenlabs(script)
         model = elevenlabs.model_for(lang)
-        synthesize = lambda text, v, mp3, rate, pitch: elevenlabs.synthesize(  # noqa: E731
-            text, v, mp3, elevenlabs.speed_from_rate(rate), model)
+        speaker = lambda line: line["speaker"] if line["speaker"] in voices else "narrator"  # noqa: E731
+        left = [line["text"] for scene in script["scenes"] for line in scene["lines"]
+                if not elevenlabs.is_cached(line["text"], voices[speaker(line)][0],
+                                            elevenlabs.speed_from_rate(voices[speaker(line)][1]), model)]
+        print(f"  elevenlabs: {len(left)} line(s), {sum(map(len, left))} characters to voice; the other lines are cached")
+
+        def synthesize(text, v, mp3, rate, pitch):
+            try:
+                return elevenlabs.synthesize(text, v, mp3, elevenlabs.speed_from_rate(rate), model)
+            except RuntimeError as e:
+                if "quota" not in str(e):
+                    raise
+                raise RuntimeError(f"{e}\nThis video still needs about {sum(map(len, left))} ElevenLabs characters "
+                                   f"({len(left)} lines). Lines already voiced are cached and cost nothing on the next "
+                                   f"run: top up the ElevenLabs plan or wait for the monthly reset, then render "
+                                   f"again.") from None
     elif provider == "vieneu":
         if (lang or script.get("lang")) != "vi":
             raise RuntimeError("VieNeu-TTS only speaks Vietnamese; use TTS_PROVIDER=edge or elevenlabs for this video")

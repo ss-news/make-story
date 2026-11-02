@@ -43,10 +43,10 @@ def _request(path: str, body: dict | None = None) -> dict:
             return json.load(r)
     except urllib.error.HTTPError as e:
         detail = e.read().decode(errors="replace")[:400]
+        if e.code in (402, 429) or "quota" in detail:  # an empty quota also comes back as 401
+            raise RuntimeError(f"ElevenLabs quota or rate limit reached ({e.code}): {detail}") from None
         if e.code == 401:
             raise RuntimeError(f"ElevenLabs rejected the API key (401): {detail}") from None
-        if e.code in (402, 429) or "quota" in detail:
-            raise RuntimeError(f"ElevenLabs quota or rate limit reached ({e.code}): {detail}") from None
         raise RuntimeError(f"ElevenLabs API error {e.code}: {detail}") from None
 
 
@@ -131,9 +131,18 @@ def _words(alignment: dict) -> list:
     return words
 
 
+def _digest(text: str, voice_id: str, speed: float, model: str) -> str:
+    return hashlib.sha256(json.dumps([model, voice_id, speed, text]).encode()).hexdigest()[:24]
+
+
+def is_cached(text: str, voice_id: str, speed: float, model: str) -> bool:
+    digest = _digest(text, voice_id, speed, model)
+    return (CACHE_DIR / f"{digest}.mp3").exists() and (CACHE_DIR / f"{digest}.json").exists()
+
+
 def synthesize(text: str, voice_id: str, mp3_path: Path, speed: float, model: str) -> list:
     """Write the line to mp3_path and return word timings, using the cache when possible."""
-    digest = hashlib.sha256(json.dumps([model, voice_id, speed, text]).encode()).hexdigest()[:24]
+    digest = _digest(text, voice_id, speed, model)
     cached_mp3, cached_json = CACHE_DIR / f"{digest}.mp3", CACHE_DIR / f"{digest}.json"
     if not (cached_mp3.exists() and cached_json.exists()):
         data = _request(f"/text-to-speech/{voice_id}/with-timestamps?output_format=mp3_44100_128", {
