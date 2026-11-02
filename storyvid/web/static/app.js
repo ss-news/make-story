@@ -16,6 +16,7 @@ const STATUS = { running: "đang chạy", done: "xong", failed: "lỗi", interru
 const JOBS = { script: "Viết kịch bản", render: "Dựng video", visuals_prompts: "Viết prompt hình",
   visuals_cast: "Tạo ảnh mẫu nhân vật", visuals_scenes: "Tạo ảnh và clip cảnh", style_samples: "Muse vẽ mẫu phong cách",
   script_review: "AI đánh giá kịch bản", script_revise: "AI sửa kịch bản", script_auto: "Đánh giá và sửa kịch bản",
+  script_polish: "AI trau chuốt lời kể",
   finish_check: "Máy kiểm tra", finish_loudnorm: "Chuẩn hóa âm lượng", finish_review: "AI kiểm định",
   finish_publish: "Tạo gói đăng" };
 
@@ -475,7 +476,9 @@ function startPolling() {
         if (status.kind?.startsWith("script")) await loadScriptReviews();
         if (status.kind?.startsWith("finish") || status.kind === "render") await loadFinish();
         renderReview();
-        selectTab(status.kind === "style_samples" ? "style" : muse ? "muse" : status.kind?.startsWith("script") ? "script"
+        if (status.kind === "script_polish") { $("#story").value = state.current.story; }
+        selectTab(status.kind === "style_samples" ? "style" : muse ? "muse" : status.kind === "script_polish" ? "story"
+          : status.kind?.startsWith("script") ? "script"
           : status.kind?.startsWith("finish") ? "finish" : "video");
       }
     }
@@ -663,7 +666,14 @@ async function loadScriptReviews() {
     const el = document.createElement("div");
     el.className = "review-round";
     const when = new Date(r.at * 1000).toLocaleString("vi-VN");
-    if (r.kind === "revise") {
+    if (r.kind === "polish") {
+      el.innerHTML = `<div></div><div class="crit"></div><div class="issues"></div>`;
+      el.firstElementChild.textContent = `Vòng ${r.round} · AI trau chuốt lời kể (${r.provider}): ${r.words_before} → ${r.words_after} từ`
+        + `${r.kept_parts.length ? `, giữ nguyên ${r.kept_parts.length}/${r.parts} đoạn để không mất sự thật` : ""} · bản trước lưu ở ${r.backup} · ${when}`;
+      const crit = el.querySelector(".crit");
+      for (const c of r.criteria) crit.insertAdjacentHTML("beforeend", `<b>${c.score}/10</b><span></span>`), (crit.lastElementChild.textContent = `${c.label}: ${c.comment}`);
+      for (const n of r.notes) { const d = document.createElement("div"); d.className = "issue"; d.textContent = `• ${n}`; el.querySelector(".issues").appendChild(d); }
+    } else if (r.kind === "revise") {
       el.textContent = `Vòng ${r.round} · AI sửa (${r.provider}) theo vòng ${r.from_round}: viết lại ${r.changed_scenes.length} cảnh, `
         + `${r.scenes_before} → ${r.scenes_after} cảnh · bản trước lưu ở ${r.backup} · ${when}`;
     } else {
@@ -1052,6 +1062,15 @@ async function init() {
     renderFinish(); loadProjects(); toast("Đã đánh dấu đã đăng");
   });
   $("#reviewBtn").onclick = run(() => runScriptReview("review"));
+  $("#polishBtn").onclick = run(async () => {
+    if (!$("#story").value.trim()) return toast("Chưa có lời kể", true);
+    if (!confirm("Muse sẽ đánh giá và viết lại lời kể một lượt (bản cũ được lưu lại). Tiếp tục?")) return;
+    await saveStory();
+    renderJob(await api(`/api/projects/${state.current.id}/script-review`, { method: "POST",
+      body: { action: "polish", provider: $("#reviewProvider").value } }));
+    $("#log").textContent = "";
+    startPolling();
+  });
   $("#reviseBtn").onclick = run(() => runScriptReview("revise"));
   $("#autoReviewBtn").onclick = run(() => runScriptReview("auto"));
   $("#pGenre").onchange = run(() => saveProjectField({ genre: $("#pGenre").value }));

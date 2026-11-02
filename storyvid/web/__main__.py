@@ -294,10 +294,12 @@ def get_script_reviews(pid):
 @app.post("/api/projects/<pid>/script-review")
 def run_script_review(pid):
     d = project_dir(pid)
-    if not (d / "scenes.json").exists():
-        abort(400, "Write or create the script first")
     body = request.get_json(silent=True) or {}
-    action = body.get("action") if body.get("action") in ("review", "revise", "auto") else "review"
+    action = body.get("action") if body.get("action") in ("review", "revise", "auto", "polish") else "review"
+    if action == "polish" and not (d / "story.txt").read_text(encoding="utf-8").strip():
+        abort(400, "Paste the story first")
+    if action != "polish" and not (d / "scenes.json").exists():
+        abort(400, "Write or create the script first")
     args = [action, str(d)]
     if body.get("provider") in ("muse", "claude", "openai", "codex"):
         args += ["--provider", body["provider"]]

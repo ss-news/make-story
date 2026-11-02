@@ -5,6 +5,8 @@ lists problems per scene, and can revise those scenes. History: output/<id>/scri
     python -m storyvid.script_review review output/<id> [--provider muse|claude|openai|codex]
     python -m storyvid.script_review revise output/<id>      fix the issues of the last review
     python -m storyvid.script_review auto output/<id> --rounds 2   review, revise, review... until it passes
+    python -m storyvid.script_review polish output/<id>     before splitting: critique the storytelling language of
+                                                             story.txt and rewrite it once, keeping every fact
 
 A revision keeps the previous script as scenes.round<N>.json and clears the approval; the person still reviews
 and approves the final script (web UI, tab Kịch bản).
@@ -296,6 +298,96 @@ def revise(script: dict, source: str, issues: list[dict], provider: str, genre: 
     return revised, sorted(i for i in changed if i >= 0)
 
 
+# ---------- polishing the narration text (before it is split into scenes) ----------
+POLISH_CRITERIA = {
+    "voice": "Giọng người kể nhất quán, có cá tính",
+    "rhythm": "Nhịp câu khi đọc thành tiếng",
+    "hooks": "Câu mở, móc nối và kết từng đoạn",
+    "clarity": "Dễ hiểu với người xem nước ngoài",
+    "imagery": "Hình ảnh cụ thể, gợi cảnh để dựng hình",
+}
+CRITIQUE_SCHEMA = {"type": "object", "required": ["criteria", "notes", "summary"], "properties": {
+    "criteria": {"type": "array", "items": {"type": "object", "required": ["id", "score", "comment"], "properties": {
+        "id": {"type": "string", "enum": list(POLISH_CRITERIA)}, "score": {"type": "integer", "minimum": 1, "maximum": 10},
+        "comment": {"type": "string"}}}},
+    "notes": {"type": "array", "items": {"type": "string"}, "description": "concrete edits to make, in Vietnamese"},
+    "summary": {"type": "string"}}}
+REWRITE_SCHEMA = {"type": "object", "required": ["text"], "properties": {"text": {"type": "string"}}}
+NUMBER_WORDS = ("one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen "
+                "seventeen eighteen nineteen twenty thirty forty fifty sixty seventy eighty ninety hundred thousand "
+                "million").split()
+
+
+def fact_tokens(text: str) -> set[str]:
+    """Numbers (digits or English number words) and names written with a capital letter mid-sentence: the parts
+    a rewrite must keep."""
+    tokens = set(re.findall(r"\d[\d,.]*\d|\d", text))
+    low = text.lower()
+    tokens |= {w for w in NUMBER_WORDS if re.search(rf"\b{w}\b", low)}
+    tokens |= set(re.findall(r"(?<=[a-z,;] )[A-Z][\w'-]+", text))
+    return tokens
+
+
+def polish(text: str, provider: str, lang: str) -> dict:
+    from .script import LANG_NAMES, split_text
+    language = LANG_NAMES.get(lang, lang)
+    critique = _ask(provider, "You are a story editor for narrated YouTube videos. Judge the storytelling language of "
+                    f"this {language} narration as it will sound read aloud by a voice-over: the narrator's voice, "
+                    "rhythm of sentences, hooks and transitions, clarity for viewers abroad, and concrete imagery that "
+                    "can be animated. Score each criterion 1-10 and list concrete edits. Write comments and notes in "
+                    "Vietnamese. Criteria: " + "; ".join(f"{k}: {v}" for k, v in POLISH_CRITERIA.items()),
+                    text, CRITIQUE_SCHEMA)
+    notes = [str(n) for n in critique.get("notes", [])]
+    parts, out, kept = split_text(text, 2200), [], []
+    for i, part in enumerate(parts):
+        print(f"  rewriting part {i + 1}/{len(parts)}...")
+        reply = _ask(provider, f"Rewrite this part of a {language} narration once, applying the editor's notes. Keep "
+                     "the same narrator, the same events in the same order, every fact, number, date and name, and "
+                     "every statement that something is a rumour or unproven. Do not add new facts, events or claims. "
+                     "Keep about the same length, keep paragraph breaks, write for the ear, and return only the text.",
+                     json.dumps({"editor_notes": notes, "previous_part_end": (out[-1][-600:] if out else ""),
+                                 "part": part}, ensure_ascii=False), REWRITE_SCHEMA)
+        new = str(reply.get("text", "")).strip()
+        lost = fact_tokens(part) - fact_tokens(new)
+        ratio = words(new) / max(1, words(part))
+        if not new or lost or not 0.85 <= ratio <= 1.25:
+            why = f"mất {', '.join(sorted(lost))}" if lost else f"độ dài x{ratio:.2f}" if new else "trống"
+            print(f"  part {i + 1}: kept the original ({why})")
+            kept.append({"part": i + 1, "reason": why})
+            new = part
+        out.append(new)
+    criteria = [{"id": c["id"], "label": POLISH_CRITERIA[c["id"]], "score": max(1, min(10, int(c.get("score", 5)))),
+                 "comment": str(c.get("comment", ""))} for c in critique.get("criteria", []) if c.get("id") in POLISH_CRITERIA]
+    return {"text": "\n\n".join(out), "criteria": criteria, "notes": notes, "summary": str(critique.get("summary", "")),
+            "kept_parts": kept, "parts": len(parts)}
+
+
+def do_polish(project: Path, provider: str) -> dict:
+    meta = json.loads((project / "meta.json").read_text(encoding="utf-8")) if (project / "meta.json").exists() else {}
+    path = project / "story.txt"
+    text = path.read_text(encoding="utf-8")
+    print(f"[polish] {words(text)} words ({provider})...")
+    result = polish(text, provider, meta.get("lang", "en"))
+    n = 1
+    while (project / f"story.v{n}.txt").exists():
+        n += 1
+    (project / f"story.v{n}.txt").write_text(text, encoding="utf-8")
+    path.write_text(result["text"] + "\n", encoding="utf-8")
+    hist_path = project / "script_reviews.json"
+    history = json.loads(hist_path.read_text(encoding="utf-8")) if hist_path.exists() else {"format": FORMAT, "rounds": []}
+    entry = record(project, history, {"kind": "polish", "provider": provider, "criteria": result["criteria"],
+                                      "notes": result["notes"], "summary": result["summary"],
+                                      "kept_parts": result["kept_parts"], "parts": result["parts"],
+                                      "words_before": words(text), "words_after": words(result["text"]),
+                                      "backup": f"story.v{n}.txt"})
+    for c in result["criteria"]:
+        print(f"    {c['score']:>2}/10 {c['label']}: {c['comment']}")
+    print(f"  {entry['words_before']} -> {entry['words_after']} words; previous text kept as story.v{n}.txt")
+    if (project / "scenes.json").exists():
+        print("  note: scenes.json was made from the old text; write the script again from the story")
+    return entry
+
+
 def load(project: Path) -> tuple[dict, dict, str, dict]:
     script = json.loads((project / "scenes.json").read_text(encoding="utf-8"))
     meta = json.loads((project / "meta.json").read_text(encoding="utf-8")) if (project / "meta.json").exists() else {}
@@ -358,13 +450,15 @@ def main() -> None:
     load_env(ROOT / ".env")
     sys.stdout.reconfigure(line_buffering=True)
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("action", choices=["review", "revise", "auto"])
+    ap.add_argument("action", choices=["review", "revise", "auto", "polish"])
     ap.add_argument("project")
     ap.add_argument("--provider", choices=["muse", "claude", "openai", "codex"], default="muse")
     ap.add_argument("--rounds", type=int, default=2, help="auto: at most this many revisions")
     args = ap.parse_args()
     project = Path(args.project).resolve()
-    if args.action == "review":
+    if args.action == "polish":
+        do_polish(project, args.provider)
+    elif args.action == "review":
         do_review(project, args.provider)
     elif args.action == "revise":
         do_revise(project, args.provider)

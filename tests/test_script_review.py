@@ -91,3 +91,18 @@ class KeepTextTest(unittest.TestCase):
             out, changed = script_review.revise(script, source, [issue(1)], 'muse', 'explainer', 'vi', keep_text=True)
         self.assertEqual(out['scenes'][1]['bg_prompt'], 'new place')
         self.assertEqual(changed, [1])
+
+
+class PolishTest(unittest.TestCase):
+    def test_rewrite_that_drops_a_fact_keeps_the_original(self):
+        text = 'In 1982 two countries signed a deal.\n\nFive people said ninety-one souls were trapped, said Hoang Nam.'
+        critique = {'criteria': [{'id': 'voice', 'score': 6, 'comment': 'ok'}], 'notes': ['vivid'], 'summary': 's'}
+        rewrites = iter([critique,
+                         {'text': 'Back in 1982 two nations signed a deal.'},
+                         {'text': 'Some people said many souls were trapped there, said Hoang Nam.'}])
+        with mock.patch.object(script_review, '_ask', side_effect=lambda *a, **k: next(rewrites)), \
+                mock.patch.object(script_mod, 'split_text', side_effect=lambda t, size=0: t.split('\n\n')):
+            out = script_review.polish(text, 'muse', 'en')
+        self.assertIn('Back in 1982', out['text'])           # kept: same facts
+        self.assertIn('ninety-one souls', out['text'])       # dropped number -> original part kept
+        self.assertEqual(len(out['kept_parts']), 1)
