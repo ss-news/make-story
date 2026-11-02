@@ -220,3 +220,15 @@ label.block { display: flex; flex-direction: column; gap: 6px; }
 .issue .sev.major { color: var(--danger); }
 .issue a { cursor: pointer; text-decoration: underline; }
 .scene.flash { outline: 2px solid var(--accent); }
+
+/* finish tab */
+.finish-step { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 12px; }
+.check-row { display: flex; gap: 8px; margin: 3px 0; }
+.check-row .ok { color: var(--ok); font-weight: 700; } .check-row .bad { color: var(--danger); font-weight: 700; }
+.finish-frames { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; margin-top: 8px; max-height: 420px; overflow: auto; }
+.finish-frames figure { margin: 0; position: relative; } .finish-frames img { width: 100%; border-radius: 4px; display: block; }
+.finish-frames figure.flag { outline: 3px solid var(--danger); }
+.finish-frames figcaption { position: absolute; top: 2px; left: 4px; color: #ffd84a; font-weight: 700; text-shadow: 0 0 3px #000; font-size: 12px; }
+.thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin: 8px 0; }
+.thumbs img { width: 100%; border-radius: 6px; }
+.finish-checklist label { display: flex; gap: 8px; align-items: center; margin: 3px 0; }

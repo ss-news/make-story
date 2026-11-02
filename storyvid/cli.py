@@ -153,6 +153,7 @@ def main():
         print(f"[3/3] Rendering {timeline['duration']:.1f}s from Muse clips at {size[0]}x{size[1]}...")
         media = scene_media(scenes_path.parent, visuals, list(range(len(script["scenes"]))))
         ClipRenderer(channel, size, args.fps).render_clips(timeline, media, video)
+        record_render(out_dir, "video", script, timeline, list(range(len(script["scenes"]))), args, visuals)
         print(f"Done in {time.time() - started:.0f}s -> {video}")
         return
     print("[3/4] Backgrounds...")
@@ -164,6 +165,7 @@ def main():
     print(f"[4/4] Rendering {timeline['duration']:.1f}s at {size[0]}x{size[1]}...")
     video = out_dir / "video.mp4"
     Renderer(channel, size, args.fps).render(script, timeline, bg_paths, video)
+    record_render(out_dir, "video", script, timeline, list(range(len(script["scenes"]))), args, None)
     print(f"Done in {time.time() - started:.0f}s -> {video}")
 
 
@@ -178,6 +180,19 @@ def add_sound(script: dict, timeline: dict, work_dir: Path) -> None:
     if credits:
         (work_dir / "credits.txt").write_text("\n".join(credits) + "\n", encoding="utf-8")
         print(f"  credits for the description -> {work_dir / 'credits.txt'}")
+
+
+def record_render(out_dir: Path, name: str, script: dict, timeline: dict, scenes: list[int], args, visuals) -> None:
+    """render.json: what each output was made from, for the finishing checks (storyvid/finish.py)."""
+    from .visuals import script_digest
+    path = out_dir / "render.json"
+    data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    data[name] = {"at": int(time.time()), "scenes_digest": script_digest(script), "visuals": bool(visuals),
+                  "fallback": bool(args.fallback), "res": args.res, "duration": round(timeline["duration"], 2),
+                  "tts": tts_provider(), "scenes": [{"index": i, "start": round(sp["start"], 2),
+                                                     "end": round(sp["end"], 2)}
+                                                    for i, sp in zip(scenes, timeline["scenes"])]}
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def load_visuals(scenes_path: Path, script: dict, fallback: bool) -> dict:
@@ -215,6 +230,7 @@ def render_short(script: dict, channel: dict, voice: str, out_dir: Path, args, v
         print(f"[3/3] Rendering {timeline['duration']:.1f}s from Muse clips at "
               f"{renderer.out_size[0]}x{renderer.out_size[1]}...")
         renderer.render_clips(timeline, scene_media(out_dir, visuals, picked), out_dir / "video_short.mp4")
+        record_render(out_dir, "video_short", script, timeline, picked, args, visuals)
         return
     print("[3/4] Backgrounds...")
     renderer = ShortRenderer(channel, width, args.fps, script["title"], args.lang)
@@ -222,6 +238,7 @@ def render_short(script: dict, channel: dict, voice: str, out_dir: Path, args, v
     bg_paths = make_backgrounds(short, (stage, stage), ROOT / "cache" / "backgrounds")
     print(f"[4/4] Rendering {timeline['duration']:.1f}s at {renderer.out_size[0]}x{renderer.out_size[1]}...")
     renderer.render(short, timeline, bg_paths, out_dir / "video_short.mp4")
+    record_render(out_dir, "video_short", script, timeline, picked, args, None)
 
 
 if __name__ == "__main__":

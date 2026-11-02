@@ -156,7 +156,7 @@
   }
 
   // Sends a text request and returns the assistant's full text reply (newlines kept).
-  async function chat({prompt,timeoutSec=420},signal){
+  async function chat({prompt,timeoutSec=420,referenceImages=[]},signal){
     const throwIfAborted=()=>{if(signal?.aborted)throw new DOMException('Generation stopped by user.','AbortError');};
     if(!String(prompt||'').trim())throw new Error('Prompt is empty.');
     await waitHydrated(15000,signal);
@@ -164,6 +164,7 @@
     const composer=findComposer();
     if(!visible(composer))throw new Error('Muse message box is not visible. Open the chat composer and retry.');
     const readText=el=>(el.innerText||el.textContent||'').trim();
+    if(Array.isArray(referenceImages)&&referenceImages.length)await attachReferences(referenceImages,signal);
     const prior=new Map(assistantMessageElements().map(el=>[el,readText(el)]));
     await submitComposer(composer,prompt,signal);
     const deadline=Date.now()+Math.min(900,Math.max(30,Number(timeoutSec)||420))*1000;

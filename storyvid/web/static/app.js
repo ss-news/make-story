@@ -15,7 +15,9 @@ const LABELS = {
 const STATUS = { running: "đang chạy", done: "xong", failed: "lỗi", interrupted: "bị ngắt", idle: "" };
 const JOBS = { script: "Viết kịch bản", render: "Dựng video", visuals_prompts: "Viết prompt hình",
   visuals_cast: "Tạo ảnh mẫu nhân vật", visuals_scenes: "Tạo ảnh và clip cảnh", style_samples: "Muse vẽ mẫu phong cách",
-  script_review: "AI đánh giá kịch bản", script_revise: "AI sửa kịch bản", script_auto: "Đánh giá và sửa kịch bản" };
+  script_review: "AI đánh giá kịch bản", script_revise: "AI sửa kịch bản", script_auto: "Đánh giá và sửa kịch bản",
+  finish_check: "Máy kiểm tra", finish_loudnorm: "Chuẩn hóa âm lượng", finish_review: "AI kiểm định",
+  finish_publish: "Tạo gói đăng" };
 
 async function api(path, opts = {}) {
   const res = await fetch(path, {
@@ -53,6 +55,7 @@ async function loadProjects() {
     b.className = "project-item" + (state.current?.id === p.id ? " active" : "");
     const st = p.status?.state;
     const badge = st === "running" || st === "failed" ? `<span class="badge ${st}">${STATUS[st]}</span>`
+      : p.published ? '<span class="badge video">đã đăng</span>'
       : p.has_video ? '<span class="badge video">video</span>' : "";
     b.innerHTML = `<span class="pi-name"></span><span class="pi-meta">${p.lang.toUpperCase()} · ${p.scenes} cảnh ${badge}</span>`;
     b.querySelector(".pi-name").textContent = p.name;
@@ -80,6 +83,7 @@ async function openProject(id, tab) {
   $("#pGenre").value = p.meta.genre || "story";
   $("#pKeepText").checked = !!p.meta.keep_text;
   loadScriptReviews();
+  loadFinish();
   await Promise.all([loadVisuals(), loadStyles(), loadVoices()]);
   checkMuse();
   renderJob(p.status);
@@ -438,7 +442,8 @@ function renderJob(st) {
   $("#renderBtn").disabled = busy;
   $("#renderShortBtn").disabled = busy;
   for (const id of ["musePromptsBtn", "museCastBtn", "museImagesBtn", "museClipsBtn", "museSaveBtn", "approveBtn",
-    "sampleStylesBtn", "sampleCustomBtn", "reviewBtn", "reviseBtn", "autoReviewBtn"]) $("#" + id).disabled = busy;
+    "sampleStylesBtn", "sampleCustomBtn", "reviewBtn", "reviseBtn", "autoReviewBtn", "finishCheckBtn", "loudnormBtn",
+  "finishReviewBtn", "finishShortBtn", "finishPublishBtn"]) $("#" + id).disabled = busy;
   $$(".muse-redo").forEach((b) => (b.disabled = busy));
 }
 
@@ -468,8 +473,10 @@ function startPolling() {
           : status.kind === "script" ? "Đã viết xong kịch bản. Đọc kỹ rồi bấm Duyệt" : "Video đã dựng xong");
         if (status.kind === "style_samples") await loadStyles();
         if (status.kind?.startsWith("script")) await loadScriptReviews();
+        if (status.kind?.startsWith("finish") || status.kind === "render") await loadFinish();
         renderReview();
-        selectTab(status.kind === "style_samples" ? "style" : muse ? "muse" : status.kind?.startsWith("script") ? "script" : "video");
+        selectTab(status.kind === "style_samples" ? "style" : muse ? "muse" : status.kind?.startsWith("script") ? "script"
+          : status.kind?.startsWith("finish") ? "finish" : "video");
       }
     }
   }), 1500);
@@ -690,6 +697,121 @@ async function runScriptReview(action) {
   if (action !== "review" && !confirm("AI sẽ viết lại các cảnh bị nêu lỗi (bản trước được lưu lại) và bỏ duyệt. Tiếp tục?")) return;
   renderJob(await api(`/api/projects/${state.current.id}/script-review`, { method: "POST",
     body: { action, provider: $("#reviewProvider").value, rounds: 2 } }));
+  $("#log").textContent = "";
+  startPolling();
+}
+
+// ---------- finishing ----------
+const PUBLISH_CHECKLIST = [
+  ["thumb", "Chọn thumbnail: một chủ thể to, chữ tối đa 3–4 từ, khớp với hình trong video"],
+  ["hd", "Tải bản 1080p gốc (video.mp4), không dùng bản nén"],
+  ["srt", "Tải phụ đề video.srt"],
+  ["kids", "Đối tượng: không dành cho trẻ em"],
+  ["desc", "Dán mô tả có chương, ghi nguồn và ghi chú AI; kiểm chứng số liệu trong mô tả"],
+  ["short", "Short (nếu có): công khai, gắn Related video về bản dài"],
+  ["playlist", "Thêm vào playlist; màn hình kết thúc trỏ video khác"],
+  ["after48", "Sau 48 giờ: ghi CTR, thời lượng xem, nguồn đề xuất vào docs/research/"],
+];
+
+async function loadFinish() {
+  state.finish = await api(`/api/projects/${state.current.id}/finish`);
+  renderFinish();
+}
+
+function renderFinish() {
+  const f = state.finish || {}, meta = state.current.meta || {};
+  const which = $("#finishVideo").value || "video";
+  const chk = (f.finish || {})[`check_${which}`];
+  const box = $("#finishChecks");
+  if (chk) {
+    box.innerHTML = "";
+    for (const c of chk.checks) {
+      const row = document.createElement("div");
+      row.className = "check-row";
+      row.innerHTML = `<span class="${c.ok ? "ok" : "bad"}">${c.ok ? "✓" : "✗"}</span><span></span>`;
+      row.lastElementChild.textContent = `${c.label}: ${c.detail}`;
+      box.appendChild(row);
+    }
+    box.insertAdjacentHTML("afterbegin", `<b>${chk.ok ? "Đạt" : "Chưa đạt"}</b> · ${new Date(chk.at * 1000).toLocaleString("vi-VN")}`);
+  }
+  const rv = f.review, flagged = new Set((rv?.issues || []).filter((i) => i.scene !== null).map((i) => i.scene));
+  const rbox = $("#finishReview");
+  if (rv) {
+    rbox.innerHTML = `<b>${rv.verdict === "pass" ? "Đạt" : "Cần sửa"}</b> · ${rv.issues.length} vấn đề. Bấm số cảnh để tới cảnh đó ở tab Hình Muse và tạo lại.`;
+    for (const i of rv.issues) {
+      const row = document.createElement("div");
+      row.className = "issue";
+      row.innerHTML = `<span class="sev ${i.severity === "minor" ? "" : "major"}">${i.severity === "minor" ? "Nhẹ" : "Nặng"}</span>`;
+      if (i.scene !== null) {
+        const a = document.createElement("a");
+        a.textContent = `Cảnh ${i.scene + 1}`;
+        a.onclick = () => { selectTab("muse"); const s = $$("#museScenes .scene")[i.scene]; s?.scrollIntoView({ block: "center" }); s?.classList.add("flash"); setTimeout(() => s?.classList.remove("flash"), 1500); };
+        row.append(a, ": ");
+      } else row.append("Cả video: ");
+      row.append(`${i.problem} → ${i.fix}`);
+      rbox.appendChild(row);
+    }
+  }
+  const frames = $("#finishFrames");
+  frames.innerHTML = "";
+  for (const [idx, url] of Object.entries(f.frames || {})) {
+    const fig = document.createElement("figure");
+    if (flagged.has(Number(idx))) fig.className = "flag";
+    fig.innerHTML = `<img alt="" loading="lazy"><figcaption>${Number(idx) + 1}</figcaption>`;
+    fig.querySelector("img").src = url;
+    frames.appendChild(fig);
+  }
+  if (document.activeElement !== $("#finishCredits")) $("#finishCredits").value = meta.credits || "";
+  const pub = f.publish, pbox = $("#finishPublish");
+  if (pub) {
+    pbox.innerHTML = "";
+    const block = (label, text, rows) => {
+      const l = document.createElement("label");
+      l.className = "block";
+      l.innerHTML = `<span></span><textarea rows="${rows}" readonly></textarea><button class="btn small" type="button">Copy</button>`;
+      l.firstElementChild.textContent = label;
+      l.querySelector("textarea").value = text;
+      l.querySelector("button").onclick = () => { navigator.clipboard.writeText(text); toast("Đã copy"); };
+      pbox.appendChild(l);
+    };
+    pub.titles.forEach((t, k) => block(`Tiêu đề ${k + 1}`, t, 1));
+    block("Mô tả", pub.description, 10);
+    block("Tags", pub.tags.join(", "), 2);
+    const thumbs = document.createElement("div");
+    thumbs.className = "thumbs";
+    for (const t of pub.thumbnails) {
+      const a = document.createElement("a");
+      a.href = `/files/${state.current.id}/${t.file}`;
+      a.download = t.file.split("/").pop();
+      a.innerHTML = `<img alt="">`;
+      a.querySelector("img").src = `/files/${state.current.id}/${t.file}?v=${Date.now() % 1e7}`;
+      thumbs.appendChild(a);
+    }
+    pbox.appendChild(thumbs);
+  }
+  const done = meta.publish_checklist || {};
+  const cl = $("#finishChecklist");
+  cl.innerHTML = "";
+  for (const [key, label] of PUBLISH_CHECKLIST) {
+    const l = document.createElement("label");
+    l.innerHTML = `<input type="checkbox"><span></span>`;
+    l.lastElementChild.textContent = label;
+    const box = l.querySelector("input");
+    box.checked = !!done[key];
+    box.onchange = run(() => saveProjectField({ publish_checklist: { ...(state.current.meta.publish_checklist || {}), [key]: box.checked } }));
+    cl.appendChild(l);
+  }
+  $("#pubLong").value = meta.published?.long || "";
+  $("#pubShort").value = meta.published?.short || "";
+  $("#publishedNote").textContent = meta.published ? `Đã đăng ${new Date(meta.published.at * 1000).toLocaleString("vi-VN")}.` : "";
+  const steps = [chk?.ok, rv?.verdict === "pass", !!pub, !!meta.published].filter(Boolean).length;
+  $("#finishCount").textContent = steps ? `${steps}/4` : "";
+}
+
+async function runFinish(step) {
+  if (step === "publish") await saveProjectField({ credits: $("#finishCredits").value });
+  renderJob(await api(`/api/projects/${state.current.id}/finish/${step}`, { method: "POST",
+    body: { video: $("#finishVideo").value, provider: $("#finishProvider").value } }));
   $("#log").textContent = "";
   startPolling();
 }
@@ -917,6 +1039,18 @@ async function init() {
     setTimeout(checkMuse, 8000);
   });
   $("#approveBtn").onclick = run(approveScript);
+  $("#finishCheckBtn").onclick = run(() => runFinish("check"));
+  $("#loudnormBtn").onclick = run(() => runFinish("loudnorm"));
+  $("#finishReviewBtn").onclick = run(() => runFinish("review"));
+  $("#finishPublishBtn").onclick = run(() => runFinish("publish"));
+  $("#finishShortBtn").onclick = run(() => renderVideoJob(true));
+  $("#finishVideo").onchange = renderFinish;
+  $("#finishCredits").onchange = run(() => saveProjectField({ credits: $("#finishCredits").value }));
+  $("#publishedBtn").onclick = run(async () => {
+    if (!$("#pubLong").value.trim()) return toast("Dán link video đã đăng", true);
+    await saveProjectField({ published: { long: $("#pubLong").value.trim(), short: $("#pubShort").value.trim() } });
+    renderFinish(); loadProjects(); toast("Đã đánh dấu đã đăng");
+  });
   $("#reviewBtn").onclick = run(() => runScriptReview("review"));
   $("#reviseBtn").onclick = run(() => runScriptReview("revise"));
   $("#autoReviewBtn").onclick = run(() => runScriptReview("auto"));

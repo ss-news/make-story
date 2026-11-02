@@ -77,6 +77,7 @@ def summary(d: Path) -> dict:
         "lang": meta.get("lang", "en"),
         "scenes": len((scenes or {}).get("scenes", [])),
         "has_video": video.exists(),
+        "published": bool(meta.get("published")),
         "video_mtime": int(video.stat().st_mtime) if video.exists() else None,
         "short_mtime": int((d / "video_short.mp4").stat().st_mtime) if (d / "video_short.mp4").exists() else None,
         "updated": int(max((p.stat().st_mtime for p in d.iterdir()), default=d.stat().st_mtime)),
@@ -212,6 +213,13 @@ def update_project(pid):
         meta["ratio"] = body["ratio"]
     if isinstance(body.get("style"), dict):
         meta["style"] = {"preset": str(body["style"].get("preset", "")), "text": str(body["style"].get("text", ""))}
+    if "credits" in body:
+        meta["credits"] = str(body["credits"])
+    if isinstance(body.get("published"), dict):
+        meta["published"] = {"long": str(body["published"].get("long", "")),
+                             "short": str(body["published"].get("short", "")), "at": int(time.time())}
+    if isinstance(body.get("publish_checklist"), dict):
+        meta["publish_checklist"] = {str(k): bool(v) for k, v in body["publish_checklist"].items()}
     if body.get("genre") in ("story", "explainer"):
         meta["genre"] = body["genre"]
     if "keep_text" in body:
@@ -484,6 +492,41 @@ def voice_preview():
         else:
             abort(400, "Preview is available for VieNeu and Edge voices")
     return send_file(path)
+
+
+# ---------- finishing (storyvid/finish.py) ----------
+@app.get("/api/projects/<pid>/finish")
+def get_finish(pid):
+    d = project_dir(pid)
+    frames = sorted((d / "publish" / "frames").glob("scene_*.jpg"))
+    return jsonify(finish=read_json(d / "finish.json", {}), review=read_json(d / "review.json"),
+                   publish=read_json(d / "publish" / "publish.json"),
+                   frames={int(p.stem.split("_")[1]): f"/files/{pid}/publish/frames/{p.name}?v={int(p.stat().st_mtime)}"
+                           for p in frames})
+
+
+@app.post("/api/projects/<pid>/finish/<step>")
+def run_finish(pid, step):
+    d = project_dir(pid)
+    if step not in ("check", "loudnorm", "review", "publish"):
+        abort(404)
+    body = request.get_json(silent=True) or {}
+    args = [step, str(d)]
+    if body.get("video") == "video_short":
+        args += ["--video", "video_short"]
+    if body.get("provider") in ("muse", "claude", "openai", "codex"):
+        args += ["--provider", body["provider"]]
+    start_job(pid, d, f"finish_{step}", args, module="storyvid.finish")
+    return jsonify(job_status(pid, d))
+
+
+@app.get("/files/<pid>/publish/<path:name>")
+def publish_file(pid, name):
+    d = project_dir(pid)
+    path = (d / "publish" / name).resolve()
+    if not path.is_relative_to((d / "publish").resolve()) or not path.is_file():
+        abort(404)
+    return send_file(path, conditional=True)
 
 
 @app.get("/files/<pid>/muse/<path:name>")

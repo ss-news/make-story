@@ -65,6 +65,19 @@ Bắt buộc cho cả hai agent: Claude soát khi chia cảnh (phần 2–5, 7) 
 | [ ] ★ | Giây đầu là cảnh gây sốc, không phải khung cảnh trống | story |
 | [ ] | Dài 30–60 giây, kết lửng | pacing |
 
+## 7b. Video hình AI (Muse) và video kiến thức
+
+Bước 1 và 2 của tab Hoàn thành (`docs/pipeline.md`, mục “Hoàn thành video”) tự làm phần lớn các mục này; agent kiểm định đọc lại kết quả và bổ sung.
+
+| | Mục | area |
+|---|---|---|
+| [ ] | `python -m storyvid.finish check output/<id>` đạt hết (bản kịch bản đã duyệt, đủ clip, 1080p, âm lượng, khoảng lặng, phụ đề) | render |
+| [ ] | Khung hình từng cảnh khớp lời kể; nhân vật chính giữ đúng ngoại hình ảnh mẫu | character |
+| [ ] | Không có chữ méo, logo, tay chân dị dạng trong hình | render |
+| [ ] | Ẩn dụ hình không lặp quá nhiều (một kiểu hình không quá 1/10 số cảnh) | staging |
+| [ ] | Video kiến thức: mọi số liệu, kết quả nghiên cứu và trích dẫn đã đối chiếu nguồn; câu chưa chắc nói rõ là “theo X kể lại” | story |
+| [ ] | Nội dung sức khỏe có câu lưu ý không thay thế lời khuyên chuyên môn | story |
+
 ## 8. Trước khi đăng (người dùng làm, không ghi vào review.json)
 
 - [ ] ★ Thumbnail riêng (2–3 phương án nếu dùng Test & Compare): nền tối, một chủ thể đáng sợ thật to, một màu nhấn, chữ tối đa 3–4 từ
@@ -72,7 +85,9 @@ Bắt buộc cho cả hai agent: Claude soát khi chia cảnh (phần 2–5, 7) 
 - [ ] ★ Tải phụ đề SRT
 - [ ] ★ Không đánh dấu "dành cho trẻ em"
 - [ ] Tiêu đề có "Vietnamese" + "ghost/folklore", không nói quá nội dung
-- [ ] Mô tả: 2 dòng đầu có từ khóa và hook; chapters; ghi công nhạc và âm thanh
+- [ ] Mô tả: 2 dòng đầu có từ khóa và hook; chapters; ghi công nhạc và âm thanh (gói đăng ở tab Hoàn thành đã soạn sẵn, sửa lại nếu cần)
+- [ ] Video hình AI: giữ ghi chú hình AI trong mô tả; chỉ bật nhãn “nội dung đã thay đổi hoặc tổng hợp” khi hình trông như người hoặc sự kiện thật
+- [ ] Đánh dấu “Đã đăng” và dán link ở tab Hoàn thành
 - [ ] Short công khai, gắn Related video về bản dài
 - [ ] Thêm vào playlist; end screen trỏ video khác
 - [ ] Nếu có: tải bản âm thanh tiếng Việt (multi-language audio)

@@ -5,7 +5,7 @@
 //   GET  /api/status                      -> { accounts: [...], ready }
 //   POST /api/generate {mediaType, prompt, size, duration?, negative?, audio?, references?: [file], saveTo}
 //                                         -> { ok, file, profileName, retried, error?, code? }
-//   POST /api/chat {prompt, timeoutSec?}  -> { ok, text }
+//   POST /api/chat {prompt, timeoutSec?, references?: [file]}  -> { ok, text }  (images are attached to the message)
 //   POST /api/stop                        -> { ok }
 const http = require('node:http');
 const fsp = require('node:fs/promises');
@@ -95,7 +95,8 @@ function startApi({ port, listProfiles, runOnProfile, stopAll, mediaFilePath }) 
     'POST /api/chat': async body => {
       if (!String(body.prompt || '').trim()) throw new Error('prompt is required.');
       const timeoutSec = Number(body.timeoutSec) || 600;
-      return runOnProfile({ type: 'MUSEFLOW_CHAT', requestId: crypto.randomUUID(), prompt: body.prompt, timeoutSec }, (timeoutSec + 60) * 1000);
+      const referenceImages = await Promise.all((body.references || []).map(fileToDataUrl));
+      return runOnProfile({ type: 'MUSEFLOW_CHAT', requestId: crypto.randomUUID(), prompt: body.prompt, timeoutSec, referenceImages }, (timeoutSec + 60) * 1000);
     },
     'POST /api/stop': async () => { await stopAll(); return { ok: true }; }
   };

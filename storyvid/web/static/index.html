@@ -45,6 +45,7 @@
         <button class="tab" data-tab="script">3. Kịch bản <span class="count" id="sceneCount"></span></button>
         <button class="tab" data-tab="muse">4. Hình Muse <span class="count" id="museCount"></span></button>
         <button class="tab" data-tab="video">5. Video</button>
+        <button class="tab" data-tab="finish">6. Hoàn thành <span class="count" id="finishCount"></span></button>
       </div>
 
       <div class="tabpane" data-pane="style">
@@ -182,6 +183,46 @@
         <video id="shortPlayer" class="player short hidden" controls preload="metadata"></video>
         <div id="bgStrip" class="bg-strip"></div>
         <details class="logbox" id="logBox"><summary>Nhật ký chạy</summary><pre id="log"></pre></details>
+      </div>
+
+      <div class="tabpane hidden" data-pane="finish">
+        <div class="card finish-step">
+          <div class="actions"><strong>1. Máy kiểm tra</strong>
+            <label>Bản <select id="finishVideo"><option value="video">Video chính</option><option value="video_short">Short</option></select></label>
+            <span class="grow"></span>
+            <button class="btn" id="loudnormBtn">Chuẩn hóa âm lượng</button>
+            <button class="btn primary" id="finishCheckBtn">Chạy kiểm tra</button></div>
+          <div id="finishChecks" class="muted small">Chưa chạy. Kiểm tra bản kịch bản đã duyệt, clip, 1080p, thời lượng, âm lượng, khoảng lặng, phụ đề.</div>
+        </div>
+        <div class="card finish-step">
+          <div class="actions"><strong>2. Kiểm định nội dung</strong>
+            <label>bằng <select id="finishProvider"><option value="muse">Muse (xem cả hình)</option><option value="claude">Claude API (chỉ lời)</option>
+              <option value="openai">API chuẩn OpenAI (chỉ lời)</option><option value="codex">Codex CLI (chỉ lời)</option></select></label>
+            <span class="grow"></span><button class="btn primary" id="finishReviewBtn">AI kiểm định</button></div>
+          <div id="finishReview" class="muted small">AI xem một khung hình mỗi cảnh, so với lời kể và ngoại hình nhân vật, rồi kiểm chứng số liệu. Kết quả ghi vào review.json.</div>
+          <div id="finishFrames" class="finish-frames"></div>
+        </div>
+        <div class="card finish-step">
+          <div class="actions"><strong>3. Short 9:16 (tùy chọn)</strong><span class="grow"></span>
+            <button class="btn" id="finishShortBtn">Dựng Short</button></div>
+          <p class="muted small">Lấy các cảnh trong short.scenes của kịch bản, hoặc khoảng 55 giây đầu. Dựng xong, chọn “Short” ở bước 1 để kiểm tra.</p>
+        </div>
+        <div class="card finish-step">
+          <div class="actions"><strong>4. Gói đăng</strong><span class="grow"></span>
+            <button class="btn primary" id="finishPublishBtn">Tạo gói đăng</button></div>
+          <label class="block">Nguồn và ghi công (đưa nguyên vào mô tả)<textarea id="finishCredits" rows="3"
+            placeholder="Dựa trên ý tưởng của cuốn sách … (tác giả …, người dịch …, nhà xuất bản …). Nhạc: …"></textarea></label>
+          <div id="finishPublish" class="muted small">Tạo 3 tiêu đề, mô tả (mở đầu, tóm tắt, chương theo thời gian, ghi công, ghi chú AI), tag và 3 thumbnail (Muse vẽ hình, app in chữ).</div>
+        </div>
+        <div class="card finish-step">
+          <div class="actions"><strong>5. Đăng (bạn làm)</strong></div>
+          <div id="finishChecklist" class="finish-checklist"></div>
+          <div class="actions">
+            <label class="grow">Link video <input id="pubLong" placeholder="https://youtu.be/…"></label>
+            <label class="grow">Link Short <input id="pubShort" placeholder="https://youtube.com/shorts/…"></label>
+            <button class="btn primary" id="publishedBtn">✓ Đánh dấu đã đăng</button></div>
+          <p class="muted small" id="publishedNote"></p>
+        </div>
       </div>
     </section>
 

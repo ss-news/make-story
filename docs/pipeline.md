@@ -205,6 +205,18 @@ scenes.json (đã đạt check)
 
 Quy tắc của `visuals.json`: đủ trường, không trường lạ (tùy chọn: `style_refs` ở cấp gốc, `error` trong nhân vật và cảnh, do tool ghi). `scenes` có đúng số cảnh của `scenes.json`, cùng thứ tự. `cast[].id` là id trong `cast` của `scenes.json` hoặc `host`. Đường dẫn file nằm trong thư mục dự án; `""` là chưa tạo. Schema: `schema/visuals.v1.schema.json`. Tất cả làm được trong web UI, tab **3. Hình Muse**.
 
+## Hoàn thành video (tab 6. Hoàn thành, `storyvid/finish.py`)
+
+Mọi video, người que hay Muse, kết thúc theo đúng 5 bước. Bước sau chỉ làm khi bước trước đạt.
+
+1. **Máy kiểm tra** (`python -m storyvid.finish check output/<id> [--video video_short]`, ghi `finish.json`): video dựng từ đúng bản `scenes.json` đã duyệt (so mã băm trong `render.json`), không dùng `--fallback`, cảnh nào cũng có clip (video Muse), cạnh ngắn ≥ 1080 px, đủ 90 % thời lượng mục tiêu (Short tối đa 60 giây), âm lượng −16 đến −12 LUFS với đỉnh dưới −1 dB, không im lặng quá 3 giây, phụ đề SRT phủ hết video. Âm lượng sai thì `loudnorm` chuẩn hóa về −14 LUFS (chỉ xử lý tiếng, giữ nguyên hình).
+2. **Kiểm định nội dung** (`review`): app lấy một khung hình giữa mỗi cảnh (`publish/frames/`), ghép thành bảng 20 cảnh có số; AI (Muse xem được hình; Claude, OpenAI, Codex chỉ xem lời) so từng khung với lời kể và ngoại hình nhân vật, rồi kiểm chứng số liệu và trích dẫn. Kết quả ghi `review.json` (`storyvid.review/1`). `fix` thì tạo lại đúng các cảnh bị nêu ở tab Hình Muse, dựng lại, chạy lại bước 1–2.
+3. **Short 9:16** (tùy chọn): `--short` dựng `video_short.mp4` từ `short.scenes` (hoặc khoảng 55 giây đầu); chạy bước 1 với `--video video_short`.
+4. **Gói đăng** (`publish`, ghi vào `publish/`): `youtube.md` và `publish.json` gồm 3 tiêu đề, mô tả (2 dòng mở có từ khóa, tóm tắt, chương lấy mốc thời gian thật từ `render.json`, cách nhau ≥ 10 giây và bắt đầu ở 0:00, nguồn và ghi công lấy từ ô “Nguồn và ghi công”, ghi chú hình AI, hashtag), tag, cài đặt; 3 thumbnail 1280×720: Muse vẽ hình (gửi kèm ảnh mẫu nhân vật), app tự in chữ để không sai chính tả.
+5. **Đăng**: người dùng đăng lên YouTube (agent không đăng thay), đánh dấu checklist trên tab, dán link và bấm “Đánh dấu đã đăng” (`meta.json` `published`). Sau 48 giờ ghi số liệu vào `docs/research/`.
+
+`render.json` (do lệnh dựng ghi): với mỗi bản (`video`, `video_short`) lưu mã băm kịch bản, có dùng clip Muse và `--fallback` không, độ phân giải, giọng đọc và mốc bắt đầu/kết thúc từng cảnh.
+
 ## Thư mục một dự án
 
 ```
@@ -226,6 +238,9 @@ output/<id>/
   visuals.json          kế hoạch hình Muse storyvid.visuals/1 (chỉ khi dùng Muse)
   muse/                 ảnh mẫu nhân vật (cast/), ảnh tham chiếu phong cách (style/), mẫu phong cách tự viết
                         (styles/), ảnh mở cảnh và clip của từng cảnh
+  render.json           bản dựng từ kịch bản nào, mốc thời gian từng cảnh
+  finish.json           kết quả máy kiểm tra, kiểm định và gói đăng
+  publish/              frames/ (khung hình từng cảnh, bảng kiểm định), youtube.md, publish.json, thumbnail_*.jpg
   log.txt               nhật ký lần chạy gần nhất (web UI)
 ```
 
