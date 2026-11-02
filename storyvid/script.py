@@ -14,6 +14,8 @@ NARRATOR = "narrator"   # speaker id for off-screen narration (spoken by the hos
 HOST = "host"           # actor id of the channel host, whose look is script["character"]
 MAX_PROPS = 3           # animals / objects standing on the ground in one scene
 LANG_NAMES = {"en": "English", "vi": "Vietnamese", "de": "German", "fr": "French", "es": "Spanish"}
+GENRES = ["story", "explainer"]  # ghost/folklore story, or a science / psychology explainer
+CHUNK_CHARS = 3500  # longer texts are written in parts, so one reply never has to hold a whole long video
 
 
 def prop_ids() -> list[str]:
@@ -217,17 +219,90 @@ def _call_muse(system: str, user: str) -> dict:
     return llm.extract_json(reply["text"])
 
 
-def write_script(story: str, channel: dict, lang: str, minutes: float, provider: str, character=None) -> dict:
+def explainer_prompt(channel: dict, lang: str, minutes: float, keep_text: bool) -> str:
+    """System prompt for a science / psychology explainer acted out by a few recurring characters."""
+    from . import pack
+    from .character_catalog import PRESETS
+    presets = "; ".join(f"{k} = {v['label']}" for k, v in PRESETS.items())
+    words = int(minutes * 150)
+    text_rule = ("The text is already the narration. Keep its wording, facts and order exactly; only split it into "
+                 "lines and scenes (you may drop stage directions). Do not add or remove claims."
+                 if keep_text else
+                 f"Rewrite the text as clear spoken narration of about {words} words, faithful to its facts; never "
+                 "invent studies, numbers or quotes.")
+    return f"""You turn a text into a scene-by-scene script for "{channel['channel_name']}": animated explainer videos that teach science and psychology through small everyday stories with a few recurring characters.
+{text_rule}
+- Language of every spoken line: {LANG_NAMES.get(lang, lang)}. Narration lines use speaker "{NARRATOR}". Characters may say a short line now and then when it fits; a line's speaker is "{NARRATOR}" or a cast id on stage in that scene.
+- Each scene is one visual idea that a 10-second animated clip can show: 1-3 lines and about 15-28 spoken words. Split long paragraphs into several scenes.
+- Show, don't tell: for each idea pick a concrete everyday moment (scrolling a phone at night, a craving for a cigarette, a worried mind) or a simple visual metaphor (a glowing brain, a loop of three steps). Keep the same characters through the video.
+- cast: the recurring characters (2-4). id = short ascii slug; pick the closest preset ({presets}); kind "human".
+- actors: who is visible (0-3), position, pose, expression, action (enter, exit, approach, jump, shake or none). Scenes with only a metaphor or diagram have no actors.
+- bg_id: the closest of {", ".join(pack.ids("backgrounds"))} (only a code for the scene's place and day/night); bg_prompt: a short English description of the real place, e.g. "modern bedroom at night". Scenes in the same place in a row keep the same bg_id. camera: slow move.
+- props: usually none.
+- The first 30 seconds must hook: a surprising question or moment. End with a short summary and an invitation to the next video."""
+
+
+def _ask(provider: str, system: str, user: str) -> dict:
+    if provider == "claude":
+        return _call_claude(system, user)
+    if provider == "muse":
+        return _call_muse(system, user)
+    if provider in ("openai", "codex"):
+        from . import llm
+        return (llm.openai_compatible if provider == "openai" else llm.codex)(system, user, SCENE_SCHEMA)
+    raise ValueError(f"Unknown LLM provider: {provider}")
+
+
+def split_text(text: str, size: int = CHUNK_CHARS) -> list[str]:
+    """Parts of at most about `size` characters, cut between paragraphs (then sentences)."""
+    pieces = []
+    for para in [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]:
+        if len(para) <= size:
+            pieces.append(para)
+            continue
+        current = ""
+        for sentence in re.split(r"(?<=[.!?…])\s+", para):
+            if current and len(current) + len(sentence) > size:
+                pieces.append(current.strip())
+                current = ""
+            current += sentence + " "
+        if current.strip():
+            pieces.append(current.strip())
+    parts, current = [], ""
+    for piece in pieces:
+        if current and len(current) + len(piece) + 2 > size:
+            parts.append(current)
+            current = ""
+        current = f"{current}\n\n{piece}" if current else piece
+    return parts + ([current] if current else [])
+
+
+def write_script(story: str, channel: dict, lang: str, minutes: float, provider: str, character=None,
+                 genre: str = "story", keep_text: bool = False) -> dict:
     if provider == "offline":
         return _normalize(_offline_script(story), lang)
-    system, user = build_prompt(story, channel, lang, minutes, character)
-    if provider == "claude":
-        script = _call_claude(system, user)
-    elif provider == "muse":
-        script = _call_muse(system, user)
-    elif provider in ("openai", "codex"):
-        from . import llm
-        script = (llm.openai_compatible if provider == "openai" else llm.codex)(system, user, SCENE_SCHEMA)
-    else:
-        raise ValueError(f"Unknown LLM provider: {provider}")
-    return _normalize(script, lang)
+    parts = split_text(story)
+    merged: dict = {}
+    for k, part in enumerate(parts):
+        share = minutes * len(part) / max(1, len(story))
+        if genre == "explainer":
+            system, user = explainer_prompt(channel, lang, share, keep_text), part
+        else:
+            system, user = build_prompt(part, channel, lang, share, character)
+        if len(parts) > 1:
+            print(f"  part {k + 1}/{len(parts)}...")
+            note = [f"This is part {k + 1} of {len(parts)} of one video; write scenes for this part only."]
+            if k:
+                note.append("Continue from the previous part: no new opening hook. Reuse these cast ids and looks "
+                            "exactly, adding a character only if the text needs one: "
+                            + json.dumps(merged["cast"], ensure_ascii=False))
+            if k < len(parts) - 1:
+                note.append("Do not end the video or invite viewers to the next video yet.")
+            system = f"{system}\n\n" + "\n".join(note)
+        script = _ask(provider, system, user)
+        if not merged:
+            merged = {"title": script.get("title"), "cast": list(script.get("cast", [])), "scenes": []}
+        known = {c.get("id") for c in merged["cast"]}
+        merged["cast"] += [c for c in script.get("cast", []) if c.get("id") not in known]
+        merged["scenes"] += list(script.get("scenes", []))
+    return _normalize(merged, lang)

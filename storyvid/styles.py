@@ -38,6 +38,15 @@ PRESETS = {
                  "lighting, clean textures, gentle depth of field. Not photorealistic. " + NO_TEXT),
         "refs": [],
     },
+    "chibi": {
+        "label": "Hoạt hình chibi",
+        "about": "Đầu to, thân nhỏ, mắt long lanh, màu pastel. Dễ thương, hợp video kiến thức dài.",
+        "text": ("Chibi anime style: characters with oversized round heads about one third of their height, big "
+                 "sparkling eyes, tiny rounded bodies and short limbs, cute expressive faces, clean lineart, soft cel "
+                 "shading, soft pastel colours, simple bright uncluttered backgrounds. Any other people are drawn as "
+                 "the same kind of chibi characters. Not realistic. " + NO_TEXT),
+        "refs": [],
+    },
     "flat2d": {
         "label": "Hoạt hình 2D phẳng",
         "about": "Minh họa vector phẳng, màu tươi, hợp video giải thích kiến thức.",

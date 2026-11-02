@@ -73,6 +73,9 @@
             <option value="">Theo cài đặt (.env)</option>
             <option value="offline">Không dùng AI: chỉ chia truyện thành cảnh để tự viết</option>
           </select></label>
+          <label>Loại nội dung <select id="pGenre"><option value="story">Truyện (ma, dân gian)</option>
+            <option value="explainer">Kiến thức (khoa học, tâm lý)</option></select></label>
+          <label><input type="checkbox" id="pKeepText"> Giữ nguyên lời kể, chỉ chia cảnh</label>
           <span class="muted small" id="storyLangNote"></span>
           <span class="grow"></span>
           <button class="btn" id="saveStoryBtn">Lưu</button>
@@ -112,6 +115,18 @@
         </div>
         <div class="card review-bar" id="reviewBar"><span id="reviewText"></span><span class="grow"></span>
           <button class="btn primary" id="approveBtn">✓ Duyệt kịch bản</button></div>
+        <div class="card review-box" id="scriptReviewBox">
+          <div class="actions">
+            <strong>Đánh giá kịch bản</strong>
+            <label>bằng <select id="reviewProvider"><option value="muse">Muse</option><option value="claude">Claude API</option>
+              <option value="openai">API chuẩn OpenAI</option><option value="codex">Codex CLI</option></select></label>
+            <span class="grow"></span>
+            <button class="btn" id="reviewBtn">AI đánh giá</button>
+            <button class="btn" id="reviseBtn">AI sửa theo đánh giá</button>
+            <button class="btn primary" id="autoReviewBtn">Tự động: đánh giá → sửa (2 vòng)</button>
+          </div>
+          <div id="reviewRounds" class="muted small">Chưa có vòng đánh giá nào. AI chấm điểm theo tiêu chí, chỉ ra lỗi từng cảnh và có thể sửa; bạn vẫn là người duyệt cuối.</div>
+        </div>
         <div id="scenes" class="scenes"></div>
         <p class="muted" id="noScript">Chưa có kịch bản. Quay lại tab Truyện và bấm “Viết kịch bản”.</p>
       </div>

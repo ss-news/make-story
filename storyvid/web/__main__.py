@@ -212,6 +212,10 @@ def update_project(pid):
         meta["ratio"] = body["ratio"]
     if isinstance(body.get("style"), dict):
         meta["style"] = {"preset": str(body["style"].get("preset", "")), "text": str(body["style"].get("text", ""))}
+    if body.get("genre") in ("story", "explainer"):
+        meta["genre"] = body["genre"]
+    if "keep_text" in body:
+        meta["keep_text"] = bool(body["keep_text"])
     if isinstance(body.get("voice"), dict):
         meta["voice"] = {"provider": str(body["voice"].get("provider", "")), "voice": str(body["voice"].get("voice", ""))}
     if "minutes" in body:
@@ -265,6 +269,28 @@ def approve_script(pid):
     return get_project(pid)
 
 
+@app.get("/api/projects/<pid>/script-reviews")
+def get_script_reviews(pid):
+    d = project_dir(pid)
+    return jsonify(read_json(d / "script_reviews.json", {"rounds": []}))
+
+
+@app.post("/api/projects/<pid>/script-review")
+def run_script_review(pid):
+    d = project_dir(pid)
+    if not (d / "scenes.json").exists():
+        abort(400, "Write or create the script first")
+    body = request.get_json(silent=True) or {}
+    action = body.get("action") if body.get("action") in ("review", "revise", "auto") else "review"
+    args = [action, str(d)]
+    if body.get("provider") in ("muse", "claude", "openai", "codex"):
+        args += ["--provider", body["provider"]]
+    if action == "auto":
+        args += ["--rounds", str(max(1, min(4, int(body.get("rounds", 2)))))]
+    start_job(pid, d, f"script_{action}", args, module="storyvid.script_review")
+    return jsonify(job_status(pid, d))
+
+
 @app.post("/api/projects/<pid>/script")
 def run_script(pid):
     d = project_dir(pid)
@@ -274,6 +300,10 @@ def run_script(pid):
             "--minutes", str(meta.get("minutes", 2))]
     if body.get("provider"):
         args += ["--provider", body["provider"]]
+    if meta.get("genre") in ("story", "explainer"):
+        args += ["--genre", meta["genre"]]
+    if meta.get("keep_text"):
+        args.append("--keep-text")
     start_job(pid, d, "script", args)
     meta.pop("approved_script", None)  # a new script needs a new review
     write_json(d / "meta.json", meta)

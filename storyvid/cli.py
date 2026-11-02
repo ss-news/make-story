@@ -66,6 +66,10 @@ def main():
     ap.add_argument("--script", help="skip the LLM and render an existing scenes.json")
     ap.add_argument("--lang", help="narration language: en, vi, de, fr, es (default: the script's lang, else en)")
     ap.add_argument("--minutes", type=float, default=2.0, help="target narration length")
+    ap.add_argument("--genre", choices=["story", "explainer"], default="story",
+                    help="story = ghost/folklore story; explainer = science or psychology explainer")
+    ap.add_argument("--keep-text", action="store_true",
+                    help="the text is already the narration: split it into scenes without rewriting it")
     ap.add_argument("--provider", choices=["auto", "muse", "openai", "codex", "claude", "offline"], default="auto",
                     help="auto = LLM_PROVIDER from .env; muse = Muse through MuseFlow (no key); openai = any "
                          "OpenAI-compatible API; codex = Codex CLI; claude = Anthropic API; offline = split the text as-is")
@@ -102,7 +106,8 @@ def main():
         print(f"[1/4] Writing script ({provider})...")
         previous_path = out_dir / "scenes.json"
         previous = json.loads(previous_path.read_text(encoding="utf-8")) if previous_path.exists() else {}
-        script = write_script(story, channel, args.lang or "en", args.minutes, provider, previous.get("character"))
+        script = write_script(story, channel, args.lang or "en", args.minutes, provider, previous.get("character"),
+                              args.genre, args.keep_text)
         if "character" in previous:
             from .character_catalog import validate_selection
             script["character"] = validate_selection(previous["character"])
