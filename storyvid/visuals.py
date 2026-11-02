@@ -361,14 +361,14 @@ def last_frame(clip: Path, out: Path) -> Path | None:
     return out if out.is_file() and out.stat().st_size else None
 
 
-def make_scenes(project: Path, only: int | None, redo: bool, images_only: bool, clips_only: bool = False) -> int:
+def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: bool, clips_only: bool = False) -> int:
     script, visuals = load(project)
     if not visuals:
         raise SystemExit("No visuals.json yet: run the prompts step first")
     names = cast_names(script, json.loads((ROOT / "channel.json").read_text(encoding="utf-8")))
     sheets = {c["id"]: project / c["sheet"] for c in visuals["cast"] if c["sheet"] and (project / c["sheet"]).is_file()}
     styling = style_refs(project, visuals)
-    todo = [i for i in range(len(visuals["scenes"])) if only is None or i == only]
+    todo = [i for i in range(len(visuals["scenes"])) if only is None or i in only]
     has = lambda key, i: bool(visuals["scenes"][i][key]) and (project / visuals["scenes"][i][key]).is_file()  # noqa: E731
     failed: set[int] = set()
 
@@ -411,7 +411,7 @@ def make_scenes(project: Path, only: int | None, redo: bool, images_only: bool, 
             s.pop("error", None)
             save(project, visuals)
             nxt = i + 1
-            if only is not None and nxt < len(links) and links[nxt] and has("clip", nxt):
+            if only is not None and nxt not in only and nxt < len(links) and links[nxt] and has("clip", nxt):
                 print(f"  note: scene {nxt + 1} continues from this clip; make its clip again if the seam shows")
         except RuntimeError as e:
             fail(i, e)
@@ -437,7 +437,7 @@ def main() -> None:
     ap.add_argument("--provider", choices=["offline", "muse", "openai", "codex"], default="muse",
                     help="who writes the prompts (default: Muse through MuseFlow)")
     ap.add_argument("--ratio", choices=["16:9", "9:16"], help="frame shape (default: keep, else 16:9)")
-    ap.add_argument("--only", help="one cast id (cast) or one 0-based scene index (scenes)")
+    ap.add_argument("--only", help="one cast id (cast), or 0-based scene indices separated by commas (scenes)")
     ap.add_argument("--redo", action="store_true", help="generate again even if a file exists")
     ap.add_argument("--images-only", action="store_true", help="scenes: stop after the opening images")
     ap.add_argument("--clips-only", action="store_true", help="scenes: only make clips from existing images")
@@ -480,7 +480,8 @@ def main() -> None:
     if args.step == "cast":
         failed = make_cast(project, args.only, args.redo)
     else:
-        failed = make_scenes(project, int(args.only) if args.only is not None else None, args.redo, args.images_only,
+        only = [int(x) for x in args.only.split(",") if x.strip()] if args.only is not None else None
+        failed = make_scenes(project, only, args.redo, args.images_only,
                              args.clips_only)
     if failed:
         raise SystemExit(f"{failed} item(s) failed; see the error fields in visuals.json and retry them")
