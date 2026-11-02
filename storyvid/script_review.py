@@ -149,10 +149,30 @@ def dedupe(script: dict) -> tuple[dict, list[int]]:
         if len(lines) != len(sc["lines"]):
             changed.append(i)
         if lines:
+            text = _plain(" ".join(l["text"] for l in lines))
+            # the scene before said a shorter cut of the same narration: keep only the fuller one
+            if kept and len(said[-1].split()) >= 3 and said[-1] in text:
+                kept.pop()
+                said.pop()
+                changed.append(i - 1)
             kept.append({**sc, "lines": lines})
-            said.append(_plain(" ".join(l["text"] for l in lines)))
+            said.append(text)
     out["scenes"] = kept
     return out, changed
+
+
+def source_order(script: dict, source: str) -> tuple[dict, list[int]]:
+    """With a kept narration the right order is the source's: sort scenes by where their first line appears in it
+    (scenes not found keep their place next to the scene before). Returns the script and the moved indices."""
+    plain_source = _plain(source)
+    keys, last = [], 0.0
+    for sc in script["scenes"]:
+        pos = plain_source.find(_plain(sc["lines"][0]["text"])) if sc["lines"] else -1
+        last = float(pos) if pos >= 0 else last + 0.001
+        keys.append(last)
+    order = sorted(range(len(keys)), key=lambda i: (keys[i], i))
+    moved = [i for k, i in enumerate(order) if i != k]
+    return {**script, "scenes": [script["scenes"][i] for i in order]}, moved
 
 
 def compact(script: dict, indices=None) -> list[dict]:
@@ -183,6 +203,10 @@ def review(script: dict, source: str, minutes: float, provider: str, genre: str,
     criteria.append(length)
     issues += local
     if keep_text and source:
+        _, moved = source_order(script, source)
+        if moved:
+            issues.append({"scene": None, "severity": "major", "problem": f"{len(moved)} cảnh không theo thứ tự của "
+                           "lời kể gốc.", "fix": "Sắp lại cảnh theo thứ tự lời kể gốc."})
         _, repeated = dedupe(script)
         issues += [{"scene": i, "severity": "major", "problem": "Lời kể lặp lại câu đã nói ở cảnh trước.",
                     "fix": "Bỏ câu lặp."} for i in repeated]
@@ -207,7 +231,7 @@ def revise(script: dict, source: str, issues: list[dict], provider: str, genre: 
     from .script import write_script
     if keep_text:  # missing and repeated narration are fixed by the tool below, not by the AI
         issues = [i for i in issues if not i.get("missing") and not i["problem"].startswith("Lời kể lặp lại")]
-    whole = [i for i in issues if i["scene"] is None]
+    whole = [i for i in issues if i["scene"] is None and not (keep_text and "thứ tự" in i["problem"])]
     targets = sorted({i["scene"] for i in issues if i["scene"] is not None} | ({0, 1, 2} if whole else set()))
     targets = [i for i in targets if i < len(script["scenes"])]
     scene_schema = SCENE_SCHEMA["properties"]["scenes"]["items"]
@@ -248,7 +272,11 @@ def revise(script: dict, source: str, issues: list[dict], provider: str, genre: 
     revised = _normalize({**script, "scenes": scenes}, lang)
     changed = set(replacements)
     if keep_text:
+        revised, moved = source_order(revised, source)
+        if moved:
+            print(f"  put {len(moved)} scene(s) back in the source's order")
         revised, repeated = dedupe(revised)
+        repeated = repeated or moved
         if repeated:
             print(f"  removed repeated narration in {len(repeated)} scene(s)")
         inserts: dict = {}
