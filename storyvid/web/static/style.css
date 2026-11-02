@@ -249,3 +249,8 @@ label.block { display: flex; flex-direction: column; gap: 6px; }
 .place-upload { display: inline-flex; flex-direction: row; cursor: pointer; font-weight: 400; color: var(--text); }
 .place-url { flex: 1 1 260px; }
 @media (max-width: 800px) { .place-fields { grid-template-columns: 1fr 1fr; } }
+
+/* Muse scene list pages */
+.muse-pager { margin: 8px 0; }
+.muse-pager label.inline { flex-direction: row; align-items: center; gap: 6px; }
+.muse-pager .page-no { min-width: 80px; text-align: center; }

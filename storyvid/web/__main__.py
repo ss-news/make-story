@@ -103,7 +103,7 @@ def start_job(pid: str, d: Path, kind: str, args: list[str], module: str = "stor
         log.write(f"$ {module} {' '.join(args)}\n")
         log.flush()
         proc = subprocess.Popen([sys.executable, "-m", module, *args], cwd=ROOT,
-                                stdout=log, stderr=subprocess.STDOUT,
+                                stdout=log, stderr=subprocess.STDOUT, start_new_session=True,  # Stop ends the group
                                 env={**os.environ, **(env or {}), "PYTHONUNBUFFERED": "1"})
         jobs[pid] = proc
         write_json(d / "job.json", {"state": "running", "kind": kind, "started": int(time.time())})
@@ -389,8 +389,14 @@ def muse_status():
 
 @app.get("/api/projects/<pid>/visuals")
 def get_visuals(pid):
+    """visuals.json plus "_files": {path: mtime} so the page reloads an image or clip only when it changed."""
     d = project_dir(pid)
-    return jsonify(read_json(d / "visuals.json"))
+    visuals = read_json(d / "visuals.json")
+    if visuals:
+        paths = [c["sheet"] for c in visuals.get("cast", [])] + [s[k] for s in visuals.get("scenes", [])
+                                                                   for k in ("image", "clip")]
+        visuals["_files"] = {f: int((d / f).stat().st_mtime) for f in paths if f and (d / f).is_file()}
+    return jsonify(visuals)
 
 
 @app.put("/api/projects/<pid>/visuals")
@@ -398,6 +404,7 @@ def put_visuals(pid):
     from ..contract import validate_visuals
     d = project_dir(pid)
     visuals = request.get_json(force=True)
+    visuals.pop("_files", None)
     errors = validate_visuals(visuals, read_json(d / "scenes.json"), d)
     if errors:
         abort(400, "; ".join(errors[:5]))
@@ -688,13 +695,34 @@ def muse_file(pid, name):
     return send_file(path, conditional=True)
 
 
+def kill_group(proc: subprocess.Popen) -> None:
+    """A job and the steps it started (storyvid.auto runs one child per step): SIGTERM, then SIGKILL after 5 s."""
+    import signal
+    try:
+        os.killpg(proc.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        return
+
+    def finish():
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            pass
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)  # whatever is left of the group
+        except ProcessLookupError:
+            pass
+
+    threading.Thread(target=finish, daemon=True).start()
+
+
 @app.post("/api/projects/<pid>/stop")
 def stop_job(pid):
     d = project_dir(pid)
     with jobs_lock:
         proc = jobs.get(pid)
     if proc and proc.poll() is None:
-        proc.terminate()
+        kill_group(proc)
         if read_json(d / "job.json", {}).get("kind", "").startswith(("visuals_", "auto")):
             from ..visuals import muse  # also cancel what MuseFlow is generating right now
             try:

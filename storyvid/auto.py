@@ -15,6 +15,7 @@ The AI review and the publish kit (tab Hoàn thành) stay manual: a person watch
 The script must already be approved (meta.json "approved_script").
 """
 import argparse
+import os
 import signal
 import subprocess
 import sys
@@ -37,10 +38,16 @@ def step(title: str, module: str, *args: str) -> int:
 
 
 def stop(_signum, _frame) -> None:
-    """The web UI's Stop button terminates this process: take the running step down with it."""
+    """The web UI's Stop button terminates this process: take the running step down with it and leave at once
+    (raising SystemExit from here left the process hanging until a second Stop)."""
     if child and child.poll() is None:
         child.terminate()
-    raise SystemExit("Stopped")
+        try:
+            child.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            child.kill()
+    print("Stopped", flush=True)
+    os._exit(1)
 
 
 def scenes_left(project: Path) -> int:

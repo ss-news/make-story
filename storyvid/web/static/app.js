@@ -70,6 +70,8 @@ async function openProject(id, tab) {
   if (state.dirty && !confirm("Kịch bản chưa lưu. Bỏ thay đổi?")) return;
   const p = await api(`/api/projects/${id}`);
   state.current = p;
+  state.musePage = 0;
+  state.museFilter = "all";
   state.script = p.script ? structuredClone(p.script) : null;
   state.dirty = false;
   location.hash = id;
@@ -872,7 +874,34 @@ async function loadVisuals() {
   renderMuse();
 }
 
-const museUrl = (file) => `/files/${state.current.id}/${file}?v=${Date.now() % 1e7}`;
+const museUrl = (file) => `/files/${state.current.id}/${file}?v=${state.visuals?._files?.[file] ?? 0}`;
+const MUSE_PAGE = 12;
+const MUSE_FILTERS = {
+  all: ["Tất cả cảnh", () => true],
+  todo: ["Chưa có ảnh", (s) => !s.image],
+  noclip: ["Có ảnh, chưa có clip", (s) => s.image && !s.clip],
+  error: ["Có lỗi", (s) => !!s.error],
+  done: ["Đã có clip", (s) => !!s.clip],
+};
+
+function musePager(total, pages) {
+  const bar = document.createElement("div");
+  bar.className = "actions muse-pager";
+  bar.innerHTML = `<label class="inline">Lọc <select></select></label><span class="muted small"></span><span class="grow"></span>
+    <button class="btn small" data-p="prev">‹ Trước</button><span class="small page-no"></span>
+    <button class="btn small" data-p="next">Sau ›</button>`;
+  const sel = bar.querySelector("select");
+  for (const [k, [label]] of Object.entries(MUSE_FILTERS)) sel.add(new Option(label, k));
+  sel.value = state.museFilter;
+  sel.onchange = () => { state.museFilter = sel.value; state.musePage = 0; renderMuse(); };
+  bar.querySelector(".muted").textContent = `${total} cảnh`;
+  bar.querySelector(".page-no").textContent = `Trang ${state.musePage + 1}/${pages}`;
+  bar.querySelector('[data-p="prev"]').disabled = state.musePage === 0;
+  bar.querySelector('[data-p="next"]').disabled = state.musePage >= pages - 1;
+  bar.querySelector('[data-p="prev"]').onclick = () => { state.musePage--; renderMuse(); $("#museScenes").scrollIntoView(); };
+  bar.querySelector('[data-p="next"]').onclick = () => { state.musePage++; renderMuse(); $("#museScenes").scrollIntoView(); };
+  return bar;
+}
 
 function renderMuse() {
   const v = state.visuals, script = state.current.script;
@@ -911,7 +940,14 @@ function renderMuse() {
   }
   const list = $("#museScenes");
   list.innerHTML = "";
-  v.scenes.forEach((sc, i) => {
+  state.museFilter ??= "all";
+  state.musePage ??= 0;
+  const keep = MUSE_FILTERS[state.museFilter]?.[1] || (() => true);
+  const shown = v.scenes.map((sc, i) => [sc, i]).filter(([sc]) => keep(sc));
+  const pages = Math.max(1, Math.ceil(shown.length / MUSE_PAGE));
+  state.musePage = Math.min(state.musePage, pages - 1);
+  list.appendChild(musePager(shown.length, pages));
+  shown.slice(state.musePage * MUSE_PAGE, (state.musePage + 1) * MUSE_PAGE).forEach(([sc, i]) => {
     const el = document.createElement("div");
     el.className = "scene muse-scene";
     const narration = (script?.scenes[i]?.lines || []).map((l) => l.text).join(" ");
@@ -941,6 +977,7 @@ function renderMuse() {
     el.querySelector('[data-redo="all"]').onclick = run(() => runVisuals("scenes", { only: i, redo: true }));
     list.appendChild(el);
   });
+  if (shown.length > MUSE_PAGE) list.appendChild(musePager(shown.length, pages));
 }
 
 // ---------- real places (refs/places.json) ----------

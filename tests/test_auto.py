@@ -71,6 +71,31 @@ class CastGateTest(unittest.TestCase):
             step.assert_not_called()
 
 
+class StopTest(unittest.TestCase):
+    def test_stop_ends_the_job_and_the_step_it_started(self):
+        import os
+        import subprocess
+        import sys
+        import time
+        from storyvid.web.__main__ import kill_group
+        # a job that, like storyvid.auto, starts a child step and ignores SIGTERM in itself
+        code = ("import signal, subprocess, sys, time; signal.signal(signal.SIGTERM, signal.SIG_IGN); "
+                "c = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)']); "
+                "print(c.pid, flush=True); time.sleep(60)")
+        job = subprocess.Popen([sys.executable, '-c', code], stdout=subprocess.PIPE, text=True, start_new_session=True)
+        child = int(job.stdout.readline())
+        kill_group(job)
+        job.wait(timeout=10)
+        for _ in range(50):
+            try:
+                os.kill(child, 0)
+            except ProcessLookupError:
+                break
+            time.sleep(0.2)
+        else:
+            self.fail('the child step is still running')
+
+
 class CastApiTest(unittest.TestCase):
     def setUp(self):
         self.pid = '_test_auto'
