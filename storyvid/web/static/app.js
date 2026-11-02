@@ -18,7 +18,7 @@ const JOBS = { script: "Viết kịch bản", render: "Dựng video", visuals_pr
   script_review: "AI đánh giá kịch bản", script_revise: "AI sửa kịch bản", script_auto: "Đánh giá và sửa kịch bản",
   script_polish: "AI trau chuốt lời kể",
   finish_check: "Máy kiểm tra", finish_loudnorm: "Chuẩn hóa âm lượng", finish_review: "AI kiểm định",
-  finish_publish: "Tạo gói đăng" };
+  finish_publish: "Tạo gói đăng", auto: "Chạy tự động" };
 
 async function api(path, opts = {}) {
   const res = await fetch(path, {
@@ -442,7 +442,7 @@ function renderJob(st) {
   $("#writeScriptBtn").disabled = busy;
   $("#renderBtn").disabled = busy;
   $("#renderShortBtn").disabled = busy;
-  for (const id of ["musePromptsBtn", "museCastBtn", "museImagesBtn", "museClipsBtn", "museSaveBtn", "approveBtn",
+  for (const id of ["autoBtn", "approveCastBtn", "musePromptsBtn", "museCastBtn", "museImagesBtn", "museClipsBtn", "museSaveBtn", "approveBtn",
     "sampleStylesBtn", "sampleCustomBtn", "reviewBtn", "reviseBtn", "autoReviewBtn", "finishCheckBtn", "loudnormBtn",
   "finishReviewBtn", "finishShortBtn", "finishPublishBtn"]) $("#" + id).disabled = busy;
   $$(".muse-redo").forEach((b) => (b.disabled = busy));
@@ -454,12 +454,13 @@ function museSteps(busy = state.jobRunning) {
   if (!state.current) return;
   state.jobRunning = busy;
   const v = state.visuals, approved = !!state.current.approved;
-  const castDone = !!v && v.cast.every((c) => c.sheet);
+  const castDone = !!v && v.cast.every((c) => c.sheet), castOk = castDone && !!state.current.cast_approved;
   const images = v ? v.scenes.filter((s) => s.image).length : 0;
   const steps = [
-    ["musePromptsBtn", approved, !!v, "Bấm “1. Viết prompt hình”."],
-    ["museCastBtn", !!v, castDone, "Bấm “2. Ảnh mẫu nhân vật”, rồi xem và duyệt từng nhân vật trước khi tạo cảnh."],
-    ["museImagesBtn", castDone, !!v && images === v.scenes.length, "Bấm “3. Ảnh các cảnh”."],
+    ["musePromptsBtn", approved, !!v, "Bấm “1. Viết prompt hình”, hoặc “▶ Chạy tự động”."],
+    ["museCastBtn", !!v, castDone, "Bấm “2. Ảnh mẫu nhân vật”, hoặc “▶ Chạy tự động”."],
+    ["approveCastBtn", castDone, castOk, "Xem ảnh mẫu từng nhân vật (sửa mô tả và tạo lại nếu chưa ưng), rồi bấm “✓ Duyệt nhân vật”."],
+    ["museImagesBtn", castOk, !!v && images === v.scenes.length, "Bấm “▶ Chạy tự động” để làm hết ảnh, clip và video, hoặc “3. Ảnh các cảnh”."],
     ["museClipsBtn", images > 0, false, "Bấm “4. Clip từ ảnh”."],
   ];
   const next = steps.find(([, open, done]) => open && !done);
@@ -467,6 +468,8 @@ function museSteps(busy = state.jobRunning) {
     $("#" + id).disabled = busy || !open;
     $("#" + id).classList.toggle("primary", next?.[0] === id);
   }
+  $("#approveCastBtn").classList.toggle("hidden", !castDone || castOk);
+  $("#autoBtn").disabled = busy || !approved || (castDone && !castOk);
   $("#museNext").textContent = !approved ? "Duyệt kịch bản ở tab 3 trước." : next ? `Bước tiếp theo: ${next[3]}` : "";
 }
 
@@ -480,7 +483,7 @@ function startPolling() {
     const pre = $("#log");
     pre.scrollTop = pre.scrollHeight;
     renderJob(status);
-    if (status.kind?.startsWith("visuals_") && !state.visualsDirty) await loadVisuals();  // show progress
+    if ((status.kind?.startsWith("visuals_") || status.kind === "auto") && !state.visualsDirty) await loadVisuals();  // show progress
     if (status.state !== "running") {
       clearInterval(state.poll);
       if (status.state === "failed") { $("#logBox").open = true; toast("Tác vụ bị lỗi, xem nhật ký", true); }
@@ -491,8 +494,10 @@ function startPolling() {
       renderVideo();
       loadProjects();
       if (status.state === "done") {
-        const muse = status.kind?.startsWith("visuals_");
+        const muse = status.kind?.startsWith("visuals_") || (status.kind === "auto" && !p.has_video);
+        if (status.kind === "auto") await loadFinish();
         toast(muse || status.kind === "style_samples" ? `${JOBS[status.kind]}: xong`
+          : status.kind === "auto" && !p.cast_approved ? "Ảnh mẫu nhân vật đã xong: xem rồi bấm “Duyệt nhân vật”"
           : status.kind === "script" ? "Đã viết xong kịch bản. Đọc kỹ rồi bấm Duyệt" : "Video đã dựng xong");
         if (status.kind === "style_samples") await loadStyles();
         if (status.kind?.startsWith("script")) await loadScriptReviews();
@@ -1147,6 +1152,21 @@ async function init() {
   $("#renderBtn").onclick = run(() => renderVideoJob(false));
   $("#renderShortBtn").onclick = run(() => renderVideoJob(true));
   $("#museCheckBtn").onclick = run(checkMuse);
+  $("#approveCastBtn").onclick = run(async () => {
+    await saveVisuals();
+    if (!confirm("Bạn đã xem ảnh mẫu của mọi nhân vật và đồng ý dùng chúng cho tất cả các cảnh?")) return;
+    state.current = await api(`/api/projects/${state.current.id}/approve-cast`, { method: "POST" });
+    museSteps();
+    toast("Đã duyệt nhân vật");
+  });
+  $("#autoBtn").onclick = run(async () => {
+    await saveVisuals();
+    if (state.dirty) await saveScript();
+    renderJob(await api(`/api/projects/${state.current.id}/auto`, { method: "POST",
+      body: { res: "1080", provider: $("#museProvider").value } }));  // 1080p: the finish checks need it
+    $("#log").textContent = "";
+    startPolling();
+  });
   $("#placeAddBtn").onclick = run(async () => {
     const name = $("#placeName").value.trim();
     if (!name) return toast("Nhập tên địa điểm", true);

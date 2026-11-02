@@ -10,7 +10,8 @@ at the same time on different accounts.
     python -m storyvid.visuals status
 
 The script must be approved by a person first (web UI, tab Kịch bản, "Duyệt kịch bản"; meta.json
-"approved_script"); --skip-review is for tests only. The style comes from meta.json "style" (storyvid/styles.py).
+"approved_script"), and the character sheets before the scenes step (tab Hình Muse, "Duyệt nhân vật"; meta.json
+"approved_cast"); --skip-review is for tests only. storyvid.auto runs all steps in a row between those two gates. The style comes from meta.json "style" (storyvid/styles.py).
 
 prompts writes the plan (style, a fixed look per character, an opening-frame and a motion prompt per scene).
 cast makes one reference sheet per character; scenes makes each scene's opening image (with the sheets of the
@@ -125,6 +126,23 @@ def is_approved(project: Path) -> bool:
         return False
     script = json.loads(path.read_text(encoding="utf-8"))
     return meta(project).get("approved_script") == script_digest(script)
+
+
+def cast_digest(project: Path, visuals: dict) -> str:
+    """The character sheets as they are now: a new look or a remade sheet needs a new approval."""
+    sheets = [(c["id"], c["look"], c["sheet"], (project / c["sheet"]).stat().st_size
+               if c["sheet"] and (project / c["sheet"]).is_file() else 0) for c in visuals["cast"]]
+    return hashlib.sha256(json.dumps(sheets, ensure_ascii=False).encode()).hexdigest()
+
+
+def cast_ready(project: Path, visuals: dict | None) -> bool:
+    return bool(visuals) and all(c["sheet"] and (project / c["sheet"]).is_file() for c in visuals["cast"])
+
+
+def is_cast_approved(project: Path, visuals: dict | None = None) -> bool:
+    """A person looked at every character sheet and lets the scene images start (meta.json "approved_cast")."""
+    visuals = visuals if visuals is not None else load(project)[1]
+    return cast_ready(project, visuals) and meta(project).get("approved_cast") == cast_digest(project, visuals)
 
 
 # ---------- visuals.json ----------
@@ -487,6 +505,9 @@ def main() -> None:
     if args.step == "cast":
         failed = make_cast(project, args.only, args.redo)
     else:
+        if not args.skip_review and not is_cast_approved(project):
+            raise SystemExit("The character sheets are not approved yet: a person looks at them first (web UI, tab "
+                             "Hình Muse, \"Duyệt nhân vật\"). A new or remade sheet needs a new approval.")
         only = [int(x) for x in args.only.split(",") if x.strip()] if args.only is not None else None
         failed = make_scenes(project, only, args.redo, args.images_only,
                              args.clips_only)

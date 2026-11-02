@@ -202,8 +202,9 @@ def get_project(pid):
             data["script"] = _normalize(data["script"], data["meta"].get("lang"))
         except (RuntimeError, ValueError):
             pass
-    from ..visuals import is_approved
+    from ..visuals import is_approved, is_cast_approved, load as load_visuals
     data["approved"] = is_approved(d)
+    data["cast_approved"] = data["approved"] and is_cast_approved(d, load_visuals(d)[1])
     bgs = read_json(d / "backgrounds.json", {})
     data["backgrounds"] = {k: f"/files/{pid}/bg/{k}" for k in bgs}
     return jsonify(data)
@@ -283,6 +284,37 @@ def approve_script(pid):
     meta["approved_at"] = int(time.time())
     write_json(d / "meta.json", meta)
     return get_project(pid)
+
+
+@app.post("/api/projects/<pid>/approve-cast")
+def approve_cast(pid):
+    """A person looked at every character sheet; the scene images may start. A new or remade sheet clears it."""
+    from ..visuals import cast_digest, cast_ready, load as load_visuals
+    d = project_dir(pid)
+    visuals = load_visuals(d)[1] if (d / "scenes.json").exists() else None
+    if not cast_ready(d, visuals):
+        abort(400, "Tạo đủ ảnh mẫu cho mọi nhân vật trước")
+    meta = read_json(d / "meta.json", {})
+    meta["approved_cast"] = cast_digest(d, visuals)
+    meta["approved_cast_at"] = int(time.time())
+    write_json(d / "meta.json", meta)
+    return get_project(pid)
+
+
+@app.post("/api/projects/<pid>/auto")
+def run_auto(pid):
+    """storyvid.auto: every remaining step in a row, stopping for the character approval."""
+    from ..visuals import is_approved
+    d = project_dir(pid)
+    if not is_approved(d):
+        abort(409, "Kịch bản chưa được duyệt: đọc và bấm “Duyệt kịch bản” ở tab Kịch bản trước")
+    body = request.get_json(silent=True) or {}
+    meta = read_json(d / "meta.json", {})
+    args = [str(d), "--res", body["res"] if body.get("res") in ("480", "720", "1080") else "1080"]
+    if body.get("provider") in ("offline", "muse", "openai", "codex"):
+        args += ["--provider", body["provider"]]
+    start_job(pid, d, "auto", args, module="storyvid.auto", env=voice_env(meta))
+    return jsonify(job_status(pid, d))
 
 
 @app.get("/api/projects/<pid>/script-reviews")
@@ -383,6 +415,9 @@ def run_visuals(pid, step):
         abort(400, "Write or create the script first")
     if not is_approved(d):
         abort(409, "Kịch bản chưa được duyệt: đọc và bấm “Duyệt kịch bản” ở tab Kịch bản trước")
+    from ..visuals import is_cast_approved
+    if step == "scenes" and not is_cast_approved(d):
+        abort(409, "Ảnh mẫu nhân vật chưa được duyệt: xem từng nhân vật rồi bấm “Duyệt nhân vật”")
     body = request.get_json(silent=True) or {}
     args = [step, str(d)]
     if step == "prompts":
@@ -660,7 +695,7 @@ def stop_job(pid):
         proc = jobs.get(pid)
     if proc and proc.poll() is None:
         proc.terminate()
-        if read_json(d / "job.json", {}).get("kind", "").startswith("visuals_"):
+        if read_json(d / "job.json", {}).get("kind", "").startswith(("visuals_", "auto")):
             from ..visuals import muse  # also cancel what MuseFlow is generating right now
             try:
                 muse("/api/stop", {}, timeout=10)
