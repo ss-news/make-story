@@ -125,7 +125,9 @@ def coverage_issues(script: dict, source: str) -> list[dict]:
             missing.append(sentence)
         else:
             flush()
-            anchor = found
+            # anchor on the scene where the sentence ends, not where its window starts
+            anchor = next(j for j in range(found, min(found + 3, len(scene_text)))
+                          if key in " ".join(scene_text[found:j + 1]))
     flush()
     return issues
 
