@@ -446,6 +446,28 @@ function renderJob(st) {
     "sampleStylesBtn", "sampleCustomBtn", "reviewBtn", "reviseBtn", "autoReviewBtn", "finishCheckBtn", "loudnormBtn",
   "finishReviewBtn", "finishShortBtn", "finishPublishBtn"]) $("#" + id).disabled = busy;
   $$(".muse-redo").forEach((b) => (b.disabled = busy));
+  museSteps(busy);
+}
+
+// Steps 1-4 of the Muse tab open one after another; the next step to do is the highlighted one.
+function museSteps(busy = state.jobRunning) {
+  if (!state.current) return;
+  state.jobRunning = busy;
+  const v = state.visuals, approved = !!state.current.approved;
+  const castDone = !!v && v.cast.every((c) => c.sheet);
+  const images = v ? v.scenes.filter((s) => s.image).length : 0;
+  const steps = [
+    ["musePromptsBtn", approved, !!v, "Bấm “1. Viết prompt hình”."],
+    ["museCastBtn", !!v, castDone, "Bấm “2. Ảnh mẫu nhân vật”, rồi xem và duyệt từng nhân vật trước khi tạo cảnh."],
+    ["museImagesBtn", castDone, !!v && images === v.scenes.length, "Bấm “3. Ảnh các cảnh”."],
+    ["museClipsBtn", images > 0, false, "Bấm “4. Clip từ ảnh”."],
+  ];
+  const next = steps.find(([, open, done]) => open && !done);
+  for (const [id, open] of steps) {
+    $("#" + id).disabled = busy || !open;
+    $("#" + id).classList.toggle("primary", next?.[0] === id);
+  }
+  $("#museNext").textContent = !approved ? "Duyệt kịch bản ở tab 3 trước." : next ? `Bước tiếp theo: ${next[3]}` : "";
 }
 
 function startPolling() {
@@ -616,6 +638,7 @@ async function approveScript() {
   if (!confirm("Bạn đã đọc hết kịch bản và đồng ý cho bắt đầu bước AI tạo hình?")) return;
   state.current = await api(`/api/projects/${state.current.id}/approve`, { method: "POST" });
   renderReview();
+  museSteps();
   toast("Đã duyệt kịch bản");
   selectTab("muse");
 }
@@ -853,6 +876,7 @@ function renderMuse() {
   const clips = v ? v.scenes.filter((s) => s.clip).length : 0;
   $("#museCount").textContent = v ? `${clips}/${v.scenes.length}` : "";
   $("#useMuse").checked = !!v && clips > 0;
+  museSteps();
   if (!v) return;
   $("#museStyle").value = v.style;
   $("#museContinuity").value = v.continuity || "auto";
