@@ -119,18 +119,24 @@ def main() -> None:
     ap.add_argument("--redo", action="store_true", help="make the sample again even if one exists")
     args = ap.parse_args()
     project = Path(args.project).resolve() if args.project else None
-    presets = [args.preset] if args.preset else list(PRESETS)
-    failed = 0
-    for preset in presets:
-        if existing_sample(preset, project) and not args.redo:
-            continue
+    presets = [p for p in ([args.preset] if args.preset else list(PRESETS))
+               if args.redo or not existing_sample(p, project)]
+    failed = []
+
+    def one(preset: str) -> None:
         try:
             print(f"  -> {make_sample(preset, project, args.ratio).name}")
         except RuntimeError as e:
-            failed += 1
-            print(f"  failed: {e}")
+            failed.append(preset)
+            print(f"  {preset} failed: {e}")
+
+    # one sample per signed-in Muse account at a time
+    from concurrent.futures import ThreadPoolExecutor
+    from .visuals import ready_accounts
+    with ThreadPoolExecutor(max_workers=max(1, min(ready_accounts(), len(presets) or 1))) as pool:
+        list(pool.map(one, presets))
     if failed:
-        raise SystemExit(f"{failed} sample(s) failed")
+        raise SystemExit(f"{len(failed)} sample(s) failed: {', '.join(failed)}")
     print("Done")
 
 
