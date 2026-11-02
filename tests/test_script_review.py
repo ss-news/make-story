@@ -106,3 +106,14 @@ class PolishTest(unittest.TestCase):
         self.assertIn('Back in 1982', out['text'])           # kept: same facts
         self.assertIn('ninety-one souls', out['text'])       # dropped number -> original part kept
         self.assertEqual(len(out['kept_parts']), 1)
+
+
+class SourceOrderTest(unittest.TestCase):
+    def test_a_line_said_twice_stays_where_its_scene_belongs(self):
+        scene = lambda t: {'lines': [{'speaker': 'narrator', 'text': t}]}  # noqa: E731
+        source = 'I am Cu Rua, the old turtle. The house is empty. I am Cu Rua. Thank you for walking with me.'
+        script = {'scenes': [scene('I am Cu Rua, the old turtle.'), scene('I am Cu Rua. Thank you for walking with me.'),
+                             scene('The house is empty.')]}
+        out, moved = script_review.source_order(script, source)
+        self.assertEqual([s['lines'][0]['text'][:12] for s in out['scenes']],
+                         ['I am Cu Rua,', 'The house is', 'I am Cu Rua.'])

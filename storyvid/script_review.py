@@ -122,7 +122,9 @@ def coverage_issues(script: dict, source: str) -> list[dict]:
     for sentence in sentences:
         key = _plain(sentence)
         # a long sentence may be split over neighbouring scenes, so look through a window of three
-        found = next((i for i in range(len(scene_text)) if key in " ".join(scene_text[i:i + 3])), None)
+        # search forward from the last match, so a sentence said twice must be there twice
+        start = anchor if anchor is not None else 0
+        found = next((i for i in range(start, len(scene_text)) if key in " ".join(scene_text[i:i + 3])), None)
         if found is None:
             missing.append(sentence)
         else:
@@ -169,9 +171,17 @@ def source_order(script: dict, source: str) -> tuple[dict, list[int]]:
     """With a kept narration the right order is the source's: sort scenes by where their first line appears in it
     (scenes not found keep their place next to the scene before). Returns the script and the moved indices."""
     plain_source = _plain(source)
+
+    def places(text: str) -> list[int]:
+        return [m.start() for m in re.finditer(re.escape(text), plain_source)] if text else []
+
     keys, last = [], 0.0
     for sc in script["scenes"]:
-        pos = plain_source.find(_plain(sc["lines"][0]["text"])) if sc["lines"] else -1
+        # the whole scene's narration is usually unique; a line like "I am Cu Rua" can appear twice, so among
+        # several matches take the first one after the scene before
+        found = places(_plain(" ".join(l["text"] for l in sc["lines"]))) or \
+            (places(_plain(sc["lines"][0]["text"])) if sc["lines"] else [])
+        pos = next((p for p in found if p >= last), found[0]) if found else -1
         last = float(pos) if pos >= 0 else last + 0.001
         keys.append(last)
     order = sorted(range(len(keys)), key=lambda i: (keys[i], i))
