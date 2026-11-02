@@ -473,4 +473,6 @@ app.whenReady().then(() => {
 
 app.on('before-quit', () => { quitting = true; });
 app.on('will-quit', stopStoryvid);
+// A kill from a terminal skips will-quit unless it goes through app.quit(); the storyvid server would outlive the app.
+for (const signal of ['SIGTERM', 'SIGINT']) process.on(signal, () => app.quit());
 app.on('window-all-closed', () => app.quit());
