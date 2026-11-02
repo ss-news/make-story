@@ -15,7 +15,7 @@ HOST = "host"           # actor id of the channel host, whose look is script["ch
 MAX_PROPS = 3           # animals / objects standing on the ground in one scene
 LANG_NAMES = {"en": "English", "vi": "Vietnamese", "de": "German", "fr": "French", "es": "Spanish"}
 GENRES = ["story", "explainer"]  # ghost/folklore story, or a science / psychology explainer
-CHUNK_CHARS = 3500  # longer texts are written in parts, so one reply never has to hold a whole long video
+CHUNK_CHARS = 2200  # longer texts are written in parts: a long reply from Muse can be cut off silently
 
 
 def prop_ids() -> list[str]:
@@ -278,26 +278,30 @@ def split_text(text: str, size: int = CHUNK_CHARS) -> list[str]:
 
 
 def write_script(story: str, channel: dict, lang: str, minutes: float, provider: str, character=None,
-                 genre: str = "story", keep_text: bool = False) -> dict:
+                 genre: str = "story", keep_text: bool = False, cast: list | None = None) -> dict:
+    """cast: characters that already exist (e.g. when a missing passage is split into scenes again)."""
     if provider == "offline":
         return _normalize(_offline_script(story), lang)
     parts = split_text(story)
-    merged: dict = {}
+    merged: dict = {"title": None, "cast": list(cast), "scenes": []} if cast else {}
     for k, part in enumerate(parts):
         share = minutes * len(part) / max(1, len(story))
         if genre == "explainer":
             system, user = explainer_prompt(channel, lang, share, keep_text), part
         else:
             system, user = build_prompt(part, channel, lang, share, character)
-        if len(parts) > 1:
-            print(f"  part {k + 1}/{len(parts)}...")
-            note = [f"This is part {k + 1} of {len(parts)} of one video; write scenes for this part only."]
-            if k:
-                note.append("Continue from the previous part: no new opening hook. Reuse these cast ids and looks "
+        if len(parts) > 1 or cast:
+            if len(parts) > 1:
+                print(f"  part {k + 1}/{len(parts)}...")
+            note = [f"This is part {k + 1} of {len(parts)} of "
+                    + ("a passage in the middle of one video" if cast else "one video")
+                    + "; write scenes for this text only."]
+            if k or cast:
+                note.append("Continue from what came before: no new opening hook. Reuse these cast ids and looks "
                             "exactly, adding a character only if the text needs one: "
                             + json.dumps(merged["cast"], ensure_ascii=False))
-            if k < len(parts) - 1:
-                note.append("Do not end the video or invite viewers to the next video yet.")
+            if k < len(parts) - 1 or cast:
+                note.append("Do not end the video or invite viewers to the next video.")
             system = f"{system}\n\n" + "\n".join(note)
         script = _ask(provider, system, user)
         if not merged:

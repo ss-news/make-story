@@ -96,6 +96,40 @@ def local_checks(script: dict, minutes: float) -> tuple[dict, list[dict]]:
             issues)
 
 
+def _plain(text: str) -> str:
+    return " ".join(re.findall(r"\w+", text.lower()))
+
+
+def coverage_issues(script: dict, source: str) -> list[dict]:
+    """For a kept narration: source sentences missing from the script, grouped, each anchored to the scene that
+    should come right before them (None = before the first scene)."""
+    sentences = [x.strip() for x in re.split(r"(?<=[.!?…])\s+|\n+", source) if _plain(x)]
+    scene_text = [_plain(" ".join(l["text"] for l in sc["lines"])) for sc in script["scenes"]]
+    issues, anchor, missing = [], None, []
+
+    def flush():
+        if missing:
+            text = " ".join(missing)
+            where = f"sau cảnh {anchor + 1}" if anchor is not None else "ở đầu video"
+            issues.append({"scene": anchor, "severity": "major", "missing": text,
+                           "problem": f"Thiếu lời kể gốc ({len(missing)} câu): "
+                           f"«{text[:300]}{'…' if len(text) > 300 else ''}»",
+                           "fix": f"Chèn nguyên văn các câu này {where}, thành cảnh mới (15-28 từ mỗi cảnh): {text}"})
+            missing.clear()
+
+    for sentence in sentences:
+        key = _plain(sentence)
+        # a long sentence may be split over neighbouring scenes, so look through a window of three
+        found = next((i for i in range(len(scene_text)) if key in " ".join(scene_text[i:i + 3])), None)
+        if found is None:
+            missing.append(sentence)
+        else:
+            flush()
+            anchor = found
+    flush()
+    return issues
+
+
 def compact(script: dict, indices=None) -> list[dict]:
     names = {c["id"]: c["name"] for c in script.get("cast", [])}
     return [{"scene": i, "place": s["bg_prompt"], "on_stage": [names.get(a["id"], a["id"]) for a in s["actors"]],
@@ -103,7 +137,7 @@ def compact(script: dict, indices=None) -> list[dict]:
             for i, s in enumerate(script["scenes"]) if indices is None or i in indices]
 
 
-def review(script: dict, source: str, minutes: float, provider: str, genre: str) -> dict:
+def review(script: dict, source: str, minutes: float, provider: str, genre: str, keep_text: bool = False) -> dict:
     system = ("You are a strict script editor for an animated YouTube "
               + ("science / psychology explainer" if genre == "explainer" else "story") + " channel. Score the script "
               "against the source text from 1 to 10 on each criterion, then list concrete problems with the scene "
@@ -123,6 +157,11 @@ def review(script: dict, source: str, minutes: float, provider: str, genre: str)
     length, local = local_checks(script, minutes)
     criteria.append(length)
     issues += local
+    if keep_text and source:
+        missing = coverage_issues(script, source)
+        criteria.append({"id": "coverage", "label": "Giữ đủ lời kể gốc", "score": max(1, 10 - 2 * len(missing)),
+                         "comment": "Đủ mọi câu." if not missing else f"Thiếu {len(missing)} đoạn so với lời kể gốc."})
+        issues += missing
     score = round(sum(c["score"] for c in criteria) / max(1, len(criteria)) * 10)
     verdict = "pass" if score >= PASS_SCORE and not any(i["severity"] == "major" for i in issues) else "fix"
     return {"kind": "review", "provider": provider, "score": score, "verdict": verdict, "criteria": criteria,
@@ -132,8 +171,17 @@ def review(script: dict, source: str, minutes: float, provider: str, genre: str)
 def revise(script: dict, source: str, issues: list[dict], provider: str, genre: str, lang: str) -> tuple[dict, list]:
     """Rewrite the scenes the issues point at (whole-video issues touch the opening). A scene may become several."""
     from .script import LANG_NAMES, SCENE_SCHEMA, _normalize
-    targets = sorted({i["scene"] for i in issues if i["scene"] is not None}
-                     | ({0, 1, 2} if any(i["scene"] is None for i in issues) else set()))
+    from .script import split_text, write_script
+    # missing narration is split into scenes again (in small parts) and inserted after its anchor scene
+    inserts: dict = {}
+    for issue in [i for i in issues if i.get("missing")]:
+        print(f"  re-splitting {len(issue['missing'])} characters of missing narration...")
+        part = write_script(issue["missing"], {"channel_name": "", "host": {}}, lang, 1, provider,
+                            genre=genre, keep_text=True, cast=script.get("cast", []))
+        inserts[issue["scene"]] = part["scenes"]
+    issues = [i for i in issues if not i.get("missing")]
+    whole = [i for i in issues if i["scene"] is None]
+    targets = sorted({i["scene"] for i in issues if i["scene"] is not None} | ({0, 1, 2} if whole else set()))
     targets = [i for i in targets if i < len(script["scenes"])]
     scene_schema = SCENE_SCHEMA["properties"]["scenes"]["items"]
     schema = {"type": "object", "required": ["replacements"], "properties": {"replacements": {"type": "array", "items": {
@@ -145,8 +193,10 @@ def revise(script: dict, source: str, issues: list[dict], provider: str, genre: 
         system = (f"You revise scenes of an animated {'explainer' if genre == 'explainer' else 'story'} script. For "
                   "each scene index given, return the replacement scene(s) in the same JSON shape: one scene, or "
                   "several when a scene is too long for one 10-second clip. Fix exactly the listed problems, stay "
-                  f"faithful to the source text, never invent facts, keep the cast ids, and write spoken lines in "
-                  f"{LANG_NAMES.get(lang, lang)}.")
+                  "faithful to the source text, never invent facts and keep the cast ids. When an issue says "
+                  "narration is missing, return the scene itself followed by new scenes that speak the missing "
+                  "sentences word for word (missing text that belongs before scene 0 goes before its own content). "
+                  f"Write spoken lines in {LANG_NAMES.get(lang, lang)}.")
         user = json.dumps({"source_text": source, "cast": script.get("cast", []),
                            "scenes": {i: script["scenes"][i] for i in batch},
                            "neighbours": compact(script, {j for i in batch for j in (i - 1, i + 1)} - set(batch)),
@@ -156,11 +206,11 @@ def revise(script: dict, source: str, issues: list[dict], provider: str, genre: 
         for item in _ask(provider, system, user, schema).get("replacements", []):
             if item.get("index") in batch and item.get("scenes"):
                 replacements[item["index"]] = item["scenes"]
-    scenes = []
+    scenes = list(inserts.get(None, []))
     for i, s in enumerate(script["scenes"]):
-        scenes += replacements.get(i, [s])
+        scenes += replacements.get(i, [s]) + inserts.get(i, [])
     revised = _normalize({**script, "scenes": scenes}, lang)
-    return revised, sorted(replacements)
+    return revised, sorted(set(replacements) | {i for i in inserts if i is not None})
 
 
 def load(project: Path) -> tuple[dict, dict, str, dict]:
@@ -184,7 +234,7 @@ def do_review(project: Path, provider: str) -> dict:
     script, meta, source, history = load(project)
     print(f"[review] {len(script['scenes'])} scenes ({provider})...")
     entry = record(project, history, review(script, source, float(meta.get("minutes", 2)), provider,
-                                            meta.get("genre", "story")))
+                                            meta.get("genre", "story"), bool(meta.get("keep_text"))))
     print(f"  score {entry['score']}/100 -> {entry['verdict']}; {len(entry['issues'])} issue(s)")
     for c in entry["criteria"]:
         print(f"    {c['score']:>2}/10 {c['label']}: {c['comment']}")
