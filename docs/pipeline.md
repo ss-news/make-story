@@ -169,6 +169,31 @@ Asset mới **chỉ** nằm trong `assets/bac-bo-stick/extra/`. Lệnh build b�
 - File âm thanh **không** được đưa vào git (điều khoản YouTube Audio Library cấm phát tán lại file). Chỉ manifest được lưu; tải lại theo `source` khi cần.
 - Chỉ người dùng hoặc Claude (khi người dùng đồng ý tải) thêm file mới. `python -m storyvid.check --assets` kiểm tra cả manifest âm thanh.
 
+## Hình AI bằng Muse: `storyvid.visuals/1`
+
+Thay cho sân khấu người que, mỗi cảnh có thể dùng **ảnh và clip do Muse tạo**. Kế hoạch hình nằm ở `output/<id>/visuals.json`, cạnh `scenes.json`. `scenes.json` giữ nguyên chuẩn `storyvid.scenes/1`, nên dự án vẫn dựng được bản người que như cũ.
+
+```
+scenes.json (đã đạt check)
+  │
+[a] python -m storyvid.visuals prompts output/<id> [--provider muse|offline|openai|codex] [--ratio 16:9|9:16]
+  │     ─► visuals.json: phong cách chung, ngoại hình cố định của từng nhân vật, prompt ảnh mở cảnh và prompt chuyển động
+  │     python -m storyvid.check --visuals output/<id>/visuals.json   (phải 0)
+[b] python -m storyvid.visuals cast output/<id>      ─► muse/cast/<id>.png   (ảnh mẫu nhân vật, người dùng duyệt)
+[c] python -m storyvid.visuals scenes output/<id>    ─► muse/scene_NN.png rồi muse/scene_NN.mp4
+  │     ảnh mở cảnh có đính kèm ảnh mẫu của các diễn viên trong cảnh; clip lấy ảnh đó làm khung đầu
+[d] python -m storyvid.cli --script output/<id>/scenes.json --visuals [--short]
+        giọng đọc + phụ đề + nhạc như bản thường, hình là clip của từng cảnh
+```
+
+- Muse được điều khiển qua **MuseFlow** (`museflow/`, `npm start`): app Electron giữ nhiều tài khoản Muse đã đăng nhập và mở API nội bộ ở `127.0.0.1:8770` (`MUSEFLOW_API` trong `.env`). Mỗi tài khoản sẵn sàng chạy một cảnh; một tài khoản thì các cảnh chạy lần lượt.
+- Muse bị từ chối thì tự thử lại một lần với phiên bản an toàn hơn. Lỗi còn lại ghi vào trường `error` của nhân vật hoặc cảnh; chạy lại bằng `--only <id hoặc số cảnh>` (thêm `--redo` để tạo lại cả file đã có).
+- Prompt ảnh chỉ mô tả các nhân vật **đang đứng trên sân khấu** ở cảnh đó (theo `actors` trong `scenes.json`), không dồn cả dàn nhân vật vào mọi prompt.
+- Muse luôn trả clip khoảng 10 giây. Khi dựng, độ dài cảnh theo giọng đọc: lời ngắn thì cắt clip; lời dài thì clip chạy chậm lại tối đa 1,35 lần, phần còn lại giữ khung cuối và đẩy máy nhẹ. Cảnh lời quá dài nên tách thành hai cảnh.
+- Viết lại prompt (`prompts`) giữ lại ảnh và clip của những cảnh có prompt không đổi.
+
+Quy tắc của `visuals.json`: đủ trường, không trường lạ (chỉ `error` là tùy chọn, do tool ghi). `scenes` có đúng số cảnh của `scenes.json`, cùng thứ tự. `cast[].id` là id trong `cast` của `scenes.json` hoặc `host`. Đường dẫn file nằm trong thư mục dự án; `""` là chưa tạo. Schema: `schema/visuals.v1.schema.json`. Tất cả làm được trong web UI, tab **3. Hình Muse**.
+
 ## Thư mục một dự án
 
 ```
@@ -186,6 +211,8 @@ output/<id>/
   video.mp4             video 16:9
   short/                giọng đọc riêng của Short
   video_short.mp4       Short 9:16 (1080x1920 với --res 1080), hình phủ kín khung dọc, tiêu đề và phụ đề nằm đè lên hình
+  visuals.json          kế hoạch hình Muse storyvid.visuals/1 (chỉ khi dùng Muse)
+  muse/                 ảnh mẫu nhân vật (cast/), ảnh mở cảnh và clip của từng cảnh
   log.txt               nhật ký lần chạy gần nhất (web UI)
 ```
 

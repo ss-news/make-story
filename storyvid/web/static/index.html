@@ -42,7 +42,8 @@
       <div class="tabs" role="tablist">
         <button class="tab active" data-tab="story">1. Truyện</button>
         <button class="tab" data-tab="script">2. Kịch bản <span class="count" id="sceneCount"></span></button>
-        <button class="tab" data-tab="video">3. Video</button>
+        <button class="tab" data-tab="muse">3. Hình Muse <span class="count" id="museCount"></span></button>
+        <button class="tab" data-tab="video">4. Video</button>
       </div>
 
       <div class="tabpane" data-pane="story">
@@ -95,11 +96,39 @@
         <p class="muted" id="noScript">Chưa có kịch bản. Quay lại tab Truyện và bấm “Viết kịch bản”.</p>
       </div>
 
+      <div class="tabpane hidden" data-pane="muse">
+        <div class="card muse-status">
+          <span id="museStatus" class="muted">Đang kiểm tra MuseFlow…</span>
+          <span class="grow"></span>
+          <button class="btn ghost small" id="museCheckBtn">Kiểm tra lại</button>
+        </div>
+        <div class="actions">
+          <label>Khung hình <select id="museRatio"><option value="16:9">16:9 ngang</option><option value="9:16">9:16 dọc</option></select></label>
+          <label>Viết prompt bằng <select id="museProvider">
+            <option value="muse">Muse (qua MuseFlow)</option><option value="offline">Không dùng AI (từ kịch bản)</option>
+            <option value="openai">API chuẩn OpenAI (.env)</option><option value="codex">Codex CLI</option></select></label>
+          <button class="btn" id="musePromptsBtn">1. Viết prompt hình</button>
+          <span class="grow"></span>
+          <button class="btn" id="museSaveBtn">Lưu prompt</button>
+          <button class="btn" id="museCastBtn">2. Tạo ảnh mẫu nhân vật</button>
+          <button class="btn primary" id="museScenesBtn">3. Tạo ảnh + clip các cảnh</button>
+        </div>
+        <p class="muted" id="museEmpty">Chưa có prompt hình. Bấm “Viết prompt hình” sau khi kịch bản đã xong.</p>
+        <div id="museBody" class="hidden">
+          <div class="card"><label class="block">Phong cách chung (thêm vào mọi prompt)<textarea id="museStyle" rows="2"></textarea></label></div>
+          <h3>Nhân vật</h3>
+          <div id="museCast" class="muse-cast"></div>
+          <h3>Cảnh</h3>
+          <div id="museScenes" class="scenes"></div>
+        </div>
+      </div>
+
       <div class="tabpane hidden" data-pane="video">
         <div class="actions">
           <label>Độ phân giải <select id="res">
             <option value="480">480p (nhanh)</option><option value="720" selected>720p</option><option value="1080">1080p</option>
           </select></label>
+          <label><input type="checkbox" id="useMuse"> Dùng clip Muse</label>
           <span class="grow"></span>
           <a class="btn hidden" id="downloadBtn" download>Tải MP4</a>
           <a class="btn hidden" id="downloadShortBtn" download>Tải Short</a>
@@ -141,7 +170,9 @@
           <label>Provider <select data-env="TTS_PROVIDER">
             <option value="edge">edge: giọng Edge (miễn phí, không chính thức)</option>
             <option value="elevenlabs">elevenlabs: ElevenLabs API</option>
+            <option value="vieneu">vieneu: VieNeu-TTS (tiếng Việt, chạy trên máy)</option>
           </select></label>
+          <label>Giọng VieNeu người dẫn chuyện (tùy chọn) <input data-env="VIENEU_NARRATOR_VOICE" placeholder="Thiện Minh"></label>
           <label>ElevenLabs key <input data-env="ELEVENLABS_API_KEY" type="password" autocomplete="off"><small data-secret="ELEVENLABS_API_KEY"></small></label>
           <label>Model ElevenLabs (tùy chọn) <input data-env="ELEVENLABS_MODEL" placeholder="eleven_multilingual_v2"></label>
           <label>Giọng người dẫn chuyện (id hoặc tên, tùy chọn) <input data-env="ELEVENLABS_NARRATOR_VOICE"></label>

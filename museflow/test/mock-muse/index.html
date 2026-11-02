@@ -1,0 +1,87 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Mock Muse</title>
+<style>body{font:14px sans-serif;background:#111;color:#eee;margin:0;padding:16px}#log>div{margin:8px 0;padding:8px;border:1px solid #333;border-radius:8px;white-space:pre-wrap}img,video{max-width:200px;display:block}form{position:sticky;bottom:0;background:#111;padding:8px 0}textarea{width:100%;height:60px}</style>
+</head><body>
+<div id="log"></div>
+<form id="composer" onsubmit="return false">
+  <div id="previews"></div>
+  <input id="file" type="file" accept="image/*" multiple hidden>
+  <textarea placeholder="Message Muse"></textarea>
+  <button type="button" aria-label="Send">Send</button>
+</form>
+<script>
+// Behaviour: script-writing prompts get a text reply in the MuseFlow scene template;
+// "video clip" prompts get a short recorded WebM; everything else gets a PNG.
+const log = document.getElementById('log'), box = document.querySelector('textarea'), form = document.getElementById('composer');
+const file = document.getElementById('file'), previews = document.getElementById('previews');
+let busy = 0, counter = 0;
+file.addEventListener('change', () => {
+  for (const f of file.files) { const img = new Image(); img.src = URL.createObjectURL(f); img.width = 40; previews.append(img); }
+});
+function bubble(cls) { const d = document.createElement('div'); d.className = cls; log.append(d); return d; }
+function setBusy(delta) {
+  busy += delta;
+  let stop = document.querySelector('[data-testid="hatch-composer-stop-button"]');
+  if (busy > 0 && !stop) { stop = document.createElement('button'); stop.type = 'button'; stop.dataset.testid = 'hatch-composer-stop-button'; stop.textContent = 'Stop'; form.append(stop); }
+  if (busy <= 0 && stop) stop.remove();
+}
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function ratio(prompt) { const m = /aspect ratio:?\s*(\d+):(\d+)/i.exec(prompt) || /Create a (\d+):(\d+)/.exec(prompt); return m ? [Number(m[1]), Number(m[2])] : [9, 16]; }
+function canvasFor(prompt) {
+  const [w, h] = ratio(prompt), c = document.createElement('canvas'); c.width = w * 40; c.height = h * 40;
+  const g = c.getContext('2d'); g.fillStyle = `hsl(${(counter * 67) % 360} 60% 45%)`; g.fillRect(0, 0, c.width, c.height);
+  g.fillStyle = '#fff'; g.font = '40px sans-serif'; g.fillText('#' + counter, 20, 60); return c;
+}
+function scene(n, start, len) {
+  const t = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  return `CẢNH ${n} (${t(start)}–${t(start + len)}): Cảnh thử ${n}
+Bối cảnh: Khu rừng.
+Voice (tiếng Việt): Lời kể cảnh ${n}.
+Khung đầu: Thỏ trắng đứng giữa rừng.
+Khung cuối: Thỏ trắng nhìn lên trời.
+Diễn biến: 0–3s thỏ bước đi; 3–${len}s thỏ dừng lại.
+Prompt ảnh khung đầu: ${n % 3 === 0 ? 'Cảnh rừng vắng, không có người' : n % 2 ? 'Thỏ Trắng' : 'Cáo Đỏ'} trong [SET LOCK], cảnh ${n}.
+Prompt video: ${n % 3 === 0 ? 'Gió thổi qua rừng vắng' : n % 2 ? 'Thỏ Trắng' : 'Cáo Đỏ'} bước đi trong [SET LOCK], cảnh ${n}. [VIDEO SUFFIX]
+Audio: Nhạc nhẹ, tiếng chim.
+Negative prompt: Không có bổ sung.`;
+}
+function scriptReply(prompt) {
+  const len = Number(/dài đúng (\d+) giây/.exec(prompt)?.[1] || 8);
+  const from = Number(/Bắt đầu từ CẢNH (\d+)/.exec(prompt)?.[1] || 1);
+  const scenes = [0, 1, 2].map(i => scene(from + i, (from + i - 1) * len, len)).join('\n\n');
+  if (from > 1) return scenes;
+  return `[STYLE LOCK]:\nHoạt hình 3D, tỷ lệ 9:16.\n\n[CHAR LOCK]:\nThỏ Trắng: thỏ trắng tai dài, áo đỏ.\nCáo Đỏ (con cáo): cáo lông đỏ, khăn xanh.\n\n[SET LOCK]:\nRừng thông buổi sáng.\n\n[VIDEO SUFFIX]:\nChuyển động mượt, không chữ.\n\n[NEGATIVE]:\nMéo hình, chữ trên hình.\n\n${scenes}`;
+}
+async function recordVideo(prompt) {
+  const c = canvasFor(prompt), g = c.getContext('2d'), stream = c.captureStream(15);
+  const audio = new AudioContext(), osc = audio.createOscillator(), dest = audio.createMediaStreamDestination();
+  osc.connect(dest); osc.start(); stream.addTrack(dest.stream.getAudioTracks()[0]);
+  const rec = new MediaRecorder(stream, { mimeType: 'video/webm' }), chunks = [];
+  rec.ondataavailable = e => chunks.push(e.data);
+  const done = new Promise(r => rec.onstop = r);
+  rec.start(200);
+  for (let f = 0; f < 30; f++) { g.fillStyle = `hsl(${(counter * 67 + f * 4) % 360} 60% 45%)`; g.fillRect(0, 0, c.width, c.height); await wait(66); }
+  rec.stop(); await done; osc.stop(); audio.close();
+  return URL.createObjectURL(new Blob(chunks, { type: 'video/webm' }));
+}
+async function respond(prompt) {
+  counter++; setBusy(1);
+  try {
+    await wait(800);
+    const reply = bubble('hatch-chat-groupable-bubble');
+    if (/Chuyển đoạn truyện|Tiếp tục viết kịch bản/.test(prompt)) { reply.innerText = scriptReply(prompt); return; }
+    const isVideo = /video clip/i.test(prompt);
+    const holder = document.createElement('div'); holder.dataset.testid = `hatch-chat-attachment-presentation-${isVideo ? 'video' : 'image'}-${counter}`;
+    if (isVideo) { const v = document.createElement('video'); v.src = await recordVideo(prompt); v.controls = true; holder.append(v); }
+    else { const img = document.createElement('img'); img.src = canvasFor(prompt).toDataURL('image/png'); holder.append(img); }
+    reply.append(holder);
+  } finally { setBusy(-1); }
+}
+document.querySelector('[aria-label="Send"]').onclick = () => {
+  const text = box.value.trim(); if (!text) return;
+  bubble('chat-user-bubble').textContent = `[refs:${file.files.length}] ` + text.slice(0, 200);
+  box.value = ''; previews.replaceChildren(); file.value = '';
+  respond(text);
+};
+</script>
+</body></html>

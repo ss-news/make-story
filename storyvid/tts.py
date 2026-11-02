@@ -1,4 +1,4 @@
-"""Step 2: narrate each scene (edge-tts or ElevenLabs) and build subtitle cues from word timings."""
+"""Step 2: narrate each scene (edge-tts, ElevenLabs or VieNeu-TTS) and build subtitle cues from word timings."""
 import hashlib
 import json
 import os
@@ -11,7 +11,7 @@ from pathlib import Path
 import edge_tts
 import numpy as np
 
-from . import elevenlabs
+from . import elevenlabs, vieneu
 from .ffmpeg import ffmpeg_exe
 
 SAMPLE_RATE = 24000
@@ -44,10 +44,10 @@ GHOST_TONE = (-16, -22)
 
 
 def tts_provider() -> str:
-    """edge (free, unofficial) or elevenlabs, from TTS_PROVIDER in .env."""
+    """edge (free, unofficial), elevenlabs or vieneu (Vietnamese, on this machine), from TTS_PROVIDER in .env."""
     provider = os.environ.get("TTS_PROVIDER", "").strip() or "edge"
-    if provider not in ("edge", "elevenlabs"):
-        raise RuntimeError(f"Unknown TTS_PROVIDER '{provider}': use edge or elevenlabs")
+    if provider not in ("edge", "elevenlabs", "vieneu"):
+        raise RuntimeError(f"Unknown TTS_PROVIDER '{provider}': use edge, elevenlabs or vieneu")
     return provider
 
 
@@ -211,6 +211,11 @@ def narrate(script: dict, voice: str, work_dir: Path, lang: str = "") -> dict:
         model = elevenlabs.model_for(lang)
         synthesize = lambda text, v, mp3, rate, pitch: elevenlabs.synthesize(  # noqa: E731
             text, v, mp3, elevenlabs.speed_from_rate(rate), model)
+    elif provider == "vieneu":
+        if (lang or script.get("lang")) != "vi":
+            raise RuntimeError("VieNeu-TTS only speaks Vietnamese; use TTS_PROVIDER=edge or elevenlabs for this video")
+        voices = {k: (v, "+0%", "+0Hz") for k, v in vieneu.cast_voices(script).items()}
+        synthesize = lambda text, v, path, rate, pitch: vieneu.synthesize(text, v, path)  # noqa: E731
     else:
         voices = cast_voices(script, voice, lang)
         synthesize = _synthesize

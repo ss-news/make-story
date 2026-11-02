@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "storyvid.visuals/1",
+  "title": "storyvid visuals.json (Muse images and clips for scenes.json)",
+  "type": "object",
+  "required": [
+    "cast",
+    "format",
+    "ratio",
+    "scenes",
+    "scenes_file",
+    "style"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "storyvid.visuals/1"
+    },
+    "scenes_file": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ratio": {
+      "type": "string",
+      "enum": [
+        "16:9",
+        "9:16"
+      ]
+    },
+    "style": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Visual style added to every image and clip prompt."
+    },
+    "cast": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "look",
+          "sheet"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "A cast id from scenes.json, or host."
+          },
+          "look": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Fixed appearance used for the character sheet and every scene the character is in."
+          },
+          "sheet": {
+            "type": "string",
+            "description": "File inside the project folder, or \"\" until generated."
+          },
+          "error": {
+            "type": "string",
+            "description": "Last generation error, written by the tool."
+          }
+        }
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "description": "One entry per scene of scenes.json, same order.",
+      "items": {
+        "type": "object",
+        "required": [
+          "clip",
+          "image",
+          "image_prompt",
+          "negative",
+          "video_prompt"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "image_prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Opening frame of the scene."
+          },
+          "video_prompt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Motion and action from that frame."
+          },
+          "negative": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "description": "File inside the project folder, or \"\" until generated."
+          },
+          "clip": {
+            "type": "string",
+            "description": "File inside the project folder, or \"\" until generated."
+          },
+          "error": {
+            "type": "string",
+            "description": "Last generation error, written by the tool."
+          }
+        }
+      }
+    }
+  }
+}

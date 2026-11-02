@@ -3,6 +3,7 @@
     python -m storyvid.cli examples/ma_da.txt --lang en
     python -m storyvid.cli --script output/ma_da/scenes.json      # re-render an edited script
     python -m storyvid.cli --script output/ma_da/scenes.json --short   # 9:16 Short -> video_short.mp4
+    python -m storyvid.cli --script output/ma_da/scenes.json --visuals  # Muse clips from visuals.json
 """
 import argparse
 import json
@@ -77,6 +78,8 @@ def main():
                     help="render the 9:16 Short (script's short.scenes, else the opening ~55 s) as video_short.mp4")
     ap.add_argument("--fallback", action="store_true",
                     help="render even when assets are missing: nearest pack background, missing props skipped")
+    ap.add_argument("--visuals", action="store_true",
+                    help="use the Muse clips in visuals.json (python -m storyvid.visuals) instead of the stage")
     args = ap.parse_args()
     if not args.story and not args.script:
         ap.error("give a story file or --script")
@@ -114,7 +117,8 @@ def main():
     if args.script_only:
         print(f"Done in {time.time() - started:.0f}s")
         return
-    if code == 2 and not args.fallback:
+    visuals = load_visuals(scenes_path, script, args.fallback) if args.visuals else None
+    if code == 2 and not args.fallback and not visuals:
         raise SystemExit(f"Assets missing: hand {scenes_path.parent / 'asset_requests.json'} to the asset agent, "
                          "or rerun with --fallback")
     args.lang = args.lang or script["lang"]
@@ -125,7 +129,7 @@ def main():
         raise SystemExit(f"No voice configured for '{args.lang}' in {args.channel}")
 
     if args.short:
-        render_short(script, channel, voice, out_dir, args)
+        render_short(script, channel, voice, out_dir, args, visuals)
         print(f"Done in {time.time() - started:.0f}s -> {out_dir / 'video_short.mp4'}")
         return
 
@@ -136,6 +140,16 @@ def main():
     add_sound(script, timeline, out_dir)
 
     size = RESOLUTIONS[args.res]
+    if visuals:
+        from .render_clips import ClipRenderer, scene_media
+        if visuals["ratio"] == "9:16":
+            size = (size[1], size[0])
+        video = out_dir / "video.mp4"
+        print(f"[3/3] Rendering {timeline['duration']:.1f}s from Muse clips at {size[0]}x{size[1]}...")
+        media = scene_media(scenes_path.parent, visuals, list(range(len(script["scenes"]))))
+        ClipRenderer(channel, size, args.fps).render_clips(timeline, media, video)
+        print(f"Done in {time.time() - started:.0f}s -> {video}")
+        return
     print("[3/4] Backgrounds...")
     bg_paths = make_backgrounds(script, (int(size[0] * 1.15), int(size[1] * 1.15)),
                                 ROOT / "cache" / "backgrounds")
@@ -161,7 +175,24 @@ def add_sound(script: dict, timeline: dict, work_dir: Path) -> None:
         print(f"  credits for the description -> {work_dir / 'credits.txt'}")
 
 
-def render_short(script: dict, channel: dict, voice: str, out_dir: Path, args) -> None:
+def load_visuals(scenes_path: Path, script: dict, fallback: bool) -> dict:
+    """visuals.json next to the script, checked; every scene needs a clip or image unless --fallback."""
+    from .contract import validate_visuals
+    path = scenes_path.parent / "visuals.json"
+    if not path.exists():
+        raise SystemExit(f"No {path}: run python -m storyvid.visuals prompts {scenes_path.parent}")
+    visuals = json.loads(path.read_text(encoding="utf-8"))
+    errors = validate_visuals(visuals, script, scenes_path.parent)
+    if errors:
+        raise SystemExit("\n".join(f"ERROR {e}" for e in errors))
+    missing = [i + 1 for i, s in enumerate(visuals["scenes"]) if not s["clip"] and not s["image"]]
+    if missing and not fallback:
+        raise SystemExit(f"Scenes without a clip or image: {missing}. Run python -m storyvid.visuals scenes "
+                         f"{scenes_path.parent}, or rerun with --fallback (black frames)")
+    return visuals
+
+
+def render_short(script: dict, channel: dict, voice: str, out_dir: Path, args, visuals: dict | None = None) -> None:
     picked = short_scenes(script)
     short = {**script, "scenes": [script["scenes"][i] for i in picked]}
     print(f"[short] scenes {picked}")
@@ -173,6 +204,13 @@ def render_short(script: dict, channel: dict, voice: str, out_dir: Path, args) -
     if timeline["duration"] > 60:
         print(f"  warning: {timeline['duration']:.0f}s is longer than 60 s; pick fewer scenes in short.scenes")
     width = RESOLUTIONS[args.res][1]  # 720 -> a 720x1280 Short
+    if visuals:
+        from .render_clips import ShortClipRenderer, scene_media
+        renderer = ShortClipRenderer(channel, width, args.fps, script["title"], args.lang)
+        print(f"[3/3] Rendering {timeline['duration']:.1f}s from Muse clips at "
+              f"{renderer.out_size[0]}x{renderer.out_size[1]}...")
+        renderer.render_clips(timeline, scene_media(out_dir, visuals, picked), out_dir / "video_short.mp4")
+        return
     print("[3/4] Backgrounds...")
     renderer = ShortRenderer(channel, width, args.fps, script["title"], args.lang)
     stage = int(renderer.H * 1.15)  # the vertical stage is cover-filled from a background this tall

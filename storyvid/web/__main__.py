@@ -25,7 +25,7 @@ ENV_PATH = ROOT / ".env"
 CHANNEL_PATH = ROOT / "channel.json"
 ENV_KEYS = ["LLM_PROVIDER", "LLM_BASE_URL", "LLM_MODEL", "LLM_API_KEY", "CODEX_BIN", "CODEX_MODEL",
             "TTS_PROVIDER", "ELEVENLABS_API_KEY", "ELEVENLABS_MODEL",
-            "ELEVENLABS_NARRATOR_VOICE"]
+            "ELEVENLABS_NARRATOR_VOICE", "VIENEU_NARRATOR_VOICE"]
 SECRET_KEYS = {"LLM_API_KEY", "ELEVENLABS_API_KEY"}
 
 app = Flask(__name__, static_folder="static", static_url_path="/static")
@@ -84,15 +84,15 @@ def summary(d: Path) -> dict:
     }
 
 
-def start_job(pid: str, d: Path, kind: str, args: list[str]) -> None:
+def start_job(pid: str, d: Path, kind: str, args: list[str], module: str = "storyvid.cli") -> None:
     with jobs_lock:
         proc = jobs.get(pid)
         if proc and proc.poll() is None:
             abort(409, "A job is already running for this project")
         log = open(d / "log.txt", "w", encoding="utf-8")
-        log.write(f"$ storyvid {' '.join(args)}\n")
+        log.write(f"$ {module} {' '.join(args)}\n")
         log.flush()
-        proc = subprocess.Popen([sys.executable, "-m", "storyvid.cli", *args], cwd=ROOT,
+        proc = subprocess.Popen([sys.executable, "-m", module, *args], cwd=ROOT,
                                 stdout=log, stderr=subprocess.STDOUT, env={**os.environ, "PYTHONUNBUFFERED": "1"})
         jobs[pid] = proc
         write_json(d / "job.json", {"state": "running", "kind": kind, "started": int(time.time())})
@@ -248,8 +248,71 @@ def run_render(pid):
     args = ["--script", str(d / "scenes.json"), "--out", str(d), "--lang", meta.get("lang", "en"), "--res", res]
     if body.get("short"):
         args.append("--short")
+    if body.get("visuals"):
+        args.append("--visuals")
     start_job(pid, d, "render", args)
     return jsonify(job_status(pid, d))
+
+
+# ---------- Muse visuals (storyvid/visuals.py, MuseFlow) ----------
+@app.get("/api/muse/status")
+def muse_status():
+    from ..visuals import muse
+    try:
+        return jsonify(running=True, **muse("/api/status", timeout=5))
+    except RuntimeError as e:
+        return jsonify(running=False, ready=0, accounts=[], error=str(e))
+
+
+@app.get("/api/projects/<pid>/visuals")
+def get_visuals(pid):
+    d = project_dir(pid)
+    return jsonify(read_json(d / "visuals.json"))
+
+
+@app.put("/api/projects/<pid>/visuals")
+def put_visuals(pid):
+    from ..contract import validate_visuals
+    d = project_dir(pid)
+    visuals = request.get_json(force=True)
+    errors = validate_visuals(visuals, read_json(d / "scenes.json"), d)
+    if errors:
+        abort(400, "; ".join(errors[:5]))
+    write_json(d / "visuals.json", visuals)
+    return jsonify(ok=True)
+
+
+@app.post("/api/projects/<pid>/visuals/<step>")
+def run_visuals(pid, step):
+    d = project_dir(pid)
+    if step not in ("prompts", "cast", "scenes"):
+        abort(404)
+    if not (d / "scenes.json").exists():
+        abort(400, "Write or create the script first")
+    body = request.get_json(silent=True) or {}
+    args = [step, str(d)]
+    if step == "prompts":
+        if body.get("provider") in ("offline", "muse", "openai", "codex"):
+            args += ["--provider", body["provider"]]
+        if body.get("ratio") in ("16:9", "9:16"):
+            args += ["--ratio", body["ratio"]]
+    if body.get("only") is not None and re.fullmatch(r"[a-z0-9_]+", str(body["only"])):
+        args += ["--only", str(body["only"])]
+    if body.get("redo"):
+        args.append("--redo")
+    if body.get("images_only"):
+        args.append("--images-only")
+    start_job(pid, d, f"visuals_{step}", args, module="storyvid.visuals")
+    return jsonify(job_status(pid, d))
+
+
+@app.get("/files/<pid>/muse/<path:name>")
+def muse_file(pid, name):
+    d = project_dir(pid)
+    path = (d / "muse" / name).resolve()
+    if not path.is_relative_to((d / "muse").resolve()) or not path.is_file():
+        abort(404)
+    return send_file(path, conditional=True)
 
 
 @app.post("/api/projects/<pid>/stop")
@@ -259,6 +322,12 @@ def stop_job(pid):
         proc = jobs.get(pid)
     if proc and proc.poll() is None:
         proc.terminate()
+        if read_json(d / "job.json", {}).get("kind", "").startswith("visuals_"):
+            from ..visuals import muse  # also cancel what MuseFlow is generating right now
+            try:
+                muse("/api/stop", {}, timeout=10)
+            except RuntimeError:
+                pass
     return jsonify(ok=True)
 
 

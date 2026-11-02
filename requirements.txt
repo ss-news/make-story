@@ -6,3 +6,5 @@ imageio-ffmpeg>=0.6
 flask>=3
 
 resvg-py>=0.5,<0.6
+# TTS_PROVIDER=vieneu (Vietnamese, on-device)
+vieneu>=3.8

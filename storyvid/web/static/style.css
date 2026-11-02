@@ -182,3 +182,15 @@ dialog form { display: flex; flex-direction: column; gap: 12px; }
 .character-custom > label { display: flex; flex-direction: row; align-items: center; gap: 8px; }
 
 .player.short { max-width: 360px; aspect-ratio: 9 / 16; display: block; margin-top: 12px; }
+
+/* Muse visuals tab */
+.muse-status { display: flex; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; }
+.muse-status.ok #museStatus { color: var(--ok); }
+.muse-cast { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.muse-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow); }
+.muse-card img, .muse-media img, .muse-media video { width: 100%; border-radius: 6px; background: #111; object-fit: contain; max-height: 220px; }
+.muse-card textarea, .muse-scene textarea { width: 100%; min-height: 60px; resize: vertical; }
+.muse-scene { grid-template-columns: 32px 1fr 260px; }
+.muse-media { display: flex; flex-direction: column; gap: 6px; }
+.muse-error { color: var(--danger, #c0392b); font-size: 12px; white-space: pre-wrap; }
+label.block { display: flex; flex-direction: column; gap: 6px; }

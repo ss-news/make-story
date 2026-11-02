@@ -43,6 +43,16 @@ Mở http://127.0.0.1:8765. Server chỉ nghe trên máy bạn, không mở ra m
 
 Mỗi dự án là một thư mục trong `output/<id>/`: `story.txt`, `meta.json`, `scenes.json`, `video.mp4`, `log.txt`.
 
+## Hình AI bằng Muse (MuseFlow)
+
+Mỗi cảnh có thể dùng ảnh và clip video do [Muse](https://muse.ai) tạo, thay cho người que. Cần MuseFlow chạy song song:
+
+```bash
+cd museflow && npm install && npm start     # mở app, bấm Accounts → Add account, đăng nhập Muse
+```
+
+Trong web UI, tab **3. Hình Muse**: viết prompt hình → tạo ảnh mẫu nhân vật (duyệt, tạo lại nếu chưa ưng) → tạo ảnh và clip các cảnh → tab **4. Video** tick **Dùng clip Muse** rồi dựng. Dòng lệnh và chuẩn `visuals.json`: [docs/pipeline.md](docs/pipeline.md#hình-ai-bằng-muse-storyvidvisuals1).
+
 ## Dòng lệnh
 
 ```bash
@@ -64,6 +74,10 @@ Tùy chọn: `--provider auto|openai|codex|claude|offline`, `--res 480|720|1080`
 | `ELEVENLABS_API_KEY` | Dùng cho `elevenlabs` |
 | `ELEVENLABS_MODEL` | Tùy chọn. Mặc định `eleven_multilingual_v2`; tiếng Việt dùng `eleven_flash_v2_5` vì v2 không có tiếng Việt |
 | `ELEVENLABS_NARRATOR_VOICE` | Tùy chọn. Id hoặc tên giọng người dẫn chuyện; để trống thì chọn một giọng nam trung niên trong tài khoản |
+| `VIENEU_NARRATOR_VOICE` | Dùng cho `TTS_PROVIDER=vieneu`. Tùy chọn, mặc định `Thiện Minh`; nhân vật được chia các giọng VieNeu khác theo giới tính |
+| `MUSEFLOW_API` | Tùy chọn. Địa chỉ API của MuseFlow, mặc định `http://127.0.0.1:8770` |
+
+`vieneu`: [VieNeu-TTS](https://github.com/pnnbao97/VieNeu-TTS), giọng tiếng Việt chạy ngay trên CPU của máy, miễn phí (Apache-2.0), 25 giọng Bắc, Trung, Nam. Cài bằng `.venv/bin/pip install vieneu`; lần đầu tải model khoảng 0,5 GB vào `cache/vieneu/`. Chỉ đọc tiếng Việt. VieNeu không trả mốc thời gian từng chữ, nên phụ đề được chia theo độ dài chữ (lệch nhẹ so với ElevenLabs).
 
 Với ElevenLabs, mỗi nhân vật được chọn một giọng riêng trong tài khoản theo giới tính và tuổi. ElevenLabs không chỉnh được cao độ, nên tuổi và ma chỉ làm chậm tốc độ đọc. Mỗi câu đã đọc được lưu trong `cache/tts/`, nên dựng lại video không tốn thêm ký tự. Gói Free có khoảng 10.000 ký tự/tháng và **không được dùng cho kênh bật kiếm tiền**.
 
@@ -128,7 +142,11 @@ Giọng nhân vật: giới tính lấy theo preset, cao độ và tốc độ c
 
 - `storyvid/script.py`: prompt, schema, chuẩn hóa kịch bản, chế độ offline
 - `storyvid/llm.py`: provider chuẩn OpenAI và Codex CLI
-- `storyvid/tts.py`: edge-tts hoặc ElevenLabs, phụ đề có dấu câu
+- `storyvid/tts.py`: edge-tts, ElevenLabs hoặc VieNeu-TTS, phụ đề có dấu câu
+- `storyvid/vieneu.py`: VieNeu-TTS chạy trên máy, chọn giọng, cache
+- `storyvid/visuals.py`: hình Muse (`visuals.json`): viết prompt, gọi MuseFlow tạo ảnh mẫu, ảnh cảnh và clip
+- `storyvid/render_clips.py`: dựng video từ clip Muse, khớp độ dài với giọng đọc
+- `museflow/`: app Electron MuseFlow, giữ nhiều tài khoản Muse và mở API nội bộ (GPL-2.0, xem `museflow/LICENSE`)
 - `storyvid/elevenlabs.py`: gọi ElevenLabs, chọn giọng, cache
 - `storyvid/contract.py`: chuẩn kịch bản `storyvid.scenes/1`, bộ kiểm tra, yêu cầu asset, schema
 - `storyvid/check.py`: lệnh kiểm tra kịch bản và asset

@@ -13,7 +13,8 @@ const LABELS = {
   camera: { zoom_in: "Zoom vào", zoom_out: "Zoom ra", pan_left: "Lia trái", pan_right: "Lia phải", static: "Đứng yên" },
 };
 const STATUS = { running: "đang chạy", done: "xong", failed: "lỗi", interrupted: "bị ngắt", idle: "" };
-const JOBS = { script: "Viết kịch bản", render: "Dựng video" };
+const JOBS = { script: "Viết kịch bản", render: "Dựng video", visuals_prompts: "Viết prompt hình",
+  visuals_cast: "Tạo ảnh mẫu nhân vật", visuals_scenes: "Tạo ảnh và clip cảnh" };
 
 async function api(path, opts = {}) {
   const res = await fetch(path, {
@@ -74,6 +75,8 @@ async function openProject(id, tab) {
   $("#story").value = p.story;
   renderScript();
   renderVideo();
+  await loadVisuals();
+  checkMuse();
   renderJob(p.status);
   selectTab(tab || (p.has_video ? "video" : p.script ? "script" : "story"));
   loadProjects();
@@ -427,6 +430,8 @@ function renderJob(st) {
   $("#writeScriptBtn").disabled = busy;
   $("#renderBtn").disabled = busy;
   $("#renderShortBtn").disabled = busy;
+  for (const id of ["musePromptsBtn", "museCastBtn", "museScenesBtn", "museSaveBtn"]) $("#" + id).disabled = busy;
+  $$(".muse-redo").forEach((b) => (b.disabled = busy));
 }
 
 function startPolling() {
@@ -439,6 +444,7 @@ function startPolling() {
     const pre = $("#log");
     pre.scrollTop = pre.scrollHeight;
     renderJob(status);
+    if (status.kind?.startsWith("visuals_") && !state.visualsDirty) await loadVisuals();  // show progress
     if (status.state !== "running") {
       clearInterval(state.poll);
       if (status.state === "failed") { $("#logBox").open = true; toast("Tác vụ bị lỗi, xem nhật ký", true); }
@@ -449,8 +455,9 @@ function startPolling() {
       renderVideo();
       loadProjects();
       if (status.state === "done") {
-        toast(status.kind === "script" ? "Đã viết xong kịch bản" : "Video đã dựng xong");
-        selectTab(status.kind === "script" ? "script" : "video");
+        const muse = status.kind?.startsWith("visuals_");
+        toast(muse ? `${JOBS[status.kind]}: xong` : status.kind === "script" ? "Đã viết xong kịch bản" : "Video đã dựng xong");
+        selectTab(muse ? "muse" : status.kind === "script" ? "script" : "video");
       }
     }
   }), 1500);
@@ -471,7 +478,8 @@ async function writeScript() {
 async function renderVideoJob(short = false) {
   if (state.dirty) await saveScript();
   await saveMeta();
-  renderJob(await api(`/api/projects/${state.current.id}/render`, { method: "POST", body: { res: $("#res").value, short } }));
+  renderJob(await api(`/api/projects/${state.current.id}/render`, { method: "POST",
+    body: { res: $("#res").value, short, visuals: $("#useMuse").checked } }));
   $("#logBox").open = true;
   startPolling();
 }
@@ -512,6 +520,107 @@ function renderVideo() {
     strip.appendChild(f);
   }
   api(`/api/projects/${p.id}/log`).then(({ log }) => ($("#log").textContent = log || "Chưa chạy lần nào."));
+}
+
+// ---------- Muse visuals ----------
+async function checkMuse() {
+  const box = $(".muse-status");
+  try {
+    const st = await api("/api/muse/status");
+    box.classList.toggle("ok", st.running && st.ready > 0);
+    $("#museStatus").textContent = !st.running ? "MuseFlow chưa chạy. Mở nó bằng: cd museflow && npm start"
+      : st.ready ? `MuseFlow: ${st.ready}/${st.accounts.length} tài khoản Muse sẵn sàng`
+      : "MuseFlow đang chạy nhưng chưa có tài khoản Muse nào đăng nhập (mở Accounts trong MuseFlow)";
+  } catch (e) { $("#museStatus").textContent = e.message; }
+}
+
+async function loadVisuals() {
+  state.visuals = await api(`/api/projects/${state.current.id}/visuals`);
+  state.visualsDirty = false;
+  renderMuse();
+}
+
+const museUrl = (file) => `/files/${state.current.id}/${file}?v=${Date.now() % 1e7}`;
+
+function renderMuse() {
+  const v = state.visuals, script = state.current.script;
+  $("#museEmpty").classList.toggle("hidden", !!v);
+  $("#museBody").classList.toggle("hidden", !v);
+  const clips = v ? v.scenes.filter((s) => s.clip).length : 0;
+  $("#museCount").textContent = v ? `${clips}/${v.scenes.length}` : "";
+  $("#useMuse").checked = !!v && clips > 0;
+  if (!v) return;
+  $("#museRatio").value = v.ratio;
+  $("#museStyle").value = v.style;
+  $("#museStyle").oninput = (e) => { v.style = e.target.value; state.visualsDirty = true; };
+  const names = Object.fromEntries((script?.cast || []).map((c) => [c.id, c.name]));
+  names[HOST_ID] = state.settings?.channel?.host?.name || "Người dẫn";
+  const cast = $("#museCast");
+  cast.innerHTML = "";
+  for (const c of v.cast) {
+    const card = document.createElement("div");
+    card.className = "muse-card";
+    card.innerHTML = `<strong></strong><textarea></textarea><div class="muse-media"></div><div class="muse-error"></div>
+      <button class="btn small muse-redo"></button>`;
+    card.querySelector("strong").textContent = names[c.id] || c.id;
+    const look = card.querySelector("textarea");
+    look.value = c.look;
+    look.oninput = () => { c.look = look.value; state.visualsDirty = true; };
+    if (c.sheet) card.querySelector(".muse-media").innerHTML = `<img alt="" src="${museUrl(c.sheet)}">`;
+    card.querySelector(".muse-error").textContent = c.error || "";
+    const redo = card.querySelector("button");
+    redo.textContent = c.sheet ? "↻ Tạo lại ảnh mẫu" : "▶ Tạo ảnh mẫu";
+    redo.onclick = run(() => runVisuals("cast", { only: c.id, redo: true }));
+    cast.appendChild(card);
+  }
+  const list = $("#museScenes");
+  list.innerHTML = "";
+  v.scenes.forEach((sc, i) => {
+    const el = document.createElement("div");
+    el.className = "scene muse-scene";
+    const narration = (script?.scenes[i]?.lines || []).map((l) => l.text).join(" ");
+    el.innerHTML = `<div><b>${i + 1}</b></div>
+      <div class="muse-prompts"><p class="muted small"></p>
+        <label class="block">Ảnh mở cảnh<textarea data-k="image_prompt"></textarea></label>
+        <label class="block">Chuyển động (clip)<textarea data-k="video_prompt"></textarea></label>
+        <div class="muse-error"></div></div>
+      <div class="muse-media"><div class="files"></div>
+        <button class="btn small muse-redo" data-redo="clip">↻ Tạo lại clip</button>
+        <button class="btn small muse-redo" data-redo="all">↻ Tạo lại ảnh + clip</button></div>`;
+    el.querySelector("p").textContent = narration;
+    for (const ta of el.querySelectorAll("textarea")) {
+      ta.value = sc[ta.dataset.k];
+      ta.oninput = () => { sc[ta.dataset.k] = ta.value; state.visualsDirty = true; };
+    }
+    el.querySelector(".muse-error").textContent = sc.error || "";
+    const files = el.querySelector(".files");
+    if (sc.clip) files.innerHTML = `<video controls muted preload="metadata" src="${museUrl(sc.clip)}"></video>`;
+    else if (sc.image) files.innerHTML = `<img alt="" src="${museUrl(sc.image)}">`;
+    else files.innerHTML = `<p class="muted small">Chưa tạo</p>`;
+    el.querySelector('[data-redo="clip"]').disabled = !sc.image;
+    el.querySelector('[data-redo="clip"]').onclick = run(async () => {
+      sc.clip = ""; state.visualsDirty = true;  // keep the image, make only a new clip
+      await runVisuals("scenes", { only: i });
+    });
+    el.querySelector('[data-redo="all"]').onclick = run(() => runVisuals("scenes", { only: i, redo: true }));
+    list.appendChild(el);
+  });
+}
+
+async function saveVisuals() {
+  if (!state.visuals) return;
+  state.visuals.ratio = $("#museRatio").value;
+  await api(`/api/projects/${state.current.id}/visuals`, { method: "PUT", body: state.visuals });
+  state.visualsDirty = false;
+}
+
+async function runVisuals(step, body = {}) {
+  if (step !== "prompts") await saveVisuals();
+  else if (state.visuals && !confirm("Viết lại prompt? Ảnh và clip của cảnh có prompt không đổi được giữ lại.")) return;
+  if (state.dirty) await saveScript();
+  renderJob(await api(`/api/projects/${state.current.id}/visuals/${step}`, { method: "POST", body }));
+  $("#log").textContent = "";
+  startPolling();
 }
 
 // ---------- settings ----------
@@ -622,6 +731,11 @@ async function init() {
   $("#addCastBtn").onclick = addCast;
   $("#renderBtn").onclick = run(() => renderVideoJob(false));
   $("#renderShortBtn").onclick = run(() => renderVideoJob(true));
+  $("#museCheckBtn").onclick = run(checkMuse);
+  $("#musePromptsBtn").onclick = run(() => runVisuals("prompts", { provider: $("#museProvider").value, ratio: $("#museRatio").value }));
+  $("#museSaveBtn").onclick = run(async () => { await saveVisuals(); toast("Đã lưu prompt hình"); });
+  $("#museCastBtn").onclick = run(() => runVisuals("cast"));
+  $("#museScenesBtn").onclick = run(() => runVisuals("scenes"));
   $("#stopBtn").onclick = run(() => api(`/api/projects/${state.current.id}/stop`, { method: "POST" }));
   $("#deleteBtn").onclick = run(async () => {
     if (!confirm(`Xóa dự án "${state.current.name}" và toàn bộ file của nó?`)) return;

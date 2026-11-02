@@ -1,0 +1,15 @@
+{
+  "name": "museflow-desktop",
+  "version": "0.6.0",
+  "description": "MuseFlow desktop: workflow canvas driving multiple signed-in Muse accounts",
+  "main": "electron/main.js",
+  "license": "GPL-2.0-or-later",
+  "scripts": {
+    "start": "electron .",
+    "mock-muse": "node test/mock-muse/server.js",
+    "start:mock": "MUSEFLOW_MUSE_HOME=http://127.0.0.1:4777/ MUSEFLOW_USER_DATA=./.mock-userdata electron ."
+  },
+  "devDependencies": {
+    "electron": "^38.8.6"
+  }
+}

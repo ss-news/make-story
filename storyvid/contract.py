@@ -20,6 +20,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "schema" / "scenes.v1.schema.json"
 CATALOG_PATH = ROOT / "schema" / "assets.catalog.json"
 REVIEW_SCHEMA_PATH = ROOT / "schema" / "review.v1.schema.json"
+VISUALS_FORMAT = "storyvid.visuals/1"
+VISUALS_SCHEMA_PATH = ROOT / "schema" / "visuals.v1.schema.json"
 SLUG = r"^[a-z][a-z0-9_]*$"
 BG_SLUG = r"^[a-z][a-z0-9_]*_(day|night)$"
 MAX_ACTORS = 3
@@ -361,6 +363,105 @@ def json_schema() -> dict:
     }
 
 
+VISUALS_KEYS = {"format", "scenes_file", "ratio", "style", "cast", "scenes"}
+VISUAL_CAST_KEYS = {"id", "look", "sheet"}
+VISUAL_SCENE_KEYS = {"image_prompt", "video_prompt", "negative", "image", "clip"}
+VISUAL_OPTIONAL_KEYS = {"error"}  # last generation error, written by the tool
+RATIOS = ["16:9", "9:16"]
+
+
+def _media_path(value, where: str, errors: list, base: Path | None) -> None:
+    """"" (not generated yet) or a file inside the project folder."""
+    if not isinstance(value, str):
+        errors.append(f"{where}: must be a string")
+        return
+    if not value:
+        return
+    if value.startswith("/") or ".." in Path(value).parts:
+        errors.append(f"{where}: must be a path inside the project folder")
+    elif base is not None and not (base / value).is_file():
+        errors.append(f"{where}: file {value} does not exist")
+
+
+def validate_visuals(visuals, script: dict | None = None, base: Path | None = None) -> list[str]:
+    """Problems in visuals.json: the Muse image/clip plan that sits next to scenes.json.
+
+    script: the scenes.json it belongs to (scene count and cast ids must match). base: the project folder,
+    to check that generated files exist."""
+    errors: list[str] = []
+    if not _keys(visuals, VISUALS_KEYS, "$", errors):
+        return errors
+    if visuals["format"] != VISUALS_FORMAT:
+        errors.append(f"$.format: must be {VISUALS_FORMAT!r}")
+    _text(visuals["scenes_file"], "$.scenes_file", errors)
+    _enum(visuals["ratio"], RATIOS, "$.ratio", errors)
+    _text(visuals["style"], "$.style", errors)
+    cast_ids = {c["id"] for c in (script or {}).get("cast", []) if isinstance(c, dict)} | {HOST}
+    seen = set()
+    for i, c in enumerate(visuals["cast"] if isinstance(visuals["cast"], list) else []):
+        where = f"$.cast[{i}]"
+        if not _keys(c, VISUAL_CAST_KEYS, where, errors, VISUAL_OPTIONAL_KEYS):
+            continue
+        if _slug(c["id"], SLUG, f"{where}.id", errors):
+            if script is not None and c["id"] not in cast_ids:
+                errors.append(f"{where}.id: {c['id']!r} is not in the cast of scenes.json")
+            if c["id"] in seen:
+                errors.append(f"{where}.id: {c['id']!r} is listed twice")
+            seen.add(c["id"])
+        _text(c["look"], f"{where}.look", errors)
+        _media_path(c["sheet"], f"{where}.sheet", errors, base)
+    if not isinstance(visuals["cast"], list):
+        errors.append("$.cast: must be a list")
+    scenes = visuals["scenes"] if isinstance(visuals["scenes"], list) else []
+    if not isinstance(visuals["scenes"], list):
+        errors.append("$.scenes: must be a list")
+    elif script is not None and len(scenes) != len(script.get("scenes", [])):
+        errors.append(f"$.scenes: has {len(scenes)} scene(s), scenes.json has {len(script.get('scenes', []))}")
+    for i, sc in enumerate(scenes):
+        where = f"$.scenes[{i}]"
+        if not _keys(sc, VISUAL_SCENE_KEYS, where, errors, VISUAL_OPTIONAL_KEYS):
+            continue
+        _text(sc["image_prompt"], f"{where}.image_prompt", errors)
+        _text(sc["video_prompt"], f"{where}.video_prompt", errors)
+        if not isinstance(sc["negative"], str):
+            errors.append(f"{where}.negative: must be a string")
+        _media_path(sc["image"], f"{where}.image", errors, base)
+        _media_path(sc["clip"], f"{where}.clip", errors, base)
+    return errors
+
+
+def visuals_schema() -> dict:
+    string = {"type": "string", "minLength": 1}
+    media = {"type": "string", "description": "File inside the project folder, or \"\" until generated."}
+    error = {"type": "string", "description": "Last generation error, written by the tool."}
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": VISUALS_FORMAT,
+        "title": "storyvid visuals.json (Muse images and clips for scenes.json)",
+        "type": "object",
+        "required": sorted(VISUALS_KEYS),
+        "additionalProperties": False,
+        "properties": {
+            "format": {"const": VISUALS_FORMAT},
+            "scenes_file": string,
+            "ratio": {"type": "string", "enum": RATIOS},
+            "style": {**string, "description": "Visual style added to every image and clip prompt."},
+            "cast": {"type": "array", "items": {
+                "type": "object", "required": sorted(VISUAL_CAST_KEYS), "additionalProperties": False,
+                "properties": {"id": {"type": "string", "pattern": SLUG,
+                                      "description": "A cast id from scenes.json, or host."},
+                               "look": {**string, "description": "Fixed appearance used for the character sheet "
+                                                                 "and every scene the character is in."},
+                               "sheet": media, "error": error}}},
+            "scenes": {"type": "array", "description": "One entry per scene of scenes.json, same order.", "items": {
+                "type": "object", "required": sorted(VISUAL_SCENE_KEYS), "additionalProperties": False,
+                "properties": {"image_prompt": {**string, "description": "Opening frame of the scene."},
+                               "video_prompt": {**string, "description": "Motion and action from that frame."},
+                               "negative": {"type": "string"}, "image": media, "clip": media, "error": error}}},
+        },
+    }
+
+
 def catalog() -> dict:
     """Every id an agent can use without requesting a new asset."""
     return {
@@ -380,3 +481,4 @@ def write_reference_files() -> None:
     SCHEMA_PATH.write_text(json.dumps(json_schema(), ensure_ascii=False, indent=2) + "\n")
     CATALOG_PATH.write_text(json.dumps(catalog(), ensure_ascii=False, indent=2) + "\n")
     REVIEW_SCHEMA_PATH.write_text(json.dumps(review_schema(), ensure_ascii=False, indent=2) + "\n")
+    VISUALS_SCHEMA_PATH.write_text(json.dumps(visuals_schema(), ensure_ascii=False, indent=2) + "\n")
