@@ -52,6 +52,21 @@ function scriptReply(prompt) {
   if (from > 1) return scenes;
   return `[STYLE LOCK]:\nHoạt hình 3D, tỷ lệ 9:16.\n\n[CHAR LOCK]:\nThỏ Trắng: thỏ trắng tai dài, áo đỏ.\nCáo Đỏ (con cáo): cáo lông đỏ, khăn xanh.\n\n[SET LOCK]:\nRừng thông buổi sáng.\n\n[VIDEO SUFFIX]:\nChuyển động mượt, không chữ.\n\n[NEGATIVE]:\nMéo hình, chữ trên hình.\n\n${scenes}`;
 }
+// storyvid asks for JSON: a scenes.json draft when the prompt has a STORY, otherwise visual prompts
+function jsonReply(prompt) {
+  if (/\nSTORY:\n/.test(prompt)) {
+    const scene = (text, actors) => ({ bg_id: 'interior_night', bg_prompt: 'small bedroom at night', camera: 'zoom_in',
+      actors, props: [], lines: [{ speaker: 'narrator', text }] });
+    const lan = [{ id: 'lan', position: 'center', pose: 'idle', expression: 'neutral', action: 'none' }];
+    return JSON.stringify({ title: 'Lan puts the phone down',
+      cast: [{ id: 'lan', name: 'Lan', preset: 'young_woman', outfit: 'indigo', accessory: 'none', kind: 'human' }],
+      scenes: [scene('Every night Lan scrolled until late.', lan), scene('One night she put the phone down.', lan),
+               scene('She slept better than ever.', [])] });
+  }
+  const indices = [...prompt.matchAll(/"index": ?(\d+)/g)].map(m => Number(m[1]));
+  return JSON.stringify({ style: 'mock style', cast: [{ id: 'lan', look: 'Lan, mock look' }],
+    scenes: indices.map(i => ({ index: i, image_prompt: `mock image ${i}`, video_prompt: `mock motion ${i}`, negative: 'text' })) });
+}
 async function recordVideo(prompt) {
   const c = canvasFor(prompt), g = c.getContext('2d'), stream = c.captureStream(15);
   const audio = new AudioContext(), osc = audio.createOscillator(), dest = audio.createMediaStreamDestination();
@@ -70,6 +85,7 @@ async function respond(prompt) {
     await wait(800);
     const reply = bubble('hatch-chat-groupable-bubble');
     if (/Chuyển đoạn truyện|Tiếp tục viết kịch bản/.test(prompt)) { reply.innerText = scriptReply(prompt); return; }
+    if (/Reply with only one JSON object/.test(prompt)) { reply.innerText = jsonReply(prompt); return; }
     const isVideo = /video clip/i.test(prompt);
     const holder = document.createElement('div'); holder.dataset.testid = `hatch-chat-attachment-presentation-${isVideo ? 'video' : 'image'}-${counter}`;
     if (isVideo) { const v = document.createElement('video'); v.src = await recordVideo(prompt); v.controls = true; holder.append(v); }

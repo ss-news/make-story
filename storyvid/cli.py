@@ -66,9 +66,9 @@ def main():
     ap.add_argument("--script", help="skip the LLM and render an existing scenes.json")
     ap.add_argument("--lang", help="narration language: en, vi, de, fr, es (default: the script's lang, else en)")
     ap.add_argument("--minutes", type=float, default=2.0, help="target narration length")
-    ap.add_argument("--provider", choices=["auto", "openai", "codex", "claude", "offline"], default="auto",
-                    help="auto = LLM_PROVIDER from .env; openai = any OpenAI-compatible API; codex = Codex CLI; "
-                         "claude = Anthropic API; offline = split the text as-is")
+    ap.add_argument("--provider", choices=["auto", "muse", "openai", "codex", "claude", "offline"], default="auto",
+                    help="auto = LLM_PROVIDER from .env; muse = Muse through MuseFlow (no key); openai = any "
+                         "OpenAI-compatible API; codex = Codex CLI; claude = Anthropic API; offline = split the text as-is")
     ap.add_argument("--channel", default=str(ROOT / "channel.json"))
     ap.add_argument("--res", choices=RESOLUTIONS, default="720")
     ap.add_argument("--fps", type=int, default=30)

@@ -364,6 +364,7 @@ def json_schema() -> dict:
 
 
 VISUALS_KEYS = {"format", "scenes_file", "ratio", "style", "cast", "scenes"}
+VISUALS_OPTIONAL_KEYS = {"style_refs"}  # images that show the style, attached to every sheet and scene image
 VISUAL_CAST_KEYS = {"id", "look", "sheet"}
 VISUAL_SCENE_KEYS = {"image_prompt", "video_prompt", "negative", "image", "clip"}
 VISUAL_OPTIONAL_KEYS = {"error"}  # last generation error, written by the tool
@@ -389,8 +390,15 @@ def validate_visuals(visuals, script: dict | None = None, base: Path | None = No
     script: the scenes.json it belongs to (scene count and cast ids must match). base: the project folder,
     to check that generated files exist."""
     errors: list[str] = []
-    if not _keys(visuals, VISUALS_KEYS, "$", errors):
+    if not _keys(visuals, VISUALS_KEYS, "$", errors, VISUALS_OPTIONAL_KEYS):
         return errors
+    refs = visuals.get("style_refs", [])
+    if not isinstance(refs, list):
+        errors.append("$.style_refs: must be a list")
+    else:
+        for i, ref in enumerate(refs):
+            _text(ref, f"$.style_refs[{i}]", errors)
+            _media_path(ref, f"$.style_refs[{i}]", errors, base)
     if visuals["format"] != VISUALS_FORMAT:
         errors.append(f"$.format: must be {VISUALS_FORMAT!r}")
     _text(visuals["scenes_file"], "$.scenes_file", errors)
@@ -446,6 +454,9 @@ def visuals_schema() -> dict:
             "scenes_file": string,
             "ratio": {"type": "string", "enum": RATIOS},
             "style": {**string, "description": "Visual style added to every image and clip prompt."},
+            "style_refs": {"type": "array", "items": {"type": "string", "minLength": 1},
+                           "description": "Optional. Images inside the project folder that show the style; "
+                                          "attached to every character sheet and scene image."},
             "cast": {"type": "array", "items": {
                 "type": "object", "required": sorted(VISUAL_CAST_KEYS), "additionalProperties": False,
                 "properties": {"id": {"type": "string", "pattern": SLUG,

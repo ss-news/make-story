@@ -14,7 +14,7 @@ const LABELS = {
 };
 const STATUS = { running: "đang chạy", done: "xong", failed: "lỗi", interrupted: "bị ngắt", idle: "" };
 const JOBS = { script: "Viết kịch bản", render: "Dựng video", visuals_prompts: "Viết prompt hình",
-  visuals_cast: "Tạo ảnh mẫu nhân vật", visuals_scenes: "Tạo ảnh và clip cảnh" };
+  visuals_cast: "Tạo ảnh mẫu nhân vật", visuals_scenes: "Tạo ảnh và clip cảnh", style_samples: "Muse vẽ mẫu phong cách" };
 
 async function api(path, opts = {}) {
   const res = await fetch(path, {
@@ -75,10 +75,12 @@ async function openProject(id, tab) {
   $("#story").value = p.story;
   renderScript();
   renderVideo();
-  await loadVisuals();
+  renderReview();
+  await Promise.all([loadVisuals(), loadStyles(), loadVoices()]);
   checkMuse();
   renderJob(p.status);
-  selectTab(tab || (p.has_video ? "video" : p.script ? "script" : "story"));
+  selectTab(tab || (!p.meta.style ? "style" : !p.script ? "story" : !p.approved ? "script"
+    : p.has_video ? "video" : "muse"));
   loadProjects();
   if (p.status.state === "running") startPolling();
 }
@@ -352,6 +354,7 @@ async function saveScript() {
   state.script = structuredClone(p.script);
   state.dirty = false;
   renderScript();
+  renderReview();
   loadProjects();
   toast("Đã lưu kịch bản");
 }
@@ -430,7 +433,8 @@ function renderJob(st) {
   $("#writeScriptBtn").disabled = busy;
   $("#renderBtn").disabled = busy;
   $("#renderShortBtn").disabled = busy;
-  for (const id of ["musePromptsBtn", "museCastBtn", "museScenesBtn", "museSaveBtn"]) $("#" + id).disabled = busy;
+  for (const id of ["musePromptsBtn", "museCastBtn", "museImagesBtn", "museClipsBtn", "museSaveBtn", "approveBtn",
+    "sampleStylesBtn", "sampleCustomBtn"]) $("#" + id).disabled = busy;
   $$(".muse-redo").forEach((b) => (b.disabled = busy));
 }
 
@@ -456,8 +460,11 @@ function startPolling() {
       loadProjects();
       if (status.state === "done") {
         const muse = status.kind?.startsWith("visuals_");
-        toast(muse ? `${JOBS[status.kind]}: xong` : status.kind === "script" ? "Đã viết xong kịch bản" : "Video đã dựng xong");
-        selectTab(muse ? "muse" : status.kind === "script" ? "script" : "video");
+        toast(muse || status.kind === "style_samples" ? `${JOBS[status.kind]}: xong`
+          : status.kind === "script" ? "Đã viết xong kịch bản. Đọc kỹ rồi bấm Duyệt" : "Video đã dựng xong");
+        if (status.kind === "style_samples") await loadStyles();
+        renderReview();
+        selectTab(status.kind === "style_samples" ? "style" : muse ? "muse" : status.kind === "script" ? "script" : "video");
       }
     }
   }), 1500);
@@ -522,6 +529,118 @@ function renderVideo() {
   api(`/api/projects/${p.id}/log`).then(({ log }) => ($("#log").textContent = log || "Chưa chạy lần nào."));
 }
 
+// ---------- project flow: style, review, voice ----------
+async function saveProjectField(body) {
+  state.current = await api(`/api/projects/${state.current.id}`, { method: "PUT", body });
+  return state.current;
+}
+
+async function loadStyles() {
+  state.styles = await api(`/api/projects/${state.current.id}/styles`);
+  renderStyles();
+}
+
+function renderStyles() {
+  const chosen = state.current.meta.style || {};
+  $("#pRatio").value = state.current.meta.ratio || "9:16";
+  const list = $("#styleList");
+  list.innerHTML = "";
+  for (const s of state.styles || []) {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "style-card" + (chosen.preset === s.id ? " selected" : "");
+    card.innerHTML = s.sample ? `<img alt="">` : `<div class="ph">Chưa có mẫu</div>`;
+    if (s.sample) card.querySelector("img").src = s.sample;
+    card.insertAdjacentHTML("beforeend", "<strong></strong><small></small>");
+    card.querySelector("strong").textContent = s.label;
+    card.querySelector("small").textContent = s.about;
+    card.onclick = run(() => chooseStyle(s.id));
+    list.appendChild(card);
+  }
+  $("#customStyleBox").classList.toggle("hidden", chosen.preset !== "custom");
+  if (!state.customStyleDirty) $("#customStyle").value = chosen.preset === "custom" ? chosen.text || "" : "";
+  const label = (state.styles || []).find((s) => s.id === chosen.preset)?.label;
+  $("#styleChosen").textContent = label ? `Đã chọn: ${label}` : "Chưa chọn phong cách";
+}
+
+async function chooseStyle(preset) {
+  const style = { preset, text: preset === "custom" ? $("#customStyle").value.trim() : "" };
+  await saveProjectField({ style });
+  state.customStyleDirty = false;
+  renderStyles();
+}
+
+async function sampleStyles(body) {
+  renderJob(await api(`/api/projects/${state.current.id}/styles/sample`, { method: "POST", body }));
+  $("#log").textContent = "";
+  startPolling();
+  toast("Muse đang vẽ mẫu, mỗi kiểu khoảng 30 giây");
+}
+
+function renderStoryLangNote() {
+  const lang = state.options.languages.find(([k]) => k === $("#pLang").value)?.[1] || $("#pLang").value;
+  $("#storyLangNote").textContent = `Kịch bản, giọng đọc và phụ đề sẽ bằng ${lang}; truyện gốc ngôn ngữ nào cũng được.`;
+}
+
+function renderReview() {
+  const p = state.current;
+  renderStoryLangNote();
+  const bar = $("#reviewBar");
+  bar.classList.toggle("hidden", !p.script);
+  bar.classList.toggle("ok", !!p.approved);
+  $("#reviewText").textContent = p.approved
+    ? "✓ Đã duyệt. Sửa kịch bản sẽ phải duyệt lại."
+    : "Đọc kỹ toàn bộ kịch bản, sửa nếu cần, rồi duyệt. Các bước AI tạo hình chỉ mở sau khi duyệt.";
+  $("#approveBtn").classList.toggle("hidden", !!p.approved);
+  $("#museLocked").classList.toggle("hidden", !!p.approved);
+  $('[data-pane="muse"]').classList.toggle("gated", !p.approved);
+}
+
+async function approveScript() {
+  if (state.dirty) await saveScript();
+  if (!confirm("Bạn đã đọc hết kịch bản và đồng ý cho bắt đầu bước AI tạo hình?")) return;
+  state.current = await api(`/api/projects/${state.current.id}/approve`, { method: "POST" });
+  renderReview();
+  toast("Đã duyệt kịch bản");
+  selectTab("muse");
+}
+
+async function loadVoices() {
+  state.voices = await api(`/api/voices?lang=${state.current.lang}`);
+  const sel = $("#voiceProvider");
+  sel.innerHTML = "";
+  for (const p of state.voices.providers) sel.add(new Option(p.label, p.id));
+  const chosen = state.current.meta.voice || {};
+  sel.value = state.voices.providers.some((p) => p.id === chosen.provider) ? chosen.provider
+    : state.voices.providers.some((p) => p.id === state.voices.default) ? state.voices.default : "edge";
+  fillVoiceNames(chosen.voice);
+}
+
+function fillVoiceNames(selected) {
+  const p = state.voices.providers.find((x) => x.id === $("#voiceProvider").value);
+  const sel = $("#voiceName");
+  sel.innerHTML = "";
+  const named = (p?.voices || []).filter((v) => typeof v === "object");
+  $("#voiceNameBox").classList.toggle("hidden", !named.length);
+  for (const v of named) sel.add(new Option(v.label, v.id));
+  if (selected && named.some((v) => v.id === selected)) sel.value = selected;
+  $("#voicePreviewBtn").classList.toggle("hidden", p?.id === "elevenlabs");
+}
+
+async function saveVoice() {
+  const voice = { provider: $("#voiceProvider").value, voice: $("#voiceNameBox").classList.contains("hidden") ? "" : $("#voiceName").value };
+  await saveProjectField({ voice });
+}
+
+async function previewVoice() {
+  const provider = $("#voiceProvider").value;
+  toast(provider === "vieneu" ? "Đang đọc thử (lần đầu nạp model mất khoảng 10 giây)…" : "Đang đọc thử…");
+  const r = await fetch("/api/voice-preview", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ provider, voice: $("#voiceName").value, lang: state.current.lang }) });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || "Không đọc thử được");
+  new Audio(URL.createObjectURL(await r.blob())).play();
+}
+
 // ---------- Muse visuals ----------
 async function checkMuse() {
   const box = $(".muse-status");
@@ -550,7 +669,6 @@ function renderMuse() {
   $("#museCount").textContent = v ? `${clips}/${v.scenes.length}` : "";
   $("#useMuse").checked = !!v && clips > 0;
   if (!v) return;
-  $("#museRatio").value = v.ratio;
   $("#museStyle").value = v.style;
   $("#museStyle").oninput = (e) => { v.style = e.target.value; state.visualsDirty = true; };
   const names = Object.fromEntries((script?.cast || []).map((c) => [c.id, c.name]));
@@ -609,7 +727,6 @@ function renderMuse() {
 
 async function saveVisuals() {
   if (!state.visuals) return;
-  state.visuals.ratio = $("#museRatio").value;
   await api(`/api/projects/${state.current.id}/visuals`, { method: "PUT", body: state.visuals });
   state.visualsDirty = false;
 }
@@ -708,7 +825,7 @@ async function init() {
     if ($("#newDialog").returnValue !== "ok") return;
     const f = new FormData($("#newForm"));
     const p = await api("/api/projects", { method: "POST", body: Object.fromEntries(f) });
-    await openProject(p.id, "story");
+    await openProject(p.id, "style");
   }));
   $("#settingsBtn").onclick = run(openSettings);
   $$(".tab").forEach((t) => (t.onclick = () => selectTab(t.dataset.tab)));
@@ -732,10 +849,30 @@ async function init() {
   $("#renderBtn").onclick = run(() => renderVideoJob(false));
   $("#renderShortBtn").onclick = run(() => renderVideoJob(true));
   $("#museCheckBtn").onclick = run(checkMuse);
-  $("#musePromptsBtn").onclick = run(() => runVisuals("prompts", { provider: $("#museProvider").value, ratio: $("#museRatio").value }));
+  $("#musePromptsBtn").onclick = run(() => runVisuals("prompts", { provider: $("#museProvider").value, ratio: state.current.meta.ratio }));
   $("#museSaveBtn").onclick = run(async () => { await saveVisuals(); toast("Đã lưu prompt hình"); });
   $("#museCastBtn").onclick = run(() => runVisuals("cast"));
-  $("#museScenesBtn").onclick = run(() => runVisuals("scenes"));
+  $("#museImagesBtn").onclick = run(() => runVisuals("scenes", { images_only: true }));
+  $("#museClipsBtn").onclick = run(() => runVisuals("scenes", { clips_only: true }));
+  $("#museLaunchBtn").onclick = run(async () => {
+    const r = await api("/api/muse/launch", { method: "POST" });
+    toast(r.started ? "Đang mở MuseFlow… đăng nhập Muse trong cửa sổ Accounts nếu chưa có tài khoản" : "MuseFlow đang chạy");
+    setTimeout(checkMuse, 8000);
+  });
+  $("#approveBtn").onclick = run(approveScript);
+  $("#sampleStylesBtn").onclick = run(() => sampleStyles({}));
+  $("#sampleCustomBtn").onclick = run(async () => { await chooseStyle("custom"); await sampleStyles({ preset: "custom", redo: true }); });
+  $("#customStyle").oninput = () => { state.customStyleDirty = true; };
+  $("#pRatio").onchange = run(async () => { await saveProjectField({ ratio: $("#pRatio").value }); });
+  $("#styleNextBtn").onclick = run(async () => {
+    if ($("#customStyleBox").classList.contains("hidden") === false) await chooseStyle("custom");
+    if (!state.current.meta.style) return toast("Chọn một phong cách trước", true);
+    selectTab("story");
+  });
+  $("#voiceProvider").onchange = run(async () => { fillVoiceNames(); await saveVoice(); });
+  $("#voiceName").onchange = run(saveVoice);
+  $("#voicePreviewBtn").onclick = run(previewVoice);
+  $("#pLang").addEventListener("change", run(async () => { await saveMeta(); await loadVoices(); renderStoryLangNote(); }));
   $("#stopBtn").onclick = run(() => api(`/api/projects/${state.current.id}/stop`, { method: "POST" }));
   $("#deleteBtn").onclick = run(async () => {
     if (!confirm(`Xóa dự án "${state.current.name}" và toàn bộ file của nó?`)) return;

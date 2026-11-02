@@ -51,7 +51,14 @@ Mỗi cảnh có thể dùng ảnh và clip video do [Muse](https://muse.ai) t�
 cd museflow && npm install && npm start     # mở app, bấm Accounts → Add account, đăng nhập Muse
 ```
 
-Trong web UI, tab **3. Hình Muse**: viết prompt hình → tạo ảnh mẫu nhân vật (duyệt, tạo lại nếu chưa ưng) → tạo ảnh và clip các cảnh → tab **4. Video** tick **Dùng clip Muse** rồi dựng. Dòng lệnh và chuẩn `visuals.json`: [docs/pipeline.md](docs/pipeline.md#hình-ai-bằng-muse-storyvidvisuals1).
+Flow trên web UI, mọi bước đều làm trong app:
+
+1. **Dự án mới**: tên, ngôn ngữ đầu ra (kịch bản, giọng, phụ đề), khung 9:16 hoặc 16:9, truyện gốc ngôn ngữ nào cũng được.
+2. **Phong cách**: chọn người que của kênh, hoạt hình 3D, 2D phẳng, truyện ma 2D tối màu, điện ảnh hoặc tự viết; bấm **Muse vẽ mẫu các kiểu** để xem trước.
+3. **Truyện**: chọn người viết kịch bản: Muse (không cần key), Claude API, API chuẩn OpenAI, Codex, hoặc chỉ chia cảnh để tự viết.
+4. **Kịch bản**: đọc, sửa, rồi **✓ Duyệt kịch bản**. Chưa duyệt thì các bước AI tạo hình bị khóa; sửa sau khi duyệt phải duyệt lại.
+5. **Hình Muse**: nút **Mở MuseFlow** nếu app chưa chạy → viết prompt → ảnh mẫu nhân vật (duyệt, tạo lại) → ảnh các cảnh (xem trước) → clip từ ảnh.
+6. **Video**: chọn giọng đọc của dự án (Edge, ElevenLabs, hoặc 25 giọng VieNeu cho tiếng Việt), **▶ Nghe thử**, tick **Dùng clip Muse**, dựng video hoặc Short. Dòng lệnh và chuẩn `visuals.json`: [docs/pipeline.md](docs/pipeline.md#hình-ai-bằng-muse-storyvidvisuals1).
 
 ## Dòng lệnh
 
@@ -144,7 +151,8 @@ Giọng nhân vật: giới tính lấy theo preset, cao độ và tốc độ c
 - `storyvid/llm.py`: provider chuẩn OpenAI và Codex CLI
 - `storyvid/tts.py`: edge-tts, ElevenLabs hoặc VieNeu-TTS, phụ đề có dấu câu
 - `storyvid/vieneu.py`: VieNeu-TTS chạy trên máy, chọn giọng, cache
-- `storyvid/visuals.py`: hình Muse (`visuals.json`): viết prompt, gọi MuseFlow tạo ảnh mẫu, ảnh cảnh và clip
+- `storyvid/visuals.py`: hình Muse (`visuals.json`): viết prompt, gọi MuseFlow tạo ảnh mẫu, ảnh cảnh và clip; cổng duyệt kịch bản
+- `storyvid/styles.py`: các phong cách có sẵn và ảnh mẫu do Muse vẽ
 - `storyvid/render_clips.py`: dựng video từ clip Muse, khớp độ dài với giọng đọc
 - `museflow/`: app Electron MuseFlow, giữ nhiều tài khoản Muse và mở API nội bộ (GPL-2.0, xem `museflow/LICENSE`)
 - `storyvid/elevenlabs.py`: gọi ElevenLabs, chọn giọng, cache

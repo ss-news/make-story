@@ -16,6 +16,16 @@ ROOT = Path(__file__).resolve().parents[1]
 MODEL_DIR = ROOT / "cache" / "vieneu"
 CACHE_DIR = ROOT / "cache" / "vieneu" / "lines"
 DEFAULT_NARRATOR = "Thiện Minh"  # northern male, storytelling style
+# the v3 Turbo preset voices (label: gender · region · style), for pickers that should not load the model
+VOICES = {"Thiện Minh": "Nam · Bắc · kể chuyện", "Thiền Tâm Đức": "Nam · Bắc · kể chuyện",
+          "Thanh Bình": "Nam · Bắc · kể chuyện", "Hải Đăng": "Nam · Bắc · tự nhiên", "Adam bựa": "Nam · Bắc · tự nhiên",
+          "Phạm Tuyên": "Nam · Bắc · tự nhiên", "Xuân Vĩnh": "Nam · Bắc · tự nhiên", "Quốc Tuấn": "Nam · Bắc · tự nhiên",
+          "Minh Đức": "Nam · Bắc · tin tức", "Quang Sơn": "Nam · Trung · tự nhiên", "Thái Sơn": "Nam · Nam · kể chuyện",
+          "Đức Trí": "Nam · Nam · đọc truyện", "Minh Triết": "Nam · Nam · tin tức", "Adam": "Nam · Nam · tự nhiên",
+          "Ngọc Linh": "Nữ · Bắc · kể chuyện", "Quỳnh Anh": "Nữ · Bắc · đọc truyện", "Ngọc Huyền": "Nữ · Bắc · tự nhiên",
+          "Trúc Ly": "Nữ · Bắc · tự nhiên", "Đoan Trang": "Nữ · Bắc · tự nhiên", "Mai Anh": "Nữ · Bắc · tin tức",
+          "Ngọc Trân": "Nữ · Trung · tự nhiên", "Thục Đoan": "Nữ · Nam · kể chuyện", "Mỹ Duyên": "Nữ · Nam · đọc truyện",
+          "Kim Thanh": "Nữ · Nam · đọc truyện", "Thùy Dung": "Nữ · Nam · tin tức"}
 # character voices by gender, used in order and never the narrator's
 POOL = {"male": ["Thanh Bình", "Phạm Tuyên", "Quốc Tuấn", "Minh Đức", "Xuân Vĩnh", "Hải Đăng"],
         "female": ["Ngọc Linh", "Quỳnh Anh", "Đoan Trang", "Ngọc Huyền", "Trúc Ly"]}

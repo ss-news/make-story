@@ -2,8 +2,11 @@
 
     python -m storyvid.visuals prompts output/<id> [--provider offline|muse|openai|codex] [--ratio 16:9|9:16]
     python -m storyvid.visuals cast output/<id> [--only <cast id>] [--redo]
-    python -m storyvid.visuals scenes output/<id> [--only <scene index>] [--redo] [--images-only]
+    python -m storyvid.visuals scenes output/<id> [--only <scene index>] [--redo] [--images-only|--clips-only]
     python -m storyvid.visuals status
+
+The script must be approved by a person first (web UI, tab Kịch bản, "Duyệt kịch bản"; meta.json
+"approved_script"); --skip-review is for tests only. The style comes from meta.json "style" (storyvid/styles.py).
 
 prompts writes the plan (style, a fixed look per character, an opening-frame and a motion prompt per scene).
 cast makes one reference sheet per character; scenes makes each scene's opening image (with the sheets of the
@@ -12,7 +15,9 @@ actors in that scene attached) and then a clip from that image. Generation goes 
 Render with: python -m storyvid.cli --script output/<id>/scenes.json --visuals
 """
 import argparse
+import hashlib
 import json
+import shutil
 import os
 import sys
 import threading
@@ -28,6 +33,7 @@ MUSEFLOW_API = os.environ.get("MUSEFLOW_API", "http://127.0.0.1:8770")
 CLIP_SECONDS = 10  # Muse returns 10 s clips whatever is asked; the renderer fits them to the narration
 BATCH = 10         # scenes per prompt-writing request, so long stories fit in one reply
 MAX_SHEETS = 3     # character sheets attached to one scene image
+MAX_REFS = 4       # all images attached to one scene image (sheets first, then style references)
 DEFAULT_STYLE = ("Cinematic 3D animated film still, moody low-key lighting, soft volumetric light, rich texture, "
                  "shallow depth of field. No text, no subtitles, no logos, no watermark.")
 NEGATIVE = "text, subtitles, watermark, logo, extra fingers, distorted faces, gore"
@@ -94,6 +100,25 @@ def muse(path: str, body: dict | None = None, timeout: float = 30) -> dict:
 def ready_accounts() -> int:
     status = muse("/api/status")
     return int(status.get("ready", 0))
+
+
+# ---------- review gate ----------
+def script_digest(script: dict) -> str:
+    return hashlib.sha256(json.dumps(script, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+
+
+def meta(project: Path) -> dict:
+    path = project / "meta.json"
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+
+def is_approved(project: Path) -> bool:
+    """A person approved this exact scenes.json; any later edit needs a new approval."""
+    path = project / "scenes.json"
+    if not path.exists():
+        return False
+    script = json.loads(path.read_text(encoding="utf-8"))
+    return meta(project).get("approved_script") == script_digest(script)
 
 
 # ---------- visuals.json ----------
@@ -173,13 +198,15 @@ def _ask(provider: str, system: str, user: str) -> dict:
     raise ValueError(f"Unknown provider: {provider}")
 
 
-def write_prompts(script: dict, channel: dict, ratio: str, provider: str) -> dict:
+def write_prompts(script: dict, channel: dict, ratio: str, provider: str, style: str = "") -> dict:
+    """style: the project's chosen style text; when empty the writer picks one."""
     names = cast_names(script, channel)
     members = {c["id"]: c for c in script.get("cast", [])}
     members[HOST] = {"id": HOST, "name": names[HOST], **{k: v for k, v in channel.get("host", {}).items()
                                                           if k in ("preset", "outfit", "accessory")}}
     ids = used_cast(script)
-    style = DEFAULT_STYLE
+    fixed_style = bool(style)
+    style = style or DEFAULT_STYLE
     looks = {cid: _offline_look(members.get(cid, {})) for cid in ids}
     scenes = [_offline_scene(s, names) for s in script["scenes"]]
     if provider != "offline":
@@ -197,13 +224,16 @@ def write_prompts(script: dict, channel: dict, ratio: str, provider: str) -> dic
                                          for a in script["scenes"][i]["actors"]],
                             "narration": [line["text"] for line in script["scenes"][i]["lines"]]} for i in batch],
             }
-            if start:
+            if fixed_style or start:
                 payload["style"] = style
-                payload["note"] = "Style and cast looks are already fixed; return them unchanged."
+                payload["note"] = ("The style is fixed: return it unchanged and write every look and prompt so it "
+                                   "fits that style." if not start else
+                                   "Style and cast looks are already fixed; return them unchanged.")
             print(f"  prompts for scenes {batch[0] + 1}-{batch[-1] + 1} ({provider})...")
             reply = _ask(provider, SYSTEM, json.dumps(payload, ensure_ascii=False))
             if not start:
-                style = str(reply.get("style") or style).strip()
+                if not fixed_style:
+                    style = str(reply.get("style") or style).strip()
                 for c in reply.get("cast", []):
                     if c.get("id") in looks and str(c.get("look", "")).strip():
                         looks[c["id"]] = c["look"].strip()
@@ -265,6 +295,10 @@ def _generate(media: str, prompt: str, size: str, save_to: Path, references: lis
     return Path(reply["file"])
 
 
+def style_refs(project: Path, visuals: dict) -> list[Path]:
+    return [project / r for r in visuals.get("style_refs", []) if (project / r).is_file()]
+
+
 def make_cast(project: Path, only: str | None, redo: bool) -> int:
     script, visuals = load(project)
     if not visuals:
@@ -277,7 +311,8 @@ def make_cast(project: Path, only: str | None, redo: bool) -> int:
         print(f"[cast] {names.get(c['id'], c['id'])}")
         try:
             file = _generate("image", sheet_prompt(names.get(c["id"], c["id"]), c["look"], visuals["style"]),
-                             visuals["ratio"], project / "muse" / "cast" / f"{c['id']}.png", [])
+                             visuals["ratio"], project / "muse" / "cast" / f"{c['id']}.png",
+                             style_refs(project, visuals))
             c["sheet"] = file.relative_to(project).as_posix()
             c.pop("error", None)
         except RuntimeError as e:
@@ -288,21 +323,25 @@ def make_cast(project: Path, only: str | None, redo: bool) -> int:
     return failed
 
 
-def make_scenes(project: Path, only: int | None, redo: bool, images_only: bool) -> int:
+def make_scenes(project: Path, only: int | None, redo: bool, images_only: bool, clips_only: bool = False) -> int:
     script, visuals = load(project)
     if not visuals:
         raise SystemExit("No visuals.json yet: run the prompts step first")
     names = cast_names(script, json.loads((ROOT / "channel.json").read_text(encoding="utf-8")))
     sheets = {c["id"]: project / c["sheet"] for c in visuals["cast"] if c["sheet"] and (project / c["sheet"]).is_file()}
+    styling = style_refs(project, visuals)
     todo = [i for i in range(len(visuals["scenes"])) if only is None or i == only]
+    if clips_only:  # clips start from an opening image; scenes without one wait for "images"
+        todo = [i for i in todo if visuals["scenes"][i]["image"] and (project / visuals["scenes"][i]["image"]).is_file()]
     failed = []
 
     def one(i: int) -> None:
         s = visuals["scenes"][i]
         try:
-            if redo or not s["image"] or not (project / s["image"]).is_file():
+            if not clips_only and (redo or not s["image"] or not (project / s["image"]).is_file()):
                 print(f"[scene {i + 1}] image")
                 refs = [sheets[a["id"]] for a in script["scenes"][i]["actors"] if a["id"] in sheets][:MAX_SHEETS]
+                refs = (refs + styling)[:MAX_REFS]
                 file = _generate("image", scene_image_prompt(visuals, i, script, names), visuals["ratio"],
                                  project / "muse" / f"scene_{i:02d}.png", refs, s["negative"])
                 s["image"], s["clip"] = file.relative_to(project).as_posix(), ""
@@ -340,6 +379,8 @@ def main() -> None:
     ap.add_argument("--only", help="one cast id (cast) or one 0-based scene index (scenes)")
     ap.add_argument("--redo", action="store_true", help="generate again even if a file exists")
     ap.add_argument("--images-only", action="store_true", help="scenes: stop after the opening images")
+    ap.add_argument("--clips-only", action="store_true", help="scenes: only make clips from existing images")
+    ap.add_argument("--skip-review", action="store_true", help="tests only: run without a person's approval")
     args = ap.parse_args()
     if args.step == "status":
         print(json.dumps(muse("/api/status"), ensure_ascii=False, indent=2))
@@ -347,11 +388,26 @@ def main() -> None:
     if not args.project:
         ap.error("give the project folder")
     project = Path(args.project).resolve()
+    if not args.skip_review and not is_approved(project):
+        raise SystemExit("The script is not approved yet: a person reviews it first (web UI, tab Kịch bản, "
+                         "\"Duyệt kịch bản\"). Any edit after approval needs a new approval.")
     if args.step == "prompts":
+        from .styles import resolve
         script, old = load(project)
-        ratio = args.ratio or (old or {}).get("ratio") or "16:9"
+        info = meta(project)
+        ratio = args.ratio or info.get("ratio") or (old or {}).get("ratio") or "16:9"
         channel = json.loads((ROOT / "channel.json").read_text(encoding="utf-8"))
-        visuals = merge_files(write_prompts(script, channel, ratio, args.provider), old)
+        chosen = resolve(info.get("style"))
+        visuals = write_prompts(script, channel, ratio, args.provider, chosen.get("text", ""))
+        refs = []
+        for k, ref in enumerate(chosen.get("refs", [])):
+            target = project / "muse" / "style" / f"ref_{k}{Path(ref).suffix}"
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ref, target)
+            refs.append(target.relative_to(project).as_posix())
+        if refs:
+            visuals["style_refs"] = refs
+        visuals = merge_files(visuals, old)
         errors = validate_visuals(visuals, script, project)
         if errors:
             raise SystemExit("\n".join(f"ERROR {e}" for e in errors))
@@ -362,7 +418,8 @@ def main() -> None:
     if args.step == "cast":
         failed = make_cast(project, args.only, args.redo)
     else:
-        failed = make_scenes(project, int(args.only) if args.only is not None else None, args.redo, args.images_only)
+        failed = make_scenes(project, int(args.only) if args.only is not None else None, args.redo, args.images_only,
+                             args.clips_only)
     if failed:
         raise SystemExit(f"{failed} item(s) failed; see the error fields in visuals.json and retry them")
     print("Done")

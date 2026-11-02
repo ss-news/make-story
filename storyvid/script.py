@@ -205,12 +205,26 @@ def _normalize(script: dict, lang: str | None = None) -> dict:
     return result
 
 
+def _call_muse(system: str, user: str) -> dict:
+    """Muse writes the script through MuseFlow's chat (no API key needed; museflow/ must be running)."""
+    from . import llm
+    from .visuals import muse
+    prompt = (f"{system}\n\nReply with only one JSON object matching this schema, no other text, and do not create any "
+              f"image or video in this reply:\n{json.dumps(SCENE_SCHEMA)}\n\nSTORY:\n{user}")
+    reply = muse("/api/chat", {"prompt": prompt, "timeoutSec": 900}, timeout=1020)
+    if not reply.get("ok"):
+        raise RuntimeError(f"Muse could not write the script: {reply.get('error')}")
+    return llm.extract_json(reply["text"])
+
+
 def write_script(story: str, channel: dict, lang: str, minutes: float, provider: str, character=None) -> dict:
     if provider == "offline":
         return _normalize(_offline_script(story), lang)
     system, user = build_prompt(story, channel, lang, minutes, character)
     if provider == "claude":
         script = _call_claude(system, user)
+    elif provider == "muse":
+        script = _call_muse(system, user)
     elif provider in ("openai", "codex"):
         from . import llm
         script = (llm.openai_compatible if provider == "openai" else llm.codex)(system, user, SCENE_SCHEMA)

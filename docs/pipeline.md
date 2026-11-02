@@ -171,6 +171,12 @@ Asset mới **chỉ** nằm trong `assets/bac-bo-stick/extra/`. Lệnh build b�
 
 ## Hình AI bằng Muse: `storyvid.visuals/1`
 
+**Flow trên web UI:** 1. Phong cách (chọn kiểu có sẵn, hoặc để Muse vẽ mẫu từng kiểu rồi chọn; chọn khung 16:9/9:16) → 2. Truyện (dán truyện ngôn ngữ nào cũng được; chọn người viết kịch bản: Muse, Claude, API chuẩn OpenAI, Codex, hoặc chỉ chia cảnh để tự viết) → 3. Kịch bản (**người thật đọc và bấm “Duyệt kịch bản”**) → 4. Hình Muse → 5. Video (chọn giọng đọc của dự án, nghe thử, dựng). Ngôn ngữ đầu ra của dự án quyết định ngôn ngữ kịch bản, giọng đọc và phụ đề.
+
+**Duyệt kịch bản là cổng bắt buộc:** `meta.json` lưu `approved_script` (mã băm của `scenes.json` lúc duyệt). Mọi chỉnh sửa sau đó làm mất duyệt. Khi chưa duyệt, web UI khóa tab Hình Muse, API trả 409 và `python -m storyvid.visuals` dừng (chỉ test mới dùng `--skip-review`). Agent không tự duyệt thay người.
+
+**Phong cách** (`storyvid/styles.py`): `stick` (người que của kênh, gửi kèm `assets/styles/stick/`), `cartoon3d`, `flat2d`, `dark2d`, `cinematic`, hoặc `custom` (tự viết). Lựa chọn nằm trong `meta.json` `style`; bước `prompts` chép chữ mô tả vào `visuals.json` `style` và ảnh tham chiếu vào `muse/style/` (`style_refs`). Ảnh mẫu dùng chung ở `cache/styles/` (`python -m storyvid.styles sample`).
+
 Thay cho sân khấu người que, mỗi cảnh có thể dùng **ảnh và clip do Muse tạo**. Kế hoạch hình nằm ở `output/<id>/visuals.json`, cạnh `scenes.json`. `scenes.json` giữ nguyên chuẩn `storyvid.scenes/1`, nên dự án vẫn dựng được bản người que như cũ.
 
 ```
@@ -180,8 +186,10 @@ scenes.json (đã đạt check)
   │     ─► visuals.json: phong cách chung, ngoại hình cố định của từng nhân vật, prompt ảnh mở cảnh và prompt chuyển động
   │     python -m storyvid.check --visuals output/<id>/visuals.json   (phải 0)
 [b] python -m storyvid.visuals cast output/<id>      ─► muse/cast/<id>.png   (ảnh mẫu nhân vật, người dùng duyệt)
-[c] python -m storyvid.visuals scenes output/<id>    ─► muse/scene_NN.png rồi muse/scene_NN.mp4
-  │     ảnh mở cảnh có đính kèm ảnh mẫu của các diễn viên trong cảnh; clip lấy ảnh đó làm khung đầu
+[c] python -m storyvid.visuals scenes output/<id> [--images-only | --clips-only]
+                                                      ─► muse/scene_NN.png rồi muse/scene_NN.mp4
+  │     ảnh mở cảnh đính kèm ảnh mẫu của các diễn viên trong cảnh và ảnh tham chiếu phong cách (tối đa 4);
+  │     nên tạo ảnh trước (--images-only), xem, rồi mới tạo clip (--clips-only); clip lấy ảnh đó làm khung đầu
 [d] python -m storyvid.cli --script output/<id>/scenes.json --visuals [--short]
         giọng đọc + phụ đề + nhạc như bản thường, hình là clip của từng cảnh
 ```
@@ -192,7 +200,7 @@ scenes.json (đã đạt check)
 - Muse luôn trả clip khoảng 10 giây. Khi dựng, độ dài cảnh theo giọng đọc: lời ngắn thì cắt clip; lời dài thì clip chạy chậm lại tối đa 1,35 lần, phần còn lại giữ khung cuối và đẩy máy nhẹ. Cảnh lời quá dài nên tách thành hai cảnh.
 - Viết lại prompt (`prompts`) giữ lại ảnh và clip của những cảnh có prompt không đổi.
 
-Quy tắc của `visuals.json`: đủ trường, không trường lạ (chỉ `error` là tùy chọn, do tool ghi). `scenes` có đúng số cảnh của `scenes.json`, cùng thứ tự. `cast[].id` là id trong `cast` của `scenes.json` hoặc `host`. Đường dẫn file nằm trong thư mục dự án; `""` là chưa tạo. Schema: `schema/visuals.v1.schema.json`. Tất cả làm được trong web UI, tab **3. Hình Muse**.
+Quy tắc của `visuals.json`: đủ trường, không trường lạ (tùy chọn: `style_refs` ở cấp gốc, `error` trong nhân vật và cảnh, do tool ghi). `scenes` có đúng số cảnh của `scenes.json`, cùng thứ tự. `cast[].id` là id trong `cast` của `scenes.json` hoặc `host`. Đường dẫn file nằm trong thư mục dự án; `""` là chưa tạo. Schema: `schema/visuals.v1.schema.json`. Tất cả làm được trong web UI, tab **3. Hình Muse**.
 
 ## Thư mục một dự án
 
@@ -211,8 +219,10 @@ output/<id>/
   video.mp4             video 16:9
   short/                giọng đọc riêng của Short
   video_short.mp4       Short 9:16 (1080x1920 với --res 1080), hình phủ kín khung dọc, tiêu đề và phụ đề nằm đè lên hình
+  meta.json             còn có: ratio, style (phong cách), voice (giọng đọc riêng của dự án), approved_script
   visuals.json          kế hoạch hình Muse storyvid.visuals/1 (chỉ khi dùng Muse)
-  muse/                 ảnh mẫu nhân vật (cast/), ảnh mở cảnh và clip của từng cảnh
+  muse/                 ảnh mẫu nhân vật (cast/), ảnh tham chiếu phong cách (style/), mẫu phong cách tự viết
+                        (styles/), ảnh mở cảnh và clip của từng cảnh
   log.txt               nhật ký lần chạy gần nhất (web UI)
 ```
 

@@ -26,6 +26,7 @@
 - Đổi chuẩn: sửa `storyvid/contract.py`, chạy `.venv/bin/python -m storyvid.check --write-schema`, cập nhật `docs/pipeline.md` và `examples/`.
 
 - Hình AI bằng Muse: kế hoạch ở `output/<id>/visuals.json` (chuẩn `storyvid.visuals/1`, schema `schema/visuals.v1.schema.json`), tạo bằng `python -m storyvid.visuals prompts|cast|scenes output/<id>` qua MuseFlow (`museflow/`), dựng bằng `--visuals`. Kiểm tra: `.venv/bin/python -m storyvid.check --visuals output/<id>/visuals.json` phải ra 0. Không dồn mô tả cả dàn nhân vật vào mọi prompt: prompt cảnh chỉ nói về người đang có mặt. Sau khi tạo ảnh mẫu nhân vật, dừng cho người dùng duyệt trước khi tạo cảnh hàng loạt.
+- Cổng duyệt: các bước AI tạo hình chỉ chạy khi người thật đã duyệt đúng bản `scenes.json` hiện tại (`meta.json` `approved_script`, nút “Duyệt kịch bản” trên web UI). Agent không tự ghi `approved_script` và không dùng `--skip-review` ngoài test. Phong cách lấy từ `meta.json` `style` (`storyvid/styles.py`), không tự đổi khi người dùng đã chọn.
 - `museflow/` là code GPL-2.0 (gốc bynne2602/museflow); giữ `museflow/LICENSE` và ghi chú bản quyền khi sửa.
 - Bộ ma nguyên ảnh dùng Blender: chuẩn nguồn ở `assets/bac-bo-stick/extra/whole-ghosts-v1/` (PNG RGBA theo tư thế, manifest riêng, không cắt khớp tay chân). Đây là chuẩn nguồn cho Blender, chưa thay đổi hợp đồng `storyvid.scenes/1`; không tự đưa pose mới vào scenes.json hoặc đăng ký nhân vật PNG thành props.
 

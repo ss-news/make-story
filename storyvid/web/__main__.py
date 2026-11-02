@@ -84,7 +84,8 @@ def summary(d: Path) -> dict:
     }
 
 
-def start_job(pid: str, d: Path, kind: str, args: list[str], module: str = "storyvid.cli") -> None:
+def start_job(pid: str, d: Path, kind: str, args: list[str], module: str = "storyvid.cli",
+              env: dict | None = None) -> None:
     with jobs_lock:
         proc = jobs.get(pid)
         if proc and proc.poll() is None:
@@ -93,7 +94,8 @@ def start_job(pid: str, d: Path, kind: str, args: list[str], module: str = "stor
         log.write(f"$ {module} {' '.join(args)}\n")
         log.flush()
         proc = subprocess.Popen([sys.executable, "-m", module, *args], cwd=ROOT,
-                                stdout=log, stderr=subprocess.STDOUT, env={**os.environ, "PYTHONUNBUFFERED": "1"})
+                                stdout=log, stderr=subprocess.STDOUT,
+                                env={**os.environ, **(env or {}), "PYTHONUNBUFFERED": "1"})
         jobs[pid] = proc
         write_json(d / "job.json", {"state": "running", "kind": kind, "started": int(time.time())})
 
@@ -173,7 +175,9 @@ def create_project():
     d.mkdir(parents=True)
     (d / "story.txt").write_text(body.get("story", ""), encoding="utf-8")
     write_json(d / "meta.json", {"name": name, "lang": body.get("lang", "en"),
-                                 "minutes": float(body.get("minutes", 2)), "created": int(time.time())})
+                                 "minutes": float(body.get("minutes", 2)),
+                                 "ratio": body.get("ratio") if body.get("ratio") in ("16:9", "9:16") else "9:16",
+                                 "created": int(time.time())})
     return jsonify(summary(d))
 
 
@@ -189,6 +193,8 @@ def get_project(pid):
             data["script"] = _normalize(data["script"], data["meta"].get("lang"))
         except (RuntimeError, ValueError):
             pass
+    from ..visuals import is_approved
+    data["approved"] = is_approved(d)
     bgs = read_json(d / "backgrounds.json", {})
     data["backgrounds"] = {k: f"/files/{pid}/bg/{k}" for k in bgs}
     return jsonify(data)
@@ -202,6 +208,12 @@ def update_project(pid):
     for key in ("name", "lang"):
         if key in body:
             meta[key] = body[key]
+    if body.get("ratio") in ("16:9", "9:16"):
+        meta["ratio"] = body["ratio"]
+    if isinstance(body.get("style"), dict):
+        meta["style"] = {"preset": str(body["style"].get("preset", "")), "text": str(body["style"].get("text", ""))}
+    if isinstance(body.get("voice"), dict):
+        meta["voice"] = {"provider": str(body["voice"].get("provider", "")), "voice": str(body["voice"].get("voice", ""))}
     if "minutes" in body:
         meta["minutes"] = float(body["minutes"])
     write_json(d / "meta.json", meta)
@@ -224,6 +236,35 @@ def delete_project(pid):
     return jsonify(ok=True)
 
 
+def voice_env(meta: dict) -> dict:
+    """The project's own voice choice overrides TTS_PROVIDER and the narrator voice from .env."""
+    voice = meta.get("voice") or {}
+    provider = voice.get("provider")
+    if provider not in ("edge", "elevenlabs", "vieneu"):
+        return {}
+    env = {"TTS_PROVIDER": provider}
+    if voice.get("voice") and provider in ("vieneu", "elevenlabs"):
+        env[f"{provider.upper()}_NARRATOR_VOICE"] = voice["voice"]
+    return env
+
+
+@app.post("/api/projects/<pid>/approve")
+def approve_script(pid):
+    """A person read the script and lets the AI picture steps start. Any later edit clears it."""
+    from ..check import check_script
+    from ..visuals import script_digest
+    d = project_dir(pid)
+    if not (d / "scenes.json").exists():
+        abort(400, "Write or create the script first")
+    if check_script(d / "scenes.json") == 1:
+        abort(400, "The script does not follow the standard yet; see the log of python -m storyvid.check")
+    meta = read_json(d / "meta.json", {})
+    meta["approved_script"] = script_digest(read_json(d / "scenes.json"))
+    meta["approved_at"] = int(time.time())
+    write_json(d / "meta.json", meta)
+    return get_project(pid)
+
+
 @app.post("/api/projects/<pid>/script")
 def run_script(pid):
     d = project_dir(pid)
@@ -234,6 +275,8 @@ def run_script(pid):
     if body.get("provider"):
         args += ["--provider", body["provider"]]
     start_job(pid, d, "script", args)
+    meta.pop("approved_script", None)  # a new script needs a new review
+    write_json(d / "meta.json", meta)
     return jsonify(job_status(pid, d))
 
 
@@ -250,7 +293,7 @@ def run_render(pid):
         args.append("--short")
     if body.get("visuals"):
         args.append("--visuals")
-    start_job(pid, d, "render", args)
+    start_job(pid, d, "render", args, env=voice_env(meta))
     return jsonify(job_status(pid, d))
 
 
@@ -285,10 +328,13 @@ def put_visuals(pid):
 @app.post("/api/projects/<pid>/visuals/<step>")
 def run_visuals(pid, step):
     d = project_dir(pid)
+    from ..visuals import is_approved
     if step not in ("prompts", "cast", "scenes"):
         abort(404)
     if not (d / "scenes.json").exists():
         abort(400, "Write or create the script first")
+    if not is_approved(d):
+        abort(409, "Kịch bản chưa được duyệt: đọc và bấm “Duyệt kịch bản” ở tab Kịch bản trước")
     body = request.get_json(silent=True) or {}
     args = [step, str(d)]
     if step == "prompts":
@@ -302,8 +348,112 @@ def run_visuals(pid, step):
         args.append("--redo")
     if body.get("images_only"):
         args.append("--images-only")
+    if body.get("clips_only"):
+        args.append("--clips-only")
     start_job(pid, d, f"visuals_{step}", args, module="storyvid.visuals")
     return jsonify(job_status(pid, d))
+
+
+@app.post("/api/muse/launch")
+def muse_launch():
+    """Open the MuseFlow app (museflow/, npm start) if its API is not answering."""
+    from ..visuals import muse
+    try:
+        muse("/api/status", timeout=3)
+        return jsonify(ok=True, started=False)
+    except RuntimeError:
+        pass
+    npm = shutil.which("npm")
+    if not npm:
+        abort(500, "npm not found: install Node.js, then run cd museflow && npm install")
+    if not (ROOT / "museflow" / "node_modules").exists():
+        subprocess.run([npm, "install"], cwd=ROOT / "museflow", capture_output=True)
+    subprocess.Popen([npm, "start"], cwd=ROOT / "museflow", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                     start_new_session=True)
+    return jsonify(ok=True, started=True)
+
+
+# ---------- styles (storyvid/styles.py) ----------
+@app.get("/api/projects/<pid>/styles")
+def list_styles(pid):
+    from .. import styles
+    d = project_dir(pid)
+    out = []
+    for key, p in [*styles.PRESETS.items(), (styles.CUSTOM, {"label": "Tự viết", "about": "Mô tả phong cách của bạn"})]:
+        sample = styles.existing_sample(key, d)
+        out.append({"id": key, "label": p["label"], "about": p["about"],
+                    "sample": f"/files/{pid}/style/{key}?v={int(sample.stat().st_mtime)}" if sample else None})
+    return jsonify(out)
+
+
+@app.post("/api/projects/<pid>/styles/sample")
+def sample_styles(pid):
+    from .. import styles
+    d = project_dir(pid)
+    body = request.get_json(silent=True) or {}
+    meta = read_json(d / "meta.json", {})
+    args = ["sample", "--project", str(d), "--ratio", meta.get("ratio", "9:16")]
+    if body.get("preset") in (*styles.PRESETS, styles.CUSTOM):
+        args += ["--preset", body["preset"]]
+    if body.get("redo"):
+        args.append("--redo")
+    start_job(pid, d, "style_samples", args, module="storyvid.styles")
+    return jsonify(job_status(pid, d))
+
+
+@app.get("/files/<pid>/style/<preset>")
+def style_file(pid, preset):
+    from .. import styles
+    d = project_dir(pid)
+    if preset not in (*styles.PRESETS, styles.CUSTOM):
+        abort(404)
+    sample = styles.existing_sample(preset, d)
+    if not sample:
+        abort(404)
+    return send_file(sample)
+
+
+# ---------- voices ----------
+@app.get("/api/voices")
+def list_voices():
+    from ..vieneu import VOICES
+    lang = request.args.get("lang", "en")
+    channel = read_json(CHANNEL_PATH, {})
+    providers = [{"id": "edge", "label": "Edge (miễn phí, không chính thức)",
+                  "voices": [channel.get("voices", {}).get(lang, "")]},
+                 {"id": "elevenlabs", "label": "ElevenLabs (cần key, tính ký tự)", "voices": []}]
+    if lang == "vi":
+        providers.append({"id": "vieneu", "label": "VieNeu-TTS (tiếng Việt, chạy trên máy, miễn phí)",
+                          "voices": [{"id": k, "label": f"{k} — {v}"} for k, v in VOICES.items()]})
+    return jsonify(providers=providers, default=read_env().get("TTS_PROVIDER") or "edge")
+
+
+_preview_lock = threading.Lock()
+
+
+@app.post("/api/voice-preview")
+def voice_preview():
+    """A short sample of a VieNeu or Edge voice (ElevenLabs is skipped: it spends characters)."""
+    from .. import tts, vieneu
+    body = request.get_json(force=True)
+    provider, voice = body.get("provider"), str(body.get("voice") or "")
+    text = {"vi": "Xin chào, đây là giọng đọc thử cho video của bạn.",
+            "en": "Hello, this is a sample of the narrator's voice."}.get(body.get("lang"), "Hello, this is a sample.")
+    out = ROOT / "cache" / "voice-preview" / f"{provider}-{re.sub(r'[^A-Za-z0-9]+', '_', voice) or 'default'}"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with _preview_lock:  # one model in memory, one synthesis at a time
+        if provider == "vieneu":
+            path = out.with_suffix(".wav")
+            if not path.exists():
+                vieneu.synthesize(text, voice or vieneu.narrator_voice(), path)
+        elif provider == "edge":
+            path = out.with_suffix(".mp3")
+            if not path.exists():
+                tts._synthesize(text, voice or read_json(CHANNEL_PATH, {}).get("voices", {}).get(body.get("lang"), ""),
+                                path)
+        else:
+            abort(400, "Preview is available for VieNeu and Edge voices")
+    return send_file(path)
 
 
 @app.get("/files/<pid>/muse/<path:name>")

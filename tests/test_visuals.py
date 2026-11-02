@@ -87,3 +87,52 @@ class TimingTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class FlowTest(unittest.TestCase):
+    """Style choice, the human review gate and Muse as a script writer."""
+
+    def test_style_presets_resolve(self):
+        from storyvid import styles
+        stick = styles.resolve({'preset': 'stick'})
+        self.assertTrue(stick['refs'] and all(p.is_file() for p in stick['refs']))
+        self.assertEqual(styles.resolve({'preset': 'custom', 'text': 'watercolor'})['text'], 'watercolor')
+        self.assertEqual(styles.resolve({'preset': 'custom', 'text': ' '}), {})
+        self.assertEqual(styles.resolve({'preset': 'nope'}), {})
+
+    def test_a_fixed_style_is_kept(self):
+        plan = visuals.write_prompts(SAMPLE, CHANNEL, '9:16', 'offline', 'my style')
+        self.assertEqual(plan['style'], 'my style')
+
+    def test_style_refs_must_be_project_files(self):
+        plan = visuals.write_prompts(SAMPLE, CHANNEL, '9:16', 'offline')
+        with tempfile.TemporaryDirectory() as tmp:
+            plan['style_refs'] = ['muse/style/ref_0.png']
+            self.assertIn('does not exist', '\n'.join(contract.validate_visuals(plan, SAMPLE, Path(tmp))))
+            (Path(tmp) / 'muse' / 'style').mkdir(parents=True)
+            (Path(tmp) / 'muse' / 'style' / 'ref_0.png').write_bytes(b'x')
+            self.assertEqual(contract.validate_visuals(plan, SAMPLE, Path(tmp)), [])
+
+    def test_approval_is_lost_when_the_script_changes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            script = copy.deepcopy(SAMPLE)
+            (d / 'scenes.json').write_text(json.dumps(script))
+            self.assertFalse(visuals.is_approved(d))
+            (d / 'meta.json').write_text(json.dumps({'approved_script': visuals.script_digest(script)}))
+            self.assertTrue(visuals.is_approved(d))
+            script['title'] = 'changed'
+            (d / 'scenes.json').write_text(json.dumps(script))
+            self.assertFalse(visuals.is_approved(d))
+
+    def test_muse_writes_the_script_through_museflow(self):
+        from unittest import mock
+        from storyvid import script as script_mod
+        reply = {'ok': True, 'text': 'Here it is:\n```json\n' + json.dumps({
+            'title': 'T', 'cast': [], 'scenes': [{'bg_id': 'river_night', 'bg_prompt': 'river', 'camera': 'static',
+                                                 'actors': [], 'props': [],
+                                                 'lines': [{'speaker': 'narrator', 'text': 'Hi.'}]}]}) + '\n```'}
+        with mock.patch.object(visuals, 'muse', return_value=reply) as call:
+            out = script_mod.write_script('story', CHANNEL, 'en', 1, 'muse')
+        self.assertEqual(call.call_args[0][0], '/api/chat')
+        self.assertEqual(contract.validate(out)[0], [])

@@ -31,7 +31,7 @@
       <header class="project-head">
         <input id="pName" class="title-input" aria-label="Tên dự án">
         <div class="head-controls">
-          <label>Ngôn ngữ <select id="pLang"></select></label>
+          <label>Ngôn ngữ đầu ra <select id="pLang"></select></label>
           <label>Độ dài <input id="pMinutes" type="number" min="0.5" max="30" step="0.5"> phút</label>
           <button class="btn danger ghost" id="deleteBtn">Xóa</button>
         </div>
@@ -40,22 +40,40 @@
         <button class="btn ghost small" id="stopBtn">Dừng</button></div>
 
       <div class="tabs" role="tablist">
-        <button class="tab active" data-tab="story">1. Truyện</button>
-        <button class="tab" data-tab="script">2. Kịch bản <span class="count" id="sceneCount"></span></button>
-        <button class="tab" data-tab="muse">3. Hình Muse <span class="count" id="museCount"></span></button>
-        <button class="tab" data-tab="video">4. Video</button>
+        <button class="tab active" data-tab="style">1. Phong cách</button>
+        <button class="tab" data-tab="story">2. Truyện</button>
+        <button class="tab" data-tab="script">3. Kịch bản <span class="count" id="sceneCount"></span></button>
+        <button class="tab" data-tab="muse">4. Hình Muse <span class="count" id="museCount"></span></button>
+        <button class="tab" data-tab="video">5. Video</button>
       </div>
 
-      <div class="tabpane" data-pane="story">
+      <div class="tabpane" data-pane="style">
+        <div class="actions">
+          <label>Khung hình <select id="pRatio"><option value="9:16">9:16 dọc (Short, TikTok)</option><option value="16:9">16:9 ngang (YouTube)</option></select></label>
+          <span class="muted small">Chọn một phong cách có sẵn, hoặc để Muse vẽ mẫu từng kiểu rồi chọn.</span>
+          <span class="grow"></span>
+          <button class="btn" id="sampleStylesBtn">Muse vẽ mẫu các kiểu</button>
+        </div>
+        <div id="styleList" class="style-list"></div>
+        <div class="card hidden" id="customStyleBox"><label class="block">Mô tả phong cách của bạn (tiếng Anh cho kết quả tốt nhất)
+          <textarea id="customStyle" rows="3" placeholder="Watercolor children's book illustration, soft pastel colours…"></textarea></label>
+          <div class="actions"><span class="grow"></span><button class="btn" id="sampleCustomBtn">Muse vẽ mẫu kiểu này</button></div></div>
+        <div class="actions sticky"><span class="muted" id="styleChosen"></span><span class="grow"></span>
+          <button class="btn primary" id="styleNextBtn">Tiếp: Truyện →</button></div>
+      </div>
+
+      <div class="tabpane hidden" data-pane="story">
         <textarea id="story" class="story" placeholder="Dán truyện gốc vào đây…"></textarea>
         <div class="actions">
-          <label>Viết bằng <select id="provider">
+          <label>Viết kịch bản bằng <select id="provider">
+            <option value="muse">Muse (qua MuseFlow, không cần key)</option>
+            <option value="claude">Claude API (cần key Anthropic)</option>
+            <option value="openai">API chuẩn OpenAI: DeepSeek, Gemini… (cài đặt)</option>
+            <option value="codex">Codex CLI (gói ChatGPT)</option>
             <option value="">Theo cài đặt (.env)</option>
-            <option value="openai">OpenAI-compatible API</option>
-            <option value="codex">Codex CLI</option>
-            <option value="claude">Claude API</option>
-            <option value="offline">Offline (chỉ chia cảnh)</option>
+            <option value="offline">Không dùng AI: chỉ chia truyện thành cảnh để tự viết</option>
           </select></label>
+          <span class="muted small" id="storyLangNote"></span>
           <span class="grow"></span>
           <button class="btn" id="saveStoryBtn">Lưu</button>
           <button class="btn primary" id="writeScriptBtn">Viết kịch bản →</button>
@@ -92,26 +110,30 @@
           <button class="btn" id="addSceneBtn">+ Thêm cảnh</button>
           <button class="btn primary" id="saveScriptBtn">Lưu kịch bản</button>
         </div>
+        <div class="card review-bar" id="reviewBar"><span id="reviewText"></span><span class="grow"></span>
+          <button class="btn primary" id="approveBtn">✓ Duyệt kịch bản</button></div>
         <div id="scenes" class="scenes"></div>
         <p class="muted" id="noScript">Chưa có kịch bản. Quay lại tab Truyện và bấm “Viết kịch bản”.</p>
       </div>
 
       <div class="tabpane hidden" data-pane="muse">
+        <div class="card locked hidden" id="museLocked">Kịch bản chưa được duyệt. Đọc kỹ ở tab <b>3. Kịch bản</b> rồi bấm <b>✓ Duyệt kịch bản</b>; sau đó các bước AI tạo hình mới mở.</div>
         <div class="card muse-status">
           <span id="museStatus" class="muted">Đang kiểm tra MuseFlow…</span>
           <span class="grow"></span>
+          <button class="btn ghost small" id="museLaunchBtn">Mở MuseFlow</button>
           <button class="btn ghost small" id="museCheckBtn">Kiểm tra lại</button>
         </div>
         <div class="actions">
-          <label>Khung hình <select id="museRatio"><option value="16:9">16:9 ngang</option><option value="9:16">9:16 dọc</option></select></label>
           <label>Viết prompt bằng <select id="museProvider">
             <option value="muse">Muse (qua MuseFlow)</option><option value="offline">Không dùng AI (từ kịch bản)</option>
             <option value="openai">API chuẩn OpenAI (.env)</option><option value="codex">Codex CLI</option></select></label>
           <button class="btn" id="musePromptsBtn">1. Viết prompt hình</button>
           <span class="grow"></span>
           <button class="btn" id="museSaveBtn">Lưu prompt</button>
-          <button class="btn" id="museCastBtn">2. Tạo ảnh mẫu nhân vật</button>
-          <button class="btn primary" id="museScenesBtn">3. Tạo ảnh + clip các cảnh</button>
+          <button class="btn" id="museCastBtn">2. Ảnh mẫu nhân vật</button>
+          <button class="btn" id="museImagesBtn">3. Ảnh các cảnh</button>
+          <button class="btn primary" id="museClipsBtn">4. Clip từ ảnh</button>
         </div>
         <p class="muted" id="museEmpty">Chưa có prompt hình. Bấm “Viết prompt hình” sau khi kịch bản đã xong.</p>
         <div id="museBody" class="hidden">
@@ -128,6 +150,9 @@
           <label>Độ phân giải <select id="res">
             <option value="480">480p (nhanh)</option><option value="720" selected>720p</option><option value="1080">1080p</option>
           </select></label>
+          <label>Giọng đọc <select id="voiceProvider"></select></label>
+          <label id="voiceNameBox">Giọng <select id="voiceName"></select></label>
+          <button class="btn ghost small" id="voicePreviewBtn">▶ Nghe thử</button>
           <label><input type="checkbox" id="useMuse"> Dùng clip Muse</label>
           <span class="grow"></span>
           <a class="btn hidden" id="downloadBtn" download>Tải MP4</a>
@@ -210,9 +235,10 @@
   <form method="dialog" id="newForm">
     <h2>Dự án mới</h2>
     <label>Tên <input name="name" required placeholder="Ma da sông Hồng"></label>
-    <label>Ngôn ngữ video <select name="lang" id="newLang"></select></label>
+    <label>Ngôn ngữ đầu ra (kịch bản, giọng đọc, phụ đề) <select name="lang" id="newLang"></select></label>
+    <label>Khung hình <select name="ratio"><option value="9:16">9:16 dọc</option><option value="16:9">16:9 ngang</option></select></label>
     <label>Độ dài mục tiêu (phút) <input name="minutes" type="number" value="2" min="0.5" max="30" step="0.5"></label>
-    <label>Truyện gốc <textarea name="story" rows="8" placeholder="Dán truyện vào đây (có thể để trống và dán sau)"></textarea></label>
+    <label>Truyện gốc, ngôn ngữ nào cũng được <textarea name="story" rows="8" placeholder="Dán truyện vào đây (có thể để trống và dán sau)"></textarea></label>
     <div class="actions"><span class="grow"></span>
       <button class="btn" value="cancel" formnovalidate>Hủy</button>
       <button class="btn primary" value="ok">Tạo</button></div>
