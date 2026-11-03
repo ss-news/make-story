@@ -216,7 +216,7 @@ Mọi video, người que hay Muse, kết thúc theo đúng 5 bước. Bước s
 
 1. **Máy kiểm tra** (`python -m storyvid.finish check output/<id> [--video video_short]`, ghi `finish.json`): video dựng từ đúng bản `scenes.json` đã duyệt (so mã băm trong `render.json`), không dùng `--fallback`, cảnh nào cũng có clip (video Muse), cạnh ngắn ≥ 1080 px, đủ 90 % thời lượng mục tiêu (Short tối đa 60 giây), âm lượng −16 đến −12 LUFS với đỉnh dưới −1 dB, không im lặng quá 3 giây, phụ đề SRT phủ hết video. Âm lượng sai thì `loudnorm` chuẩn hóa về −14 LUFS (chỉ xử lý tiếng, giữ nguyên hình).
 2. **Kiểm định nội dung** (`review`): app lấy một khung hình giữa mỗi cảnh (`publish/frames/`), ghép thành bảng 20 cảnh có số; AI (Muse xem được hình; Claude, OpenAI, Codex chỉ xem lời) so từng khung với lời kể và ngoại hình nhân vật, rồi kiểm chứng số liệu và trích dẫn. Kết quả ghi `review.json` (`storyvid.review/1`). `fix` thì tạo lại đúng các cảnh bị nêu ở tab Hình Muse, dựng lại, chạy lại bước 1–2.
-3. **Short 9:16** (tùy chọn): `--short` dựng `video_short.mp4` từ `short.scenes` (hoặc khoảng 55 giây đầu); chạy bước 1 với `--video video_short`.
+3. **Short 9:16** (tùy chọn): `--short` dựng `video_short.mp4` từ `short.scenes` (hoặc khoảng 55 giây đầu), dựng thẳng ở khung dọc, không cắt từ bản ngang (bố cục và vùng an toàn: README, mục “Short 9:16”). Chạy bước 1 với `--video video_short`.
 4. **Gói đăng** (`publish`, ghi vào `publish/`): `youtube.md` và `publish.json` gồm 3 tiêu đề, mô tả (2 dòng mở có từ khóa, tóm tắt, chương lấy mốc thời gian thật từ `render.json`, cách nhau ≥ 10 giây và bắt đầu ở 0:00, nguồn và ghi công lấy từ ô “Nguồn và ghi công”, ghi chú hình AI, hashtag), tag, cài đặt; 3 thumbnail 1280×720: Muse vẽ hình (gửi kèm ảnh mẫu nhân vật), app tự in chữ để không sai chính tả.
 5. **Đăng**: người dùng đăng lên YouTube (agent không đăng thay), đánh dấu checklist trên tab, dán link và bấm “Đánh dấu đã đăng” (`meta.json` `published`). Sau 48 giờ ghi số liệu vào `docs/research/`.
 
@@ -238,7 +238,7 @@ output/<id>/
   credits.txt           dòng ghi công cho mô tả video (chỉ khi dùng âm thanh CC-BY)
   video.mp4             video 16:9
   short/                giọng đọc riêng của Short
-  video_short.mp4       Short 9:16 (1080x1920 với --res 1080), hình phủ kín khung dọc, tiêu đề và phụ đề nằm đè lên hình
+  video_short.mp4       Short 9:16 (1080x1920 với --res 1080). Clip 16:9 hiện trọn trên nền mờ, chữ nằm trong vùng an toàn của app
   meta.json             còn có: ratio, style (phong cách), voice (giọng đọc riêng của dự án), approved_script
   visuals.json          kế hoạch hình Muse storyvid.visuals/1 (chỉ khi dùng Muse)
   muse/                 ảnh mẫu nhân vật (cast/), ảnh tham chiếu phong cách (style/), mẫu phong cách tự viết

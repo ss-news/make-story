@@ -61,7 +61,8 @@ Bắt buộc cho cả hai agent: Claude soát khi chia cảnh (phần 2–5, 7) 
 
 | | Mục | area |
 |---|---|---|
-| [ ] ★ | Hình đầy khung dọc, chủ thể to, không có dải đen lớn | render |
+| [ ] ★ | Không mất hình: clip 16:9 hiện trọn (không bị cắt mép), không có dải đen lớn, chủ thể to nhất có thể | render |
+| [ ] ★ | Logo, tiêu đề, phụ đề và nút cuối nằm trong vùng an toàn: dưới thanh trên của app, trên 80 % chiều cao, cách mép phải 12 % | render |
 | [ ] ★ | Giây đầu là cảnh gây sốc, không phải khung cảnh trống | story |
 | [ ] | Dài 30–60 giây, kết lửng | pacing |
 

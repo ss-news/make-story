@@ -107,6 +107,7 @@ class Renderer:
     """16:9 video: the stage fills the frame, with the channel badge top left and subtitles in a bottom band."""
     char_height = CHARACTER_HEIGHT  # of the stage height
     spread = 1.0                    # 1 = positions use the whole stage width, less pulls them to the middle
+    sub_width = 0.86                # subtitle lines wrap at this much of the frame width
 
     def __init__(self, channel: dict, size: tuple[int, int], fps: int):
         self.channel = channel
@@ -135,7 +136,7 @@ class Renderer:
         if key in self._sub_cache:
             return self._sub_cache[key]
         prefix = f"{speaker}: " if speaker else ""
-        lines = _wrap(prefix + text, self.sub_font, self.W * 0.86) or [""]
+        lines = _wrap(prefix + text, self.sub_font, self.W * self.sub_width) or [""]
         lh = int(self.sub_font.size * 1.2)
         img = Image.new("RGBA", (self.W, lh * len(lines) + 8), (0, 0, 0, 0))
         d = ImageDraw.Draw(img)
@@ -498,6 +499,67 @@ class ShortRenderer(Renderer):
             w = text_w + tri * 1.6 + self.W * 0.08
             cx, cy = self.W / 2, zone_top + self.band_h * 0.78
             h = font.size * 1.6
+            d.rounded_rectangle([cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2], radius=h / 2, fill=(178, 22, 30))
+            x0 = cx - (text_w + tri * 1.6) / 2
+            d.text((x0, cy), self.end_text, font=font, fill=(255, 255, 255), anchor="lm")
+            tx = x0 + text_w + tri * 0.6
+            d.polygon([(tx, cy - tri / 2), (tx + tri * 0.9, cy), (tx, cy + tri / 2)], fill=(255, 255, 255))
+        return frame
+
+
+# Where TikTok, Reels and Shorts draw their own buttons and captions over a 9:16 video, as fractions of the frame.
+# Badge, title, subtitles and the end card stay out of these; the picture may run under them.
+SAFE_TOP = 0.07     # tabs and search at the top
+SAFE_BOTTOM = 0.80  # caption, sound and progress bar below this line
+SAFE_SIDE = 0.12    # like/comment/share column on the right (text is centred, so both sides keep this margin)
+
+
+class SafeShortRenderer(ShortRenderer):
+    """ShortRenderer with its text inside the apps' safe zone (SAFE_*): badge and title under the top bar,
+    subtitles at sub_top, end card just above the caption zone. Used for Shorts made from Muse clips."""
+    sub_width = 1 - 2 * SAFE_SIDE
+    sub_top = 0.655  # subtitles start here
+
+    def _chrome(self) -> Image.Image:
+        """Vignette, top and bottom gradients, channel badge and title, drawn once over the picture."""
+        W, H = self.W, self.H
+        img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        _vignette(img, 70)
+        logo = int(W * 0.1)
+        size = int(W * 0.065)  # shrink the title until it fits in two lines
+        while True:
+            font = _font(FONT_BOLD, size)
+            lines = _wrap(self.title, font, W * 0.88)
+            if len(lines) <= 2 or size <= W * 0.035:
+                break
+            size -= 2
+        lh = int(font.size * 1.2)
+        top = H * SAFE_TOP
+        self.title_bottom = top + logo + lh * (len(lines[:2]) + 0.3)
+        shade = Image.new("L", (1, H), 0)
+        fade_top, fade_bottom = self.title_bottom + H * 0.04, H * (self.sub_top - 0.05)
+        for y in range(H):
+            a = max(1 - y / fade_top, (y - fade_bottom) / (H - fade_bottom))
+            shade.putpixel((0, y), int(215 * max(0.0, min(1.0, a)) ** 1.2))
+        img.paste((8, 8, 10, 255), (0, 0), shade.resize((W, H)))
+        _badge(img, self.channel, W / 2, top, logo, center=True)
+        for i, ln in enumerate(lines[:2]):
+            ImageDraw.Draw(img).text((W / 2, top + logo + lh * (i + 0.7)), ln, font=font, fill=(245, 240, 230),
+                                     anchor="mm", stroke_width=2, stroke_fill=(0, 0, 0))
+        return img
+
+    def _finish(self, frame: Image.Image, cue: dict | None, t: float, total: float) -> Image.Image:
+        if cue:
+            sub = self._subtitle(cue["text"], cue.get("speaker", ""))
+            frame.paste(sub, (0, int(self.H * self.sub_top)), sub)
+        if t > total - END_CARD_TIME:
+            d = ImageDraw.Draw(frame)
+            font = _font(FONT_BOLD, int(self.W * 0.05))
+            tri = font.size * 0.7  # play triangle after the text (the font has no ▶ glyph)
+            text_w = font.getlength(self.end_text)
+            w = text_w + tri * 1.6 + self.W * 0.08
+            h = font.size * 1.6
+            cx, cy = self.W / 2, self.H * SAFE_BOTTOM - h / 2 - self.H * 0.012
             d.rounded_rectangle([cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2], radius=h / 2, fill=(178, 22, 30))
             x0 = cx - (text_w + tri * 1.6) / 2
             d.text((x0, cy), self.end_text, font=font, fill=(255, 255, 255), anchor="lm")

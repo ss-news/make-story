@@ -37,5 +37,5 @@
 - 30 giây đầu: cảnh đáng sợ nhất, chủ thể to và rõ giữa khung, kết bằng câu hỏi. Không tả làng, bối cảnh hay cảnh ban ngày trước khi có điều lạ. Claude kiểm tra điều này khi chia cảnh và khi chấm.
 - Truyện ma phải trông như truyện ma: nền tối, bóng đổ, nhân vật biểu cảm sợ chứ không hài, tránh khung hình dễ nhầm với hoạt hình thiếu nhi.
 - Mỗi video có thumbnail riêng: nền tối, một chủ thể đáng sợ thật to, một màu nhấn, chữ tối đa 3–4 từ. Không dùng khung hình tự cắt.
-- Short: hình đầy khung dọc, chủ thể to, không để dải đen lớn.
+- Short: dựng thẳng ở khung dọc, không cắt mất hình từ bản 16:9 (clip ngang hiện trọn trên nền mờ), chủ thể to nhất có thể, không để dải đen lớn, chữ nằm trong vùng an toàn của TikTok/Reels/Shorts (README, mục “Short 9:16”).
 - Khi đăng: bản 1080p (không dùng bản nén), tải phụ đề SRT, không đánh dấu dành cho trẻ em. Sau 48 giờ đọc lại CTR, đường giữ chân và các video YouTube đề xuất cạnh.

@@ -70,6 +70,21 @@ Flow trên web UI, mọi bước đều làm trong app:
 
 Tùy chọn: `--provider auto|openai|codex|claude|offline`, `--res 480|720|1080`, `--fps`, `--out`, `--fallback` (dựng nháp khi còn thiếu asset), `--short` (dựng Short 9:16 ra `video_short.mp4`).
 
+### Short 9:16
+
+Short dựng thẳng ở khung dọc, không cắt từ bản 16:9:
+
+```bash
+.venv/bin/python -m storyvid.cli --script output/<id>/scenes.json --res 1080 --short            # người que
+.venv/bin/python -m storyvid.cli --script output/<id>/scenes.json --visuals --res 1080 --short  # clip Muse
+```
+
+- **Bố cục**: logo kênh và tiêu đề ở trên, hình ở giữa, phụ đề ngay dưới hình, nút "Xem bản đầy đủ" ở cuối Short.
+- **Vùng an toàn** của TikTok, Reels và Shorts (`SAFE_*` trong `storyvid/render.py`): không đặt chữ trong 7 % trên cùng (thanh tab), dưới 80 % chiều cao (caption, tên nhạc) và 12 % mỗi bên (cột nút bên phải). Hình nền vẫn chạy dưới các vùng này.
+- **Clip Muse 16:9** hiện trọn khung, đặt giữa tiêu đề và phụ đề trên nền là chính clip đó làm mờ và tối đi, không có dải đen. Chuyển động đẩy vào dùng cách phóng hình lên trong khung, không cắt mép. Clip hoặc ảnh gần đúng tỉ lệ khung (lệch dưới 15 %, `COVER_SLACK`) thì phủ kín khung.
+- **Người que**: sân khấu dựng lại cho khung dọc. Nhân vật đứng trên vùng phụ đề, đứng gần giữa hơn (`spread`) và nhỏ hơn bản ngang.
+- Muốn hình to, phủ kín khung dọc thì tạo một dự án Muse riêng với khung 9:16 cho Short.
+
 ## `.env` — AI viết kịch bản và giọng đọc
 
 | Biến | Ý nghĩa |
