@@ -143,7 +143,7 @@ def main():
     timeline = narrate(script, voice, out_dir, args.lang)
     print(f"  subtitles -> {write_srt(timeline['cues'], out_dir / 'video.srt')}")
     add_sound(script, timeline, out_dir)
-    add_end_screen(channel, timeline, out_dir)
+    add_end_screen(channel, script, timeline, out_dir)
 
     size = RESOLUTIONS[args.res]
     if visuals:
@@ -183,7 +183,7 @@ def add_sound(script: dict, timeline: dict, work_dir: Path) -> None:
         print(f"  credits for the description -> {work_dir / 'credits.txt'}")
 
 
-def add_end_screen(channel: dict, timeline: dict, work_dir: Path) -> None:
+def add_end_screen(channel: dict, script: dict, timeline: dict, work_dir: Path) -> None:
     """channel.json "end_screen": {"seconds": 12, "music": "<audio id>"} keeps the last picture on screen after
     the narration, under music, for YouTube's end-screen cards (5-20 s). Long videos only."""
     from . import audio
@@ -191,7 +191,8 @@ def add_end_screen(channel: dict, timeline: dict, work_dir: Path) -> None:
     if not end.get("seconds") or not end.get("music"):
         return
     print(f"  end screen: {end['seconds']}s with {end['music']}")
-    audio.end_screen(timeline, float(end["seconds"]), end["music"], work_dir / "with_end.wav")
+    audio.end_screen(timeline, float(end["seconds"]), end["music"], work_dir / "with_end.wav",
+                     carry_on=(script.get("music") or {}).get("id") == end["music"])
     credits = work_dir / "credits.txt"
     lines = credits.read_text(encoding="utf-8").splitlines() if credits.exists() else []
     if audio.credit(end["music"]) not in lines:

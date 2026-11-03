@@ -19,6 +19,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from . import places
 from .ffmpeg import ffmpeg_exe
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -347,11 +348,17 @@ def publish(project: Path, provider: str, count: int = 3) -> dict:
     thumbs = []
     for k, idea in enumerate(plan.get("thumbnails", [])[:count], 1):
         print(f"[publish] thumbnail {k}: {idea.get('text')}")
-        refs = [sheets[c] for c in idea.get("cast", []) if c in sheets][:2]
+        refs = [p for p in (sheets[c] for c in idea.get("cast", []) if c in sheets) if p.is_file()][:2]
+        note = ""
+        for place in places.load(project)["places"]:  # a real place in the picture: its photo guides the shape
+            photo = next((project / f for f in place["files"] if (project / f).is_file()), None)
+            if photo and len(refs) < 3 and places.uses({**place, "skip": [], "scenes": []}, str(idea.get("picture", "")).lower(), 0):
+                refs.append(photo)
+                note += "\n\n" + places.PLACE_NOTE.format(name=place.get("name") or place["id"])
         try:
             bg = _generate("image", f"YouTube thumbnail background. {idea.get('picture')} Keep the left third simple "
-                           f"and darker for a title. No text, no letters.\n\nVisual style: {style}", "16:9",
-                           out / f"thumb_bg_{k}.png", [p for p in refs if p.is_file()])
+                           f"and darker for a title. No text, no letters.\n\nVisual style: {style}{note}", "16:9",
+                           out / f"thumb_bg_{k}.png", refs)
             path = out / f"thumbnail_{k}.jpg"
             thumbnail_text(Image.open(bg), idea.get("text", "")).save(path, quality=90)
             thumbs.append({"file": path.relative_to(project).as_posix(), "text": idea.get("text", "")})

@@ -72,13 +72,15 @@ def attributions(script: dict) -> list[str]:
     return lines
 
 
-def end_screen(timeline: dict, seconds: float, music_id: str, out_path: Path) -> None:
+def end_screen(timeline: dict, seconds: float, music_id: str, out_path: Path, carry_on: bool = False) -> None:
     """Hold the last picture `seconds` longer than the narration, under music, so YouTube end-screen cards fit.
-    timeline["audio"] (narration or mix) gets the music tail; the picture follows timeline["scenes"][-1]["end"]."""
+    timeline["audio"] (narration or mix) gets the music tail; the picture follows timeline["scenes"][-1]["end"].
+    carry_on: the same track already plays under the narration, so the tail picks it up where it stopped."""
     with wave.open(str(timeline["audio"]), "rb") as w:
         sound = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float32) / 32768.0
     tail = int(seconds * SAMPLE_RATE)
-    music = _loop(_decoded(music_id), tail).copy()
+    start = len(sound) if carry_on else 0
+    music = _loop(_decoded(music_id), start + tail)[start:].copy()
     rise, fall = min(tail // 4, int(1.5 * SAMPLE_RATE)), min(tail // 2, int(3.0 * SAMPLE_RATE))
     music[:rise] *= np.linspace(0, 1, rise, dtype=np.float32)
     music[-fall:] *= np.linspace(1, 0, fall, dtype=np.float32)
