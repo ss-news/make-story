@@ -143,7 +143,8 @@ def main():
                              list(range(len(script["scenes"]))))
     print(f"  subtitles -> {write_srt(timeline['cues'], out_dir / 'video.srt')}")
     add_sound(script, timeline, out_dir)
-    add_end_screen(channel, script, timeline, out_dir)
+    if not (visuals and visuals["ratio"] == "9:16"):  # Reels/Shorts have no end-screen cards: no dead seconds
+        add_end_screen(channel, script, timeline, out_dir)
 
     size = RESOLUTIONS[args.res]
     if visuals:

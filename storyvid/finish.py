@@ -142,13 +142,27 @@ def check(project: Path, name: str = "video") -> dict:
     return result
 
 
+LOUDNORM = "loudnorm=I=-14:TP=-1.5:LRA=11"
+# A gentle compressor first, so sharp hits (an axe, a hammer) do not hold the loudness down at the peak ceiling.
+COMPRESS = "acompressor=threshold=-24dB:ratio=3:attack=5:release=150:makeup=2"
+
+
 def loudnorm(project: Path, name: str = "video") -> Path:
-    """Normalize the audio to -14 LUFS / -1.5 dBTP; the video stream is copied, so this takes seconds."""
+    """Normalize the audio to -14 LUFS / -1.5 dBTP: a gentle compressor, then loudnorm in two passes (measure, then
+    apply). One plain pass falls short on loud peaks over quiet ambience, like the clips' own sound. The video
+    stream is copied."""
     video = project / f"{name}.mp4"
     tmp = project / f"{name}.loudnorm.mp4"
-    subprocess.run([ffmpeg_exe(), "-y", "-v", "error", "-i", str(video), "-c:v", "copy", "-af",
-                    "loudnorm=I=-14:TP=-1.5:LRA=11", "-ar", "48000", "-c:a", "aac", "-b:a", "192k",
-                    "-movflags", "+faststart", str(tmp)], check=True)
+    log = subprocess.run([ffmpeg_exe(), "-hide_banner", "-i", str(video), "-vn", "-af", f"{COMPRESS},{LOUDNORM}:print_format=json",
+                          "-f", "null", "-"], capture_output=True, text=True).stderr
+    found = re.search(r"\{[^{}]*\"input_i\"[^{}]*\}", log)
+    measured = json.loads(found[0]) if found else {}
+    second = (f"{LOUDNORM}:measured_I={measured['input_i']}:measured_TP={measured['input_tp']}:"
+              f"measured_LRA={measured['input_lra']}:measured_thresh={measured['input_thresh']}:"
+              f"offset={measured['target_offset']}" if measured.get("input_i", "-inf") not in ("-inf", "inf")
+              else LOUDNORM)  # silence cannot be measured: fall back to one pass
+    subprocess.run([ffmpeg_exe(), "-y", "-v", "error", "-i", str(video), "-c:v", "copy", "-af", f"{COMPRESS},{second}",
+                    "-ar", "48000", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(tmp)], check=True)
     tmp.replace(video)
     return video
 
