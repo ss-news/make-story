@@ -33,7 +33,7 @@
 - Bộ ma nguyên ảnh dùng Blender: chuẩn nguồn ở `assets/bac-bo-stick/extra/whole-ghosts-v1/` (PNG RGBA theo tư thế, manifest riêng, không cắt khớp tay chân). Đây là chuẩn nguồn cho Blender, chưa thay đổi hợp đồng `storyvid.scenes/1`; không tự đưa pose mới vào scenes.json hoặc đăng ký nhân vật PNG thành props.
 
 ## Lưu ý nội dung từ số liệu YouTube (chi tiết: `docs/research/2026-10-28-ma-lon-analytics.md`)
-- Tool làm nhiều loại video (`meta.json` `genre`, `storyvid/script.py` `GENRE_INFO`): `story` truyện ma, dân gian; `drama` truyện đời thường, kịch tính; `explainer` kiến thức. Loại nào cũng phải trông đúng loại đó; không áp quy tắc riêng của loại này cho loại khác.
+- Tool làm nhiều loại video (`meta.json` `genre`, `storyvid/script.py` `GENRE_INFO`): `story` truyện ma, dân gian; `drama` truyện đời thường, kịch tính; `build` xây dựng, làm thủ công (không lời: cảnh dài theo clip, giữ tiếng của clip, dòng `narrator` thành chữ báo công đoạn); `explainer` kiến thức. Loại nào cũng phải trông đúng loại đó; không áp quy tắc riêng của loại này cho loại khác.
 - Ma Lon: CTR 1,1%, xem trung bình 43 giây trên 10 phút, bị YouTube đề xuất cạnh Mr Bean và hoạt hình thiếu nhi. Bài học chung cho mọi loại:
 - 30 giây đầu: khoảnh khắc mạnh nhất của video (truyện ma: cảnh đáng sợ nhất; đời thường: lúc mâu thuẫn lên đỉnh; kiến thức: câu hỏi hoặc điều bất ngờ), chủ thể to và rõ giữa khung, kết bằng câu hỏi. Không tả bối cảnh dài trước khi có chuyện. Claude kiểm tra điều này khi chia cảnh và khi chấm.
 - Mỗi video có thumbnail riêng: một chủ thể thật to, cảm xúc rõ, một màu nhấn, chữ tối đa 3–4 từ. Không dùng khung hình tự cắt.

@@ -96,3 +96,26 @@ class AudioTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class AmbientTimelineTest(unittest.TestCase):
+    def test_silent_genre_follows_the_clips_and_keeps_their_sound(self):
+        from storyvid import cli, tts
+        from storyvid.ffmpeg import ffmpeg_exe
+        import subprocess
+        script = {'scenes': [{'lines': [{'speaker': 'narrator', 'text': 'Ngày 1'}]},
+                             {'lines': [{'speaker': 'narrator', 'text': 'Dựng cột'}]}]}
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            clip = d / 'a.mp4'
+            subprocess.run([ffmpeg_exe(), '-v', 'error', '-f', 'lavfi', '-i', 'color=c=black:s=64x36:d=2',
+                            '-f', 'lavfi', '-i', 'sine=frequency=440:duration=2', '-shortest', str(clip)], check=True)
+            timeline = tts.ambient_timeline(script, [(clip, None), (None, None)], d / 'work', still_seconds=3)
+            self.assertAlmostEqual(timeline['duration'], 5, delta=0.2)
+            self.assertEqual([c['text'] for c in timeline['cues']], ['Ngày 1', 'Dựng cột'])
+            self.assertGreater(np.abs(timeline['samples'][:SAMPLE_RATE]).max(), 1000)  # the clip's tone is kept
+            self.assertEqual(np.abs(timeline['samples'][-SAMPLE_RATE:]).max(), 0)       # an image scene is quiet
+            (d / 'meta.json').write_text(json.dumps({'genre': 'build'}))
+            self.assertTrue(cli.is_silent(d))
+            (d / 'meta.json').write_text(json.dumps({'genre': 'drama'}))
+            self.assertFalse(cli.is_silent(d))

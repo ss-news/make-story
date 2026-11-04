@@ -55,7 +55,7 @@ Flow trên web UI, mọi bước đều làm trong app:
 
 1. **Dự án mới**: tên, ngôn ngữ đầu ra (kịch bản, giọng, phụ đề), khung 9:16 hoặc 16:9, truyện gốc ngôn ngữ nào cũng được.
 2. **Phong cách**: chọn người que của kênh, hoạt hình 3D, chibi, 2D phẳng, tranh vẽ 2D nắng ấm, truyện ma 2D tối màu, điện ảnh hoặc tự viết; bấm **Muse vẽ mẫu các kiểu** để xem trước.
-3. **Truyện**: chọn loại nội dung (truyện ma, dân gian; truyện đời thường, kịch tính; kiến thức) và người viết kịch bản: Muse (không cần key), Claude API, API chuẩn OpenAI, Codex, hoặc chỉ chia cảnh để tự viết.
+3. **Truyện**: chọn loại nội dung (truyện ma, dân gian; truyện đời thường, kịch tính; xây dựng, làm thủ công không lời; kiến thức) và người viết kịch bản: Muse (không cần key), Claude API, API chuẩn OpenAI, Codex, hoặc chỉ chia cảnh để tự viết.
 4. **Kịch bản**: đọc, sửa, rồi **✓ Duyệt kịch bản**. Chưa duyệt thì các bước AI tạo hình bị khóa; sửa sau khi duyệt phải duyệt lại.
 5. **Hình Muse**: nút **Mở MuseFlow** nếu app chưa chạy → viết prompt → ảnh mẫu nhân vật (duyệt, tạo lại) → ảnh các cảnh (xem trước) → clip từ ảnh.
 6. **Video**: chọn giọng đọc của dự án (Edge, ElevenLabs, hoặc 25 giọng VieNeu cho tiếng Việt), **▶ Nghe thử**, tick **Dùng clip Muse**, dựng video hoặc Short. Dòng lệnh và chuẩn `visuals.json`: [docs/pipeline.md](docs/pipeline.md#hình-ai-bằng-muse-storyvidvisuals1).

@@ -190,6 +190,42 @@ def _srt_time(t: float) -> str:
     return f"{ms // 3600000:02d}:{ms // 60000 % 60:02d}:{ms // 1000 % 60:02d},{ms % 1000:03d}"
 
 
+def ambient_timeline(script: dict, media: list, work_dir: Path, still_seconds: float = 8.0) -> dict:
+    """Silent genres (no voice): each scene lasts as long as its clip and plays the clip's own sound; the narrator
+    lines are shown as a caption for the whole scene instead of being read. media: [(clip, image)] per scene.
+    Returns the same shape as narrate()."""
+    from .render_clips import clip_duration
+    fade = int(0.05 * SAMPLE_RATE)
+    pieces, timeline, cues, t = [], [], [], 0.0
+    for i, (scene, (clip, _image)) in enumerate(zip(script["scenes"], media)):
+        length = clip_duration(clip) if clip else still_seconds
+        try:
+            samples = _decode(clip)[: int(length * SAMPLE_RATE)] if clip else np.zeros(0, dtype=np.int16)
+        except subprocess.CalledProcessError:  # a clip without a sound track
+            samples = np.zeros(0, dtype=np.int16)
+        samples = np.pad(samples, (0, max(0, int(length * SAMPLE_RATE) - len(samples)))).astype(np.float32)
+        if len(samples) > 2 * fade:  # no click where one clip's sound meets the next
+            samples[:fade] *= np.linspace(0, 1, fade, dtype=np.float32)
+            samples[-fade:] *= np.linspace(1, 0, fade, dtype=np.float32)
+        pieces.append(samples.astype(np.int16))
+        texts = [line["text"] for line in scene["lines"]]
+        step = length / max(1, len(texts))
+        spans = [{"start": t + k * step, "end": t + (k + 1) * step, "speaker": "narrator"} for k in range(len(texts))]
+        cues.append({"start": t, "end": t + length, "text": " · ".join(texts), "speaker": ""})
+        timeline.append({"start": t, "end": t + length, "lines": spans})
+        t += length
+        print(f"  scene {i + 1}/{len(script['scenes'])}: {length:.1f}s, clip sound")
+    audio = np.concatenate(pieces) if pieces else np.zeros(0, dtype=np.int16)
+    work_dir.mkdir(parents=True, exist_ok=True)
+    wav_path = work_dir / "ambient.wav"
+    with wave.open(str(wav_path), "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(SAMPLE_RATE)
+        w.writeframes(audio.tobytes())
+    return {"audio": wav_path, "samples": audio, "duration": t, "scenes": timeline, "cues": cues}
+
+
 def write_srt(cues: list[dict], path: Path) -> Path:
     """Subtitle file to upload next to the video (the picture also has them burned in)."""
     blocks = []

@@ -47,6 +47,23 @@ GENRE_INFO = {
         "thumbnail": ("one main character's face big in frame with a strong emotion (shock, tears, anger), the "
                       "conflict readable at a glance, strong contrast, one accent colour"),
     },
+    "build": {
+        "label": "Xây dựng, làm thủ công (không lời)",
+        "video": "silent build video: one traditional or primitive structure built step by step from raw materials, "
+                 "real sounds only",
+        "host": "a quiet builder; this video has no voice",
+        "cast_rule": 'The builders are kind "human": one to three people, the same ones in every scene.',
+        "arc": ('- No voice: every scene has exactly one narrator line, a caption of 2-6 words naming the step (for '
+                'example "Ngày 1 · Chặt tre"); it is shown on screen, not read. No dialogue.\n'
+                '- The first 30 seconds show the finished building or the most striking step, then go back to the '
+                'empty site. Then one step per scene in building order (site, materials, posts, frame, floor, walls, '
+                'roof, finishing), the building visibly growing; end on the finished building in warm light.'),
+        "silent": True,  # scenes follow their Muse clips and keep the clips' own sound (storyvid.cli)
+        "night": False,
+        "titles": "the build and its result (what it is made of, how long it took), no clickbait that overpromises",
+        "thumbnail": ("the finished building big in frame in warm light, or a striking half-built moment with the "
+                      "builder, one accent colour"),
+    },
     "explainer": {
         "label": "Kiến thức (khoa học, tâm lý)",
         "video": "science / psychology explainer",
@@ -105,7 +122,7 @@ def build_prompt(story: str, channel: dict, lang: str, minutes: float, character
     from .character_catalog import PRESETS as ALL_PRESETS
     words = int(minutes * 150)
     presets = "; ".join(f"{k} = {v['label']}" for k, v in ALL_PRESETS.items())
-    system = f"""You write scripts for the faceless YouTube channel "{channel['channel_name']}": short animated videos; this one is a {info_genre["video"]}.
+    system = f"""You write scripts for the faceless YouTube channel "{channel['channel_name']}": short videos; this one is a {info_genre["video"]}.
 The host is {host['name']}: {host['personality']}. The host narrates; narration lines use speaker "{NARRATOR}". The host can also appear on stage as actor id "{HOST}" (good for the opening hook and the ending), but most scenes should show the story's own characters.
 
 Write the story in {LANG_NAMES.get(lang, lang)} as an acted scene-by-scene script:

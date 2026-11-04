@@ -18,7 +18,7 @@ from .check import check_script
 from .contract import FORMAT
 from .render import Renderer, ShortRenderer
 from .script import GENRES, write_script
-from .tts import narrate, tts_provider, write_srt
+from .tts import ambient_timeline, narrate, tts_provider, write_srt
 
 ROOT = Path(__file__).resolve().parent.parent
 RESOLUTIONS = {"480": (854, 480), "720": (1280, 720), "1080": (1920, 1080)}
@@ -67,8 +67,8 @@ def main():
     ap.add_argument("--lang", help="narration language: en, vi, de, fr, es (default: the script's lang, else en)")
     ap.add_argument("--minutes", type=float, default=2.0, help="target narration length")
     ap.add_argument("--genre", choices=GENRES, default="story",
-                    help="story = ghost/folklore story; drama = real-life drama story; "
-                         "explainer = science or psychology explainer")
+                    help="story = ghost/folklore story; drama = real-life drama story; build = silent build "
+                         "video (captions, the clips' own sound); explainer = science or psychology explainer")
     ap.add_argument("--keep-text", action="store_true",
                     help="the text is already the narration: split it into scenes without rewriting it")
     ap.add_argument("--provider", choices=["auto", "muse", "openai", "codex", "claude", "offline"], default="auto",
@@ -139,9 +139,8 @@ def main():
         print(f"Done in {time.time() - started:.0f}s -> {out_dir / 'video_short.mp4'}")
         return
 
-    provider = tts_provider()
-    print(f"[2/4] Narrating with {voice if provider == 'edge' else provider}...")
-    timeline = narrate(script, voice, out_dir, args.lang)
+    timeline = make_timeline(script, voice, out_dir, args.lang, visuals, scenes_path.parent,
+                             list(range(len(script["scenes"]))))
     print(f"  subtitles -> {write_srt(timeline['cues'], out_dir / 'video.srt')}")
     add_sound(script, timeline, out_dir)
     add_end_screen(channel, script, timeline, out_dir)
@@ -169,6 +168,25 @@ def main():
     Renderer(channel, size, args.fps).render(script, timeline, bg_paths, video)
     record_render(out_dir, "video", script, timeline, list(range(len(script["scenes"]))), args, None)
     print(f"Done in {time.time() - started:.0f}s -> {video}")
+
+
+def is_silent(project: Path) -> bool:
+    """Genres without a voice (GENRE_INFO "silent"), from the project's meta.json."""
+    from .script import GENRE_INFO
+    meta = json.loads((project / "meta.json").read_text(encoding="utf-8")) if (project / "meta.json").exists() else {}
+    return bool(GENRE_INFO.get(meta.get("genre", ""), {}).get("silent"))
+
+
+def make_timeline(script: dict, voice: str, work_dir: Path, lang: str, visuals: dict | None, project: Path,
+                  picked: list[int]) -> dict:
+    """The voice timeline, or for a silent genre with Muse clips the clips' own sound with captions."""
+    if visuals and is_silent(project):
+        from .render_clips import scene_media
+        print("[2/4] No voice (silent genre): scenes follow their clips, sound comes from the clips...")
+        return ambient_timeline(script, scene_media(project, visuals, picked), work_dir)
+    provider = tts_provider()
+    print(f"[2/4] Narrating with {voice if provider == 'edge' else provider}...")
+    return narrate(script, voice, work_dir, lang)
 
 
 def add_sound(script: dict, timeline: dict, work_dir: Path) -> None:
@@ -234,9 +252,7 @@ def render_short(script: dict, channel: dict, voice: str, out_dir: Path, args, v
     picked = short_scenes(script)
     short = {**script, "scenes": [script["scenes"][i] for i in picked]}
     print(f"[short] scenes {picked}")
-    provider = tts_provider()
-    print(f"[2/4] Narrating with {voice if provider == 'edge' else provider}...")
-    timeline = narrate(short, voice, out_dir / "short", args.lang)
+    timeline = make_timeline(short, voice, out_dir / "short", args.lang, visuals, out_dir, picked)
     print(f"  subtitles -> {write_srt(timeline['cues'], out_dir / 'video_short.srt')}")
     add_sound(short, timeline, out_dir / "short")
     if timeline["duration"] > 60:
