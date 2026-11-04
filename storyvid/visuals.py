@@ -290,11 +290,19 @@ def merge_files(new: dict, old: dict | None) -> dict:
 
 
 # ---------- generation ----------
+SHEET_RATIO = "16:9"  # four panels side by side; the sheet is only a reference, whatever the video's frame
+
+
 def sheet_prompt(name: str, look: str, style: str) -> str:
+    """One image per character: a face close-up plus a full-body turnaround, so a scene uses one reference slot."""
     return (f"Character reference sheet for {name}. Appearance (must match exactly): {look}.\n\n"
-            "Show this one character only, full body, front view and three-quarter view side by side, neutral pose, "
-            "calm expression, plain light grey background, even soft lighting. No text, no labels, no other people, "
-            f"no scenery.\n\nVisual style: {style}")
+            "Layout, four panels side by side on one sheet: (1) a head-and-shoulders close-up portrait with a natural, "
+            "characteristic expression, showing the face, hair and any accessories clearly; then the full body, "
+            "standing in a neutral pose, in (2) front view, (3) three-quarter view and (4) back view. The same outfit, "
+            "props, colours and proportions in every panel; anything carried on the back or worn on the body must be "
+            "visible from the angle it faces. Solid white background, flat even studio lighting, no shadows on the "
+            "background. This one character only: no text, no labels, no other people, no scenery.\n\n"
+            f"Visual style: {style}")
 
 
 def scene_image_prompt(visuals: dict, scene_index: int, script: dict, names: dict) -> str:
@@ -304,7 +312,8 @@ def scene_image_prompt(visuals: dict, scene_index: int, script: dict, names: dic
     who = [f"{names.get(cid, cid)}: {looks[cid]}" for cid in actors if cid in looks]
     text = f"{visuals['style']}\n\n{visuals['scenes'][scene_index]['image_prompt']}"
     if who:
-        text += "\n\nCharacters in this frame (keep exactly this look; the attached sheets show them):\n" + "\n".join(who)
+        text += ("\n\nCharacters in this frame (keep exactly this look; each attached sheet shows one of them: a face "
+                 "close-up, then front, three-quarter and back views):\n" + "\n".join(who))
     return text
 
 
@@ -335,7 +344,7 @@ def make_cast(project: Path, only: str | None, redo: bool) -> int:
         print(f"[cast] {names.get(c['id'], c['id'])}")
         try:
             file = _generate("image", sheet_prompt(names.get(c["id"], c["id"]), c["look"], visuals["style"]),
-                             visuals["ratio"], project / "muse" / "cast" / f"{c['id']}.png",
+                             SHEET_RATIO, project / "muse" / "cast" / f"{c['id']}.png",
                              style_refs(project, visuals))
             c["sheet"] = file.relative_to(project).as_posix()
             c.pop("error", None)

@@ -54,6 +54,14 @@ PRESETS = {
                  "colours, soft flat shadows, uncluttered backgrounds. " + NO_TEXT),
         "refs": [],
     },
+    "painterly2d": {
+        "label": "Tranh vẽ 2D nắng ấm",
+        "about": "Tranh vẽ tay vệt cọ, nắng vàng, dáng người thật, như phim ngắn hoạt hình. Hợp truyện đời thường, cảm động.",
+        "text": ("Painterly 2D animated short film look, hand-painted brush textures, bold flat colour shapes with soft "
+                 "painted shading, warm natural light with gentle bloom, slightly stylised realistic proportions, "
+                 "expressive faces, dynamic poses, cinematic framing. Not 3D, not photorealistic. " + NO_TEXT),
+        "refs": [],
+    },
     "dark2d": {
         "label": "Truyện ma 2D tối màu",
         "about": "Tranh vẽ tay tối, nét mực, bóng đổ sâu, hợp truyện ma của kênh.",

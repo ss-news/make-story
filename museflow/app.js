@@ -1377,7 +1377,8 @@
   }
   function characterSheetPrompt(character,style){
     return[`Character reference sheet for "${character.name}".`,`Appearance (must match exactly): ${character.description}`,
-      'Show this one character only, full body, front view and three-quarter view side by side, neutral standing pose, calm expression, plain light grey background, even soft lighting. No text, no labels, no other people, no scenery.',
+      // Same layout as storyvid's sheet_prompt: face close-up plus a full-body turnaround in one image (one reference slot).
+      'Layout, four panels side by side on one sheet: (1) a head-and-shoulders close-up portrait with a natural, characteristic expression, showing the face, hair and any accessories clearly; then the full body, standing in a neutral pose, in (2) front view, (3) three-quarter view and (4) back view. The same outfit, props, colours and proportions in every panel; anything carried on the back or worn on the body must be visible from the angle it faces. Solid white background, flat even studio lighting, no shadows on the background. This one character only: no text, no labels, no other people, no scenery.',
       style?`Visual style: ${style}`:''].filter(Boolean).join('\n\n');
   }
   function scenesWithCharacter(scenes,character,allCharacters){
@@ -1414,7 +1415,7 @@
     characters.forEach((character,index)=>{
       const label=`Nhân vật: ${character.name}`,y=top+index*420;
       const prompt=makeNode('prompt',left,y);prompt.data={text:characterSheetPrompt(character,style),sceneLabel:label};
-      const sheet=makeNode('generateImage',left+330,y);sheet.data={model:'muse-image',size:options.ratio,status:'idle',sceneLabel:label,characterSheet:character.name};
+      const sheet=makeNode('generateImage',left+330,y);sheet.data={model:'muse-image',size:'16:9',status:'idle',sceneLabel:label,characterSheet:character.name};
       state.nodes.push(prompt,sheet);state.edges.push({id:uid('edge'),source:prompt.id,sourcePort:'text',target:sheet.id,targetPort:'prompt'});
       for(const scene of scenesWithCharacter(scenes,character,characters)){
         const nodes=created.filter(node=>node.data?.sceneLabel===sceneLabel(scene));
