@@ -423,6 +423,7 @@ def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: 
         raise SystemExit("No visuals.json yet: run the prompts step first")
     names = cast_names(script, json.loads((ROOT / "channel.json").read_text(encoding="utf-8")))
     sheets = {c["id"]: project / c["sheet"] for c in visuals["cast"] if c["sheet"] and (project / c["sheet"]).is_file()}
+    looks = {c["id"]: c["look"] for c in visuals["cast"]}
     styling = style_refs(project, visuals)
     todo = [i for i in range(len(visuals["scenes"])) if only is None or i in only]
     has = lambda key, i: bool(visuals["scenes"][i][key]) and (project / visuals["scenes"][i][key]).is_file()  # noqa: E731
@@ -458,14 +459,22 @@ def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: 
     def clip(i: int) -> None:
         s = visuals["scenes"][i]
         prompt, refs = f"{s['video_prompt']}\n\nVisual style: {visuals['style']}", [project / s["image"]]
+        continues = False
         if links[i] and has("clip", i - 1):
             end = last_frame(project / visuals["scenes"][i - 1]["clip"], project / "muse" / f"scene_{i - 1:02d}_end.png")
             if end:
-                prompt, refs = f"{prompt}\n\n{CONTINUITY_NOTE}", [end, project / s["image"]]
+                prompt, refs, continues = f"{prompt}\n\n{CONTINUITY_NOTE}", [end, project / s["image"]], True
         elif links[i]:
             print(f"[scene {i + 1}] previous clip missing: starting from this scene's own image")
+        # Without the sheets a character who turns or moves is redrawn as someone else; they come after the frame.
+        actors = [a["id"] for a in script["scenes"][i]["actors"]]
+        refs += [sheets[cid] for cid in actors if cid in sheets][:MAX_REFS - len(refs)]
+        who = [f"{names.get(cid, cid)}: {looks[cid]}" for cid in actors if cid in looks]
+        if who:
+            prompt += ("\n\nCharacters in this clip keep exactly this look from the first to the last frame (the "
+                       "attached sheets after the opening frame show them):\n" + "\n".join(who))
         try:
-            print(f"[scene {i + 1}] clip" + (" (continues from scene %d)" % i if len(refs) == 2 else ""))
+            print(f"[scene {i + 1}] clip" + (" (continues from scene %d)" % i if continues else ""))
             file = checked(project, visuals, i, "clip", _generate("video", prompt, visuals["ratio"],
                            project / "muse" / f"scene_{i:02d}.mp4", refs, s["negative"]))
             s["clip"] = file.relative_to(project).as_posix()
