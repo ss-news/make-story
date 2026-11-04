@@ -154,7 +154,8 @@ def main():
         video = out_dir / "video.mp4"
         print(f"[3/3] Rendering {timeline['duration']:.1f}s from Muse clips at {size[0]}x{size[1]}...")
         media = scene_media(scenes_path.parent, visuals, list(range(len(script["scenes"]))))
-        ClipRenderer(channel, size, args.fps).render_clips(timeline, media, video)
+        ClipRenderer(channel, size, args.fps).render_clips(
+            timeline, media, video, dissolves(script, is_silent(scenes_path.parent)))
         record_render(out_dir, "video", script, timeline, list(range(len(script["scenes"]))), args, visuals)
         print(f"Done in {time.time() - started:.0f}s -> {video}")
         return
@@ -176,6 +177,17 @@ def is_silent(project: Path) -> bool:
     from .script import GENRE_INFO
     meta = json.loads((project / "meta.json").read_text(encoding="utf-8")) if (project / "meta.json").exists() else {}
     return bool(GENRE_INFO.get(meta.get("genre", ""), {}).get("silent"))
+
+
+DISSOLVE = 0.6  # seconds
+
+
+def dissolves(script: dict, silent: bool) -> list[float]:
+    """A dissolve where time or place changes (a new bg_id: another place or day/night), a hard cut within one
+    place. In a silent build video every scene is a later day, so every scene dissolves in."""
+    scenes = script["scenes"]
+    return [0.0] + [DISSOLVE if silent or scenes[i]["bg_id"] != scenes[i - 1]["bg_id"] else 0.0
+                    for i in range(1, len(scenes))]
 
 
 def make_timeline(script: dict, voice: str, work_dir: Path, lang: str, visuals: dict | None, project: Path,
@@ -264,7 +276,8 @@ def render_short(script: dict, channel: dict, voice: str, out_dir: Path, args, v
         renderer = ShortClipRenderer(channel, width, args.fps, script["title"], args.lang)
         print(f"[3/3] Rendering {timeline['duration']:.1f}s from Muse clips at "
               f"{renderer.out_size[0]}x{renderer.out_size[1]}...")
-        renderer.render_clips(timeline, scene_media(out_dir, visuals, picked), out_dir / "video_short.mp4")
+        renderer.render_clips(timeline, scene_media(out_dir, visuals, picked), out_dir / "video_short.mp4",
+                              dissolves(short, is_silent(out_dir)))
         record_render(out_dir, "video_short", script, timeline, picked, args, visuals)
         return
     print("[3/4] Backgrounds...")

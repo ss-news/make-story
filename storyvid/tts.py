@@ -190,12 +190,18 @@ def _srt_time(t: float) -> str:
     return f"{ms // 3600000:02d}:{ms // 60000 % 60:02d}:{ms // 1000 % 60:02d},{ms % 1000:03d}"
 
 
+AMBIENT_BED = "wind_trees"  # quiet sound under every clip of a silent video, so scenes do not drop to silence
+BED_DB = -10                # the bed, relative to its usual ambience level
+CLIP_RMS_DB = -20           # the clips' sound is levelled to this before the bed goes under it
+
+
 def ambient_timeline(script: dict, media: list, work_dir: Path, still_seconds: float = 8.0) -> dict:
-    """Silent genres (no voice): each scene lasts as long as its clip and plays the clip's own sound; the narrator
-    lines are shown as a caption for the whole scene instead of being read. media: [(clip, image)] per scene.
-    Returns the same shape as narrate()."""
+    """Silent genres (no voice): each scene lasts as long as its clip and plays the clip's own sound, fading in and
+    out over a quiet bed that runs through the whole video; the narrator lines are shown as a caption for the
+    whole scene instead of being read. media: [(clip, image)] per scene. Returns the same shape as narrate()."""
+    from . import audio
     from .render_clips import clip_duration
-    fade = int(0.05 * SAMPLE_RATE)
+    fade = int(0.3 * SAMPLE_RATE)
     pieces, timeline, cues, t = [], [], [], 0.0
     for i, (scene, (clip, _image)) in enumerate(zip(script["scenes"], media)):
         length = clip_duration(clip) if clip else still_seconds
@@ -215,15 +221,22 @@ def ambient_timeline(script: dict, media: list, work_dir: Path, still_seconds: f
         timeline.append({"start": t, "end": t + length, "lines": spans})
         t += length
         print(f"  scene {i + 1}/{len(script['scenes'])}: {length:.1f}s, clip sound")
-    audio = np.concatenate(pieces) if pieces else np.zeros(0, dtype=np.int16)
+    sound = np.concatenate(pieces).astype(np.float32) if pieces else np.zeros(0, dtype=np.float32)
+    rms = float(np.sqrt(np.mean(sound ** 2))) if len(sound) else 0.0
+    if rms > 1:  # Muse clips come out quiet: one gain for the whole video keeps the scenes' relative levels
+        sound *= min(20.0, 32767 * 10 ** (CLIP_RMS_DB / 20) / rms)
+    if len(sound) and AMBIENT_BED in audio.ids():
+        bed = audio._fade(audio._loop(audio._decoded(AMBIENT_BED), len(sound)).copy(), 1.5)
+        sound += bed * audio._gain(AMBIENT_BED) * 10 ** (BED_DB / 20) * 32767
+    out = np.clip(sound, -32768, 32767).astype(np.int16)
     work_dir.mkdir(parents=True, exist_ok=True)
     wav_path = work_dir / "ambient.wav"
     with wave.open(str(wav_path), "wb") as w:
         w.setnchannels(1)
         w.setsampwidth(2)
         w.setframerate(SAMPLE_RATE)
-        w.writeframes(audio.tobytes())
-    return {"audio": wav_path, "samples": audio, "duration": t, "scenes": timeline, "cues": cues}
+        w.writeframes(out.tobytes())
+    return {"audio": wav_path, "samples": out, "duration": t, "scenes": timeline, "cues": cues}
 
 
 def write_srt(cues: list[dict], path: Path) -> Path:

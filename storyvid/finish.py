@@ -145,24 +145,41 @@ def check(project: Path, name: str = "video") -> dict:
 LOUDNORM = "loudnorm=I=-14:TP=-1.5:LRA=11"
 # A gentle compressor first, so sharp hits (an axe, a hammer) do not hold the loudness down at the peak ceiling.
 COMPRESS = "acompressor=threshold=-24dB:ratio=3:attack=5:release=150:makeup=2"
+TARGET_LUFS = -14.0
+LIMIT = 0.7  # limiter ceiling, about -3 dBFS, so the AAC encode stays under -1 dB true peak
+
+
+def _measure(path: Path, chain: str = "") -> tuple[float, float]:
+    """Integrated loudness (LUFS) and true peak (dBTP) of a file's audio, after an optional filter chain."""
+    log = subprocess.run([ffmpeg_exe(), "-hide_banner", "-i", str(path), "-vn", "-af",
+                          (f"{chain}," if chain else "") + f"{LOUDNORM}:print_format=json", "-f", "null", "-"],
+                         capture_output=True, text=True).stderr
+    found = re.search(r"\{[^{}]*\"input_i\"[^{}]*\}", log)
+    data = json.loads(found[0]) if found else {}
+    number = lambda key: float(data[key]) if data.get(key) not in (None, "-inf", "inf") else float("-inf")  # noqa: E731
+    return number("input_i"), number("input_tp")
 
 
 def loudnorm(project: Path, name: str = "video") -> Path:
-    """Normalize the audio to -14 LUFS / -1.5 dBTP: a gentle compressor, then loudnorm in two passes (measure, then
-    apply). One plain pass falls short on loud peaks over quiet ambience, like the clips' own sound. The video
-    stream is copied."""
+    """Bring the audio to -14 LUFS with true peaks under -1 dB: a gentle compressor, a gain, then a limiter; the
+    result is measured and the gain corrected (up to three tries), since a limiter working hard on loud hits over
+    quiet ambience, like the clips' own sound, lowers the loudness again. The video stream is copied."""
     video = project / f"{name}.mp4"
     tmp = project / f"{name}.loudnorm.mp4"
-    log = subprocess.run([ffmpeg_exe(), "-hide_banner", "-i", str(video), "-vn", "-af", f"{COMPRESS},{LOUDNORM}:print_format=json",
-                          "-f", "null", "-"], capture_output=True, text=True).stderr
-    found = re.search(r"\{[^{}]*\"input_i\"[^{}]*\}", log)
-    measured = json.loads(found[0]) if found else {}
-    second = (f"{LOUDNORM}:measured_I={measured['input_i']}:measured_TP={measured['input_tp']}:"
-              f"measured_LRA={measured['input_lra']}:measured_thresh={measured['input_thresh']}:"
-              f"offset={measured['target_offset']}" if measured.get("input_i", "-inf") not in ("-inf", "inf")
-              else LOUDNORM)  # silence cannot be measured: fall back to one pass
-    subprocess.run([ffmpeg_exe(), "-y", "-v", "error", "-i", str(video), "-c:v", "copy", "-af", f"{COMPRESS},{second}",
-                    "-ar", "48000", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(tmp)], check=True)
+    loudness, _ = _measure(video, COMPRESS)
+    if loudness == float("-inf"):  # silence cannot be measured
+        return video
+    gain, limit = TARGET_LUFS - loudness, LIMIT
+    for _ in range(3):
+        subprocess.run([ffmpeg_exe(), "-y", "-v", "error", "-i", str(video), "-c:v", "copy", "-af",
+                        f"{COMPRESS},volume={gain:.2f}dB,alimiter=limit={limit}:level=false", "-ar", "48000",
+                        "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(tmp)], check=True)
+        loudness, peak = _measure(tmp)
+        if abs(loudness - TARGET_LUFS) <= 0.8 and peak < -1.0:
+            break
+        gain += TARGET_LUFS - loudness
+        if peak >= -1.0:
+            limit = round(limit * 0.9, 3)
     tmp.replace(video)
     return video
 

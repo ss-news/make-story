@@ -114,8 +114,13 @@ class AmbientTimelineTest(unittest.TestCase):
             self.assertAlmostEqual(timeline['duration'], 5, delta=0.2)
             self.assertEqual([c['text'] for c in timeline['cues']], ['Ngày 1', 'Dựng cột'])
             self.assertGreater(np.abs(timeline['samples'][:SAMPLE_RATE]).max(), 1000)  # the clip's tone is kept
-            self.assertEqual(np.abs(timeline['samples'][-SAMPLE_RATE:]).max(), 0)       # an image scene is quiet
+            quiet = np.abs(timeline['samples'][-SAMPLE_RATE:]).max()
+            self.assertTrue(0 < quiet < 2000)  # an image scene has only the quiet bed that runs through the video
             (d / 'meta.json').write_text(json.dumps({'genre': 'build'}))
             self.assertTrue(cli.is_silent(d))
             (d / 'meta.json').write_text(json.dumps({'genre': 'drama'}))
             self.assertFalse(cli.is_silent(d))
+        place = lambda bg: {'bg_id': bg, 'lines': []}  # noqa: E731
+        story = {'scenes': [place('river_day'), place('river_day'), place('river_night')]}
+        self.assertEqual(cli.dissolves(story, False), [0.0, 0.0, cli.DISSOLVE])  # only where time or place changes
+        self.assertEqual(cli.dissolves(story, True), [0.0, cli.DISSOLVE, cli.DISSOLVE])

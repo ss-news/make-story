@@ -144,8 +144,10 @@ class ClipMixin:
         """Where a picture that does not fill the frame goes; None = always fill the frame."""
         return None
 
-    def render_clips(self, timeline: dict, media: list[tuple[Path | None, Path | None]], out_path: Path) -> None:
-        """media: (clip, image) per scene of the timeline; either may be None."""
+    def render_clips(self, timeline: dict, media: list[tuple[Path | None, Path | None]], out_path: Path,
+                     dissolves: list[float] | None = None) -> None:
+        """media: (clip, image) per scene of the timeline; either may be None. dissolves[i]: seconds over which
+        scene i fades in from the last picture of scene i-1 (0 = hard cut)."""
         W, H, fps = self.W, self.H, self.fps
         spans, cues, total = timeline["scenes"], timeline["cues"], timeline["duration"]
         cmd = [ffmpeg_exe(), "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
@@ -156,8 +158,10 @@ class ClipMixin:
         ff = subprocess.Popen(cmd, stdin=subprocess.PIPE)
         n_frames = int(math.ceil(total * fps))
         f, ci = 0, 0
+        previous = None  # last picture of the scene before, without the overlay, for a dissolve
         try:
             for i, span in enumerate(spans):
+                blend = int((dissolves[i] if dissolves and i < len(dissolves) else 0) * fps)
                 end_frame = n_frames if i == len(spans) - 1 else int(round(span["end"] * fps))
                 count = max(0, end_frame - f)
                 clip, image = media[i]
@@ -190,6 +194,9 @@ class ClipMixin:
                         frame = fitted.compose(frame, zoom)
                     else:
                         frame = _push_in(frame, zoom)
+                    current = frame
+                    if previous is not None and k < blend and previous.size == frame.size:
+                        frame = Image.blend(previous, frame, (k + 1) / (blend + 1))
                     frame = frame.copy()
                     frame.paste(self.overlay, (0, 0), self.overlay)
                     t = f / fps
@@ -201,6 +208,7 @@ class ClipMixin:
                     f += 1
                     if f % (fps * 10) == 0:
                         print(f"  render {t:5.1f}s / {total:.1f}s")
+                previous = current if count else previous
                 if frames:
                     frames.close()
                 if clip and slow >= MAX_SLOW and count / fps > clip_duration(clip) * MAX_SLOW + 1:
