@@ -41,6 +41,7 @@ CLIP_SECONDS = 10  # Muse returns 10 s clips whatever is asked; the renderer fit
 BATCH = 10         # scenes per prompt-writing request, so long stories fit in one reply
 MAX_SHEETS = 3     # character sheets attached to one scene image
 MAX_REFS = 4       # all images attached to one scene image (sheets first, then style references)
+SOURCE_CHARS = 12000  # story text sent with the first prompt batch, for the character looks
 DEFAULT_STYLE = ("Cinematic 3D animated film still, moody low-key lighting, soft volumetric light, rich texture, "
                  "shallow depth of field. No text, no subtitles, no logos, no watermark.")
 NEGATIVE = "text, subtitles, watermark, logo, extra fingers, distorted faces, gore"
@@ -69,8 +70,11 @@ SYSTEM = (
     "Write the prompts in English. Describe what is seen, not what is said; narration and dialogue are added later "
     "as voice-over, so no one in frame should speak to camera. Name characters by their name; their fixed look is "
     "given separately, so do not restate clothing or faces in the scene prompts. No text, subtitles or logos in "
-    "frame. Keep every prompt acceptable to mainstream generators: no gore or explicit violence; build fear "
-    "through mood, light, framing and what is half-hidden.")
+    "frame. Keep every prompt acceptable to mainstream generators: no gore or explicit violence; build tension "
+    "through mood, light, framing and what is half-hidden. Each cast member comes with a draft_look taken from a "
+    "stick-figure catalogue: it only hints at age and gender. When the source story is given, write every look "
+    "from it instead (age, build, skin, hair, face, clothing, what they carry, and the story's world and era) and "
+    "drop any draft detail the story contradicts; keep each look to one or two sentences that fit the style.")
 SCHEMA = {
     "type": "object", "required": ["style", "cast", "scenes"],
     "properties": {
@@ -222,8 +226,9 @@ def _ask(provider: str, system: str, user: str) -> dict:
     raise ValueError(f"Unknown provider: {provider}")
 
 
-def write_prompts(script: dict, channel: dict, ratio: str, provider: str, style: str = "") -> dict:
-    """style: the project's chosen style text; when empty the writer picks one."""
+def write_prompts(script: dict, channel: dict, ratio: str, provider: str, style: str = "", source: str = "") -> dict:
+    """style: the project's chosen style text; when empty the writer picks one. source: the original story, so the
+    looks follow how the story describes each character."""
     names = cast_names(script, channel)
     members = {c["id"]: c for c in script.get("cast", [])}
     members[HOST] = {"id": HOST, "name": names[HOST], **{k: v for k, v in channel.get("host", {}).items()
@@ -248,6 +253,8 @@ def write_prompts(script: dict, channel: dict, ratio: str, provider: str, style:
                                          for a in script["scenes"][i]["actors"]],
                             "narration": [line["text"] for line in script["scenes"][i]["lines"]]} for i in batch],
             }
+            if source and not start:  # looks are fixed with the first batch
+                payload["source_story"] = source[:SOURCE_CHARS]
             if fixed_style or start:
                 payload["style"] = style
                 payload["note"] = ("The style is fixed: return it unchanged and write every look and prompt so it "
@@ -299,8 +306,8 @@ def sheet_prompt(name: str, look: str, style: str) -> str:
             "Layout, four panels side by side on one sheet: (1) a head-and-shoulders close-up portrait with a natural, "
             "characteristic expression, showing the face, hair and any accessories clearly; then the full body, "
             "standing in a neutral pose, in (2) front view, (3) three-quarter view and (4) back view. The same outfit, "
-            "props, colours and proportions in every panel; anything carried on the back or worn on the body must be "
-            "visible from the angle it faces. Solid white background, flat even studio lighting, no shadows on the "
+            "props, colours and proportions in every panel; something the appearance says they carry or wear shows "
+            "from every angle it faces, and nothing the appearance does not mention is added. Solid white background, flat even studio lighting, no shadows on the "
             "background. This one character only: no text, no labels, no other people, no scenery.\n\n"
             f"Visual style: {style}")
 
@@ -514,7 +521,9 @@ def main() -> None:
         ratio = args.ratio or info.get("ratio") or (old or {}).get("ratio") or "16:9"
         channel = json.loads((ROOT / "channel.json").read_text(encoding="utf-8"))
         chosen = resolve(info.get("style"))
-        visuals = write_prompts(script, channel, ratio, args.provider, chosen.get("text", ""))
+        story = project / "story.txt"
+        visuals = write_prompts(script, channel, ratio, args.provider, chosen.get("text", ""),
+                                story.read_text(encoding="utf-8") if story.exists() else "")
         refs = []
         for k, ref in enumerate(chosen.get("refs", [])):
             target = project / "muse" / "style" / f"ref_{k}{Path(ref).suffix}"

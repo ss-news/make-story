@@ -3,6 +3,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from storyvid import contract, render_clips, vieneu, visuals
 
@@ -99,6 +100,22 @@ class FlowTest(unittest.TestCase):
         self.assertEqual(styles.resolve({'preset': 'custom', 'text': 'watercolor'})['text'], 'watercolor')
         self.assertEqual(styles.resolve({'preset': 'custom', 'text': ' '}), {})
         self.assertEqual(styles.resolve({'preset': 'nope'}), {})
+
+    def test_looks_are_written_from_the_source_story(self):
+        long = dict(SAMPLE, scenes=SAMPLE['scenes'] * 3)  # more than one prompt batch
+        cid = visuals.used_cast(long)[0]
+        payloads = []
+
+        def ask(_provider, _system, user):
+            payloads.append(json.loads(user))
+            return {'cast': [{'id': cid, 'look': 'a toddler with porcelain-white skin'}], 'scenes': []}
+
+        with mock.patch.object(visuals, '_ask', side_effect=ask):
+            plan = visuals.write_prompts(long, CHANNEL, '16:9', 'muse', 'my style', source='Câu chuyện gốc.')
+        self.assertGreater(len(payloads), 1)
+        self.assertEqual(payloads[0]['source_story'], 'Câu chuyện gốc.')
+        self.assertTrue(all('source_story' not in p for p in payloads[1:]))
+        self.assertEqual(next(c['look'] for c in plan['cast'] if c['id'] == cid), 'a toddler with porcelain-white skin')
 
     def test_a_fixed_style_is_kept(self):
         plan = visuals.write_prompts(SAMPLE, CHANNEL, '9:16', 'offline', 'my style')

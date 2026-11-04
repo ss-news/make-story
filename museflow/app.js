@@ -1378,7 +1378,7 @@
   function characterSheetPrompt(character,style){
     return[`Character reference sheet for "${character.name}".`,`Appearance (must match exactly): ${character.description}`,
       // Same layout as storyvid's sheet_prompt: face close-up plus a full-body turnaround in one image (one reference slot).
-      'Layout, four panels side by side on one sheet: (1) a head-and-shoulders close-up portrait with a natural, characteristic expression, showing the face, hair and any accessories clearly; then the full body, standing in a neutral pose, in (2) front view, (3) three-quarter view and (4) back view. The same outfit, props, colours and proportions in every panel; anything carried on the back or worn on the body must be visible from the angle it faces. Solid white background, flat even studio lighting, no shadows on the background. This one character only: no text, no labels, no other people, no scenery.',
+      'Layout, four panels side by side on one sheet: (1) a head-and-shoulders close-up portrait with a natural, characteristic expression, showing the face, hair and any accessories clearly; then the full body, standing in a neutral pose, in (2) front view, (3) three-quarter view and (4) back view. The same outfit, props, colours and proportions in every panel; something the appearance says they carry or wear shows from every angle it faces, and nothing the appearance does not mention is added. Solid white background, flat even studio lighting, no shadows on the background. This one character only: no text, no labels, no other people, no scenery.',
       style?`Visual style: ${style}`:''].filter(Boolean).join('\n\n');
   }
   function scenesWithCharacter(scenes,character,allCharacters){
