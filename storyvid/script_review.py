@@ -26,7 +26,7 @@ MAX_SCENE_SECONDS = 11  # longer narration does not fit a 10-second clip, even s
 REVISE_BATCH = 8       # scenes rewritten per request
 CRITERIA = {
     "hook": "Mở đầu cuốn hút (30 giây đầu)",
-    "accuracy": "Đúng nội dung nguồn và khoa học, không bịa",
+    "accuracy": "Đúng nội dung nguồn, không bịa (video kiến thức: đúng khoa học)",
     "clarity": "Dễ hiểu, giải thích rõ",
     "flow": "Mạch lạc, nhịp và chuyển ý",
     "visual": "Mỗi cảnh hình dung được thành clip, nhân vật nhất quán",
@@ -197,8 +197,9 @@ def compact(script: dict, indices=None) -> list[dict]:
 
 
 def review(script: dict, source: str, minutes: float, provider: str, genre: str, keep_text: bool = False) -> dict:
-    system = ("You are a strict script editor for an animated YouTube "
-              + ("science / psychology explainer" if genre == "explainer" else "story") + " channel. Score the script "
+    from .script import GENRE_INFO
+    system = ("You are a strict script editor for an animated YouTube video, a "
+              + GENRE_INFO.get(genre, GENRE_INFO["story"])["video"] + ". Score the script "
               "against the source text from 1 to 10 on each criterion, then list concrete problems with the scene "
               "index (0-based; null for the whole video) and how to fix them. Major = must fix before production "
               "(wrong or invented facts, confusing explanation, weak opening, a scene that cannot be shown). Write "
@@ -241,7 +242,7 @@ def revise(script: dict, source: str, issues: list[dict], provider: str, genre: 
     keep_text: the narration is fixed. The AI may only restage scenes or split them (a replacement whose spoken
     text differs from the scene's is dropped); repeated lines are removed and missing source sentences are split
     into scenes again and inserted, by the tool itself."""
-    from .script import LANG_NAMES, SCENE_SCHEMA, _normalize
+    from .script import GENRE_INFO, LANG_NAMES, SCENE_SCHEMA, _normalize
     from .script import write_script
     if keep_text:  # missing and repeated narration are fixed by the tool below, not by the AI
         issues = [i for i in issues if not i.get("missing") and not i["problem"].startswith("Lời kể lặp lại")]
@@ -255,7 +256,7 @@ def revise(script: dict, source: str, issues: list[dict], provider: str, genre: 
     replacements: dict[int, list] = {}
     for start in range(0, len(targets), REVISE_BATCH):
         batch = targets[start:start + REVISE_BATCH]
-        system = (f"You revise scenes of an animated {'explainer' if genre == 'explainer' else 'story'} script. For "
+        system = (f"You revise scenes of an animated {GENRE_INFO.get(genre, GENRE_INFO['story'])['video']} script. For "
                   "each scene index given, return the replacement scene(s) in the same JSON shape: one scene, or "
                   "several when a scene is too long for one 10-second clip. Fix exactly the listed problems, stay "
                   "faithful to the source text, never invent facts and keep the cast ids. "

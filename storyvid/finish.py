@@ -212,7 +212,8 @@ ISSUES_SCHEMA = {"type": "object", "required": ["issues"], "properties": {"issue
 
 
 def review(project: Path, provider: str) -> dict:
-    """AI review of the finished video: each numbered frame against its narration, plus a fact check."""
+    """AI review of the finished video: each numbered frame against its narration, plus a fact check (explainers)
+    or a story check (stories)."""
     from .contract import REVIEW_FORMAT, validate_review
     data = load(project)
     script, rec = data["script"], data["render"].get("video")
@@ -238,11 +239,22 @@ def review(project: Path, provider: str) -> dict:
                                       for s in scenes]}, ensure_ascii=False)
         for x in _ask(provider, system, user, ISSUES_SCHEMA, [sheet]).get("issues", []):
             issues.append(x)
-    print("[review] fact check...")
-    facts = _ask(provider, "You fact-check the narration of an educational video against general scientific "
-                 "knowledge and the source it names. List claims that are wrong, overstated, or need checking "
-                 "against the source (numbers, study results, quotes). Severity major if likely wrong, minor if it "
-                 "only needs checking. Use area story. Write in Vietnamese. Scene numbers are 1-based.",
+    from .script import GENRE_INFO
+    genre = data["meta"].get("genre", "story")
+    if genre == "explainer":
+        print("[review] fact check...")
+        check = ("You fact-check the narration of an educational video against general scientific knowledge and the "
+                 "source it names. List claims that are wrong, overstated, or need checking against the source "
+                 "(numbers, study results, quotes). Severity major if likely wrong, minor if it only needs checking. "
+                 "Use area story. Write in Vietnamese. Scene numbers are 1-based.")
+    else:
+        print("[review] story check...")
+        check = (f"You check the narration of a {GENRE_INFO.get(genre, GENRE_INFO['story'])['video']}. List real "
+                 "problems: a weak opening (the first 30 seconds must show the strongest moment and end on a "
+                 "question), plot holes, a character who changes name or acts against what came before, a scene "
+                 "that drags, an ending that does not land. Severity major if a viewer would be lost or would leave, "
+                 "minor otherwise. Use area story or pacing. Write in Vietnamese. Scene numbers are 1-based.")
+    facts = _ask(provider, check,
                  json.dumps([{"scene": i + 1, "narration": " ".join(l["text"] for l in s["lines"])}
                              for i, s in enumerate(script["scenes"])], ensure_ascii=False), ISSUES_SCHEMA)
     issues += facts.get("issues", [])
@@ -324,11 +336,12 @@ def publish(project: Path, provider: str, count: int = 3) -> dict:
     names = {c["id"]: c["name"] for c in script.get("cast", [])}
     narration = [{"scene": i + 1, "text": " ".join(l["text"] for l in s["lines"])} for i, s in enumerate(script["scenes"])]
     print("[publish] titles, description, chapters, thumbnails ideas...")
-    plan = _ask(provider, f"You prepare the YouTube upload of an educational animated video. Write titles, "
-                "description, tags and chapter titles in " + lang + ". Titles: curiosity plus a clear benefit, no "
-                "clickbait that overpromises, under 70 characters. Chapters: 5-10, the first at scene 1, each a "
-                "new idea. Thumbnails: " + str(count) + " different concepts, each one big clear subject with a "
-                "strong emotion, using the recurring characters when it helps; text at most 4 words in " + lang + ".",
+    from .script import GENRE_INFO
+    kind = GENRE_INFO.get(meta.get("genre", "story"), GENRE_INFO["story"])
+    plan = _ask(provider, f"You prepare the YouTube upload of an animated video, a {kind['video']}. Write titles, "
+                "description, tags and chapter titles in " + lang + ". Titles: " + kind["titles"] + ", under 70 "
+                "characters. Chapters: 5-10, the first at scene 1, each a new part. Thumbnails: " + str(count) +
+                " different concepts, each " + kind["thumbnail"] + "; text at most 4 words in " + lang + ".",
                 json.dumps({"title": script["title"], "characters": names, "credits": meta.get("credits", ""),
                             "narration": narration}, ensure_ascii=False)[:24000], PUBLISH_SCHEMA)
     out = project / "publish"

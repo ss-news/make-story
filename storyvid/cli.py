@@ -17,7 +17,7 @@ from .backgrounds import make_backgrounds
 from .check import check_script
 from .contract import FORMAT
 from .render import Renderer, ShortRenderer
-from .script import write_script
+from .script import GENRES, write_script
 from .tts import narrate, tts_provider, write_srt
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -66,8 +66,9 @@ def main():
     ap.add_argument("--script", help="skip the LLM and render an existing scenes.json")
     ap.add_argument("--lang", help="narration language: en, vi, de, fr, es (default: the script's lang, else en)")
     ap.add_argument("--minutes", type=float, default=2.0, help="target narration length")
-    ap.add_argument("--genre", choices=["story", "explainer"], default="story",
-                    help="story = ghost/folklore story; explainer = science or psychology explainer")
+    ap.add_argument("--genre", choices=GENRES, default="story",
+                    help="story = ghost/folklore story; drama = real-life drama story; "
+                         "explainer = science or psychology explainer")
     ap.add_argument("--keep-text", action="store_true",
                     help="the text is already the narration: split it into scenes without rewriting it")
     ap.add_argument("--provider", choices=["auto", "muse", "openai", "codex", "claude", "offline"], default="auto",

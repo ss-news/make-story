@@ -33,9 +33,11 @@
 - Bộ ma nguyên ảnh dùng Blender: chuẩn nguồn ở `assets/bac-bo-stick/extra/whole-ghosts-v1/` (PNG RGBA theo tư thế, manifest riêng, không cắt khớp tay chân). Đây là chuẩn nguồn cho Blender, chưa thay đổi hợp đồng `storyvid.scenes/1`; không tự đưa pose mới vào scenes.json hoặc đăng ký nhân vật PNG thành props.
 
 ## Lưu ý nội dung từ số liệu YouTube (chi tiết: `docs/research/2026-10-28-ma-lon-analytics.md`)
-- Ma Lon: CTR 1,1%, xem trung bình 43 giây trên 10 phút, bị YouTube đề xuất cạnh Mr Bean và hoạt hình thiếu nhi. Áp dụng cho mọi clip sau:
-- 30 giây đầu: cảnh đáng sợ nhất, chủ thể to và rõ giữa khung, kết bằng câu hỏi. Không tả làng, bối cảnh hay cảnh ban ngày trước khi có điều lạ. Claude kiểm tra điều này khi chia cảnh và khi chấm.
-- Truyện ma phải trông như truyện ma: nền tối, bóng đổ, nhân vật biểu cảm sợ chứ không hài, tránh khung hình dễ nhầm với hoạt hình thiếu nhi.
-- Mỗi video có thumbnail riêng: nền tối, một chủ thể đáng sợ thật to, một màu nhấn, chữ tối đa 3–4 từ. Không dùng khung hình tự cắt.
+- Tool làm nhiều loại video (`meta.json` `genre`, `storyvid/script.py` `GENRE_INFO`): `story` truyện ma, dân gian; `drama` truyện đời thường, kịch tính; `explainer` kiến thức. Loại nào cũng phải trông đúng loại đó; không áp quy tắc riêng của loại này cho loại khác.
+- Ma Lon: CTR 1,1%, xem trung bình 43 giây trên 10 phút, bị YouTube đề xuất cạnh Mr Bean và hoạt hình thiếu nhi. Bài học chung cho mọi loại:
+- 30 giây đầu: khoảnh khắc mạnh nhất của video (truyện ma: cảnh đáng sợ nhất; đời thường: lúc mâu thuẫn lên đỉnh; kiến thức: câu hỏi hoặc điều bất ngờ), chủ thể to và rõ giữa khung, kết bằng câu hỏi. Không tả bối cảnh dài trước khi có chuyện. Claude kiểm tra điều này khi chia cảnh và khi chấm.
+- Mỗi video có thumbnail riêng: một chủ thể thật to, cảm xúc rõ, một màu nhấn, chữ tối đa 3–4 từ. Không dùng khung hình tự cắt.
+- Riêng truyện ma: nền tối, bóng đổ, nhân vật biểu cảm sợ chứ không hài, tránh khung hình dễ nhầm với hoạt hình thiếu nhi; 30 giây đầu không tả làng hay cảnh ban ngày trước khi có điều lạ; thumbnail nền tối, chủ thể đáng sợ.
+- Riêng truyện đời thường: cảm xúc thật qua nét mặt và hành động, không sến, không giảng đạo; thumbnail là gương mặt nhân vật chính với cảm xúc mạnh.
 - Short: dựng thẳng ở khung dọc, không cắt mất hình từ bản 16:9 (clip ngang hiện trọn trên nền mờ), chủ thể to nhất có thể, không để dải đen lớn, chữ nằm trong vùng an toàn của TikTok/Reels/Shorts (README, mục “Short 9:16”).
 - Khi đăng: bản 1080p (không dùng bản nén), tải phụ đề SRT, không đánh dấu dành cho trẻ em. Sau 48 giờ đọc lại CTR, đường giữ chân và các video YouTube đề xuất cạnh.

@@ -14,7 +14,48 @@ NARRATOR = "narrator"   # speaker id for off-screen narration (spoken by the hos
 HOST = "host"           # actor id of the channel host, whose look is script["character"]
 MAX_PROPS = 3           # animals / objects standing on the ground in one scene
 LANG_NAMES = {"en": "English", "vi": "Vietnamese", "de": "German", "fr": "French", "es": "Spanish"}
-GENRES = ["story", "explainer"]  # ghost/folklore story, or a science / psychology explainer
+# What each kind of video asks of the script, the review and the upload kit. "story" keeps its id (ghost and
+# folklore) so older projects stay as they were.
+GENRE_INFO = {
+    "story": {
+        "label": "Truyện ma, dân gian",
+        "video": "ghost and folklore story",
+        "host": "a calm, slightly nervous storyteller who tells old ghost stories and folklore; dry humor, never gory",
+        "cast_rule": 'Spirits and monsters use kind "ghost" (drawn pale, see-through and floating); everyone else "human".',
+        "arc": ('- The first 30 seconds show the scariest or strangest moment of the story, its subject big and clear, and '
+                'end on a question; no description of the village, the setting or daytime before something strange '
+                'happens. Then explain the folklore "rules" once for viewers who never heard of it (keep local terms '
+                'like ma da, ma lai), build tension, end with a twist or a chilling quiet line, then the narrator '
+                'invites viewers to the next story.\n- Atmosphere over gore; characters react with real fear, never comedy.'),
+        "night": True,
+        "titles": "a mystery or a question about the story, no clickbait that overpromises",
+        "thumbnail": ("a dark background, one big frightening subject filling the frame, one accent colour, a real "
+                      "ghost-story look that cannot be mistaken for a children's cartoon"),
+    },
+    "drama": {
+        "label": "Đời thường, kịch tính",
+        "video": "real-life drama story (family, love, money, betrayal, kindness, second chances)",
+        "host": "a warm, calm storyteller who tells true-to-life stories with empathy; never preachy",
+        "cast_rule": 'Everyone is kind "human" unless the story really has a ghost.',
+        "arc": ('- The first 30 seconds show the most dramatic moment of the story (the conflict at its peak, a shock, '
+                'a humiliation, a reveal) with the main character big and clear, and end on a question. Then go back '
+                'to how it came to this, build to a turning point where someone makes a choice, and end with the '
+                'consequence and one quiet closing line; then the narrator invites viewers to the next story.\n'
+                '- Real emotions shown through faces and actions, not melodrama or lectures; no gore.'),
+        "night": False,
+        "titles": "the conflict or the twist as a hook, emotional but true to the story, no clickbait that overpromises",
+        "thumbnail": ("one main character's face big in frame with a strong emotion (shock, tears, anger), the "
+                      "conflict readable at a glance, strong contrast, one accent colour"),
+    },
+    "explainer": {
+        "label": "Kiến thức (khoa học, tâm lý)",
+        "video": "science / psychology explainer",
+        "night": False,
+        "titles": "curiosity plus a clear benefit, no clickbait that overpromises",
+        "thumbnail": "one big clear subject with a strong emotion, using the recurring characters when it helps",
+    },
+}
+GENRES = list(GENRE_INFO)
 CHUNK_CHARS = 2200  # longer texts are written in parts: a long reply from Muse can be cut off silently
 
 
@@ -48,31 +89,34 @@ def _schema() -> dict:
 SCENE_SCHEMA = _schema()
 
 
-def build_prompt(story: str, channel: dict, lang: str, minutes: float, character=None) -> tuple[str, str]:
+def build_prompt(story: str, channel: dict, lang: str, minutes: float, character=None,
+                 genre: str = "story") -> tuple[str, str]:
     from . import pack
     from .character_catalog import PRESETS, resolve_character
+    info_genre = GENRE_INFO[genre if genre in GENRE_INFO and genre != "explainer" else "story"]
     host = dict(channel["host"])
+    if genre != "story":  # channel.json describes the host as a ghost-story teller
+        host["personality"] = info_genre["host"]
     choice = resolve_character(host, character)
     if choice['preset'] != host.get('preset', 'young_man'):
         info = PRESETS[choice['preset']]
         host['name'] = info['label'].split(' · ')[-1]
-        host['personality'] = (f"a Vietnamese {info['age']} {'woman' if info['female'] else 'man'} storyteller; "
-                               "curious, warm, slightly nervous, dry humor, tells atmospheric folklore without gore")
+        host['personality'] = f"a Vietnamese {info['age']} {'woman' if info['female'] else 'man'}, {info_genre['host']}"
     from .character_catalog import PRESETS as ALL_PRESETS
     words = int(minutes * 150)
     presets = "; ".join(f"{k} = {v['label']}" for k, v in ALL_PRESETS.items())
-    system = f"""You write scripts for the faceless YouTube channel "{channel['channel_name']}": short animated ghost and folklore stories with simple 2D cartoon characters.
+    system = f"""You write scripts for the faceless YouTube channel "{channel['channel_name']}": short animated videos; this one is a {info_genre["video"]}.
 The host is {host['name']}: {host['personality']}. The host narrates; narration lines use speaker "{NARRATOR}". The host can also appear on stage as actor id "{HOST}" (good for the opening hook and the ending), but most scenes should show the story's own characters.
 
 Write the story in {LANG_NAMES.get(lang, lang)} as an acted scene-by-scene script:
-- cast: every character who appears (not the host). id = short ascii slug, name = how the story calls them. Pick the closest preset ({presets}). Spirits and monsters use kind "ghost" (drawn pale, see-through and floating); everyone else "human".
+- cast: every character who appears (not the host). id = short ascii slug, name = how the story calls them. Pick the closest preset ({presets}). {info_genre["cast_rule"]}
 - Mix narration with dialogue: characters should talk to each other, react, argue, call out, scream. Each scene has 1-4 lines; a line's speaker is "{NARRATOR}" or a cast id that is on stage in that scene.
 - actors: who is visible in the scene (0-3), where they stand, pose, expression, and an action that shows interaction:
   enter = walks in from the nearest edge; exit = walks out at the end; approach = moves toward the others; jump = jolts in surprise; shake = trembles with fear.
   Characters facing each other while talking is automatic. Put people talking together on neighbouring positions (left/right, far_left/center...).
   Poses: talk, point, reach (reaching or grabbing toward someone), wave, scared, cower, think, shrug, idle.
-- Open with a hook, explain the folklore "rules" once for viewers who never heard of it (keep Vietnamese terms like ma da, ma lai), build tension, end with a twist or a chilling quiet line, then the narrator invites viewers to the next story.
-- Atmosphere over gore. About {words} words of spoken text in total.
+{info_genre["arc"]}
+- About {words} words of spoken text in total.
 - props: 0-{MAX_PROPS} animals or objects standing in the scene ({", ".join(prop_ids())}), on positions no actor uses.
 - bg_id: one of {", ".join(pack.ids("backgrounds"))} (day or night version of each place); bg_prompt: a short English description of the location; camera: slow move for the background."""
     return system, story
@@ -101,7 +145,7 @@ def _call_claude(system: str, user: str) -> dict:
     return json.loads(text)
 
 
-def _offline_script(story: str) -> dict:
+def _offline_script(story: str, genre: str = "story") -> dict:
     """No LLM available: keep the original text, split it into scenes narrated by the host."""
     sentences = [s.strip() for s in re.split(r"(?<=[.!?…])\s+", story.strip()) if s.strip()]
     title = sentences[0][:60] if sentences else "Untitled"
@@ -122,7 +166,8 @@ def _offline_script(story: str) -> dict:
                 break
         n = len(scenes)
         scenes.append({
-            "bg_id": ("village_path_night", "river_night")[n // 3 % 2],
+            "bg_id": (("village_path_night", "river_night") if GENRE_INFO.get(genre, {}).get("night")
+                      else ("village_path_day", "interior_day"))[n // 3 % 2],
             "bg_prompt": "",
             "camera": CAMERAS[n % 4],
             "actors": [{"id": HOST, "position": POSITIONS[n % 3], "pose": pose, "expression": expr, "action": action}],
@@ -185,7 +230,7 @@ def _normalize(script: dict, lang: str | None = None) -> dict:
         if cues:
             sound["sfx"] = [{"id": c["id"], "line": c["line"]} for c in cues]
         scenes.append({"bg_id": _slug(s.get("bg_id"), f"bg{i}"),
-                       "bg_prompt": str(s.get("bg_prompt") or "misty village at dusk"),
+                       "bg_prompt": str(s.get("bg_prompt") or "a quiet Vietnamese village"),
                        "camera": _pick(s.get("camera"), CAMERAS), "actors": actors, "props": props,
                        "lines": lines, **sound})
     if not scenes:
@@ -281,7 +326,7 @@ def write_script(story: str, channel: dict, lang: str, minutes: float, provider:
                  genre: str = "story", keep_text: bool = False, cast: list | None = None) -> dict:
     """cast: characters that already exist (e.g. when a missing passage is split into scenes again)."""
     if provider == "offline":
-        return _normalize(_offline_script(story), lang)
+        return _normalize(_offline_script(story, genre), lang)
     parts = split_text(story)
     merged: dict = {"title": None, "cast": list(cast), "scenes": []} if cast else {}
     for k, part in enumerate(parts):
@@ -289,7 +334,7 @@ def write_script(story: str, channel: dict, lang: str, minutes: float, provider:
         if genre == "explainer":
             system, user = explainer_prompt(channel, lang, share, keep_text), part
         else:
-            system, user = build_prompt(part, channel, lang, share, character)
+            system, user = build_prompt(part, channel, lang, share, character, genre)
         if len(parts) > 1 or cast:
             if len(parts) > 1:
                 print(f"  part {k + 1}/{len(parts)}...")

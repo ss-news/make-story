@@ -27,6 +27,24 @@ class ScriptReviewTest(unittest.TestCase):
         self.assertIn('Keep its wording', ask.call_args_list[0][0][1])
         self.assertIn('Reuse these cast ids', ask.call_args_list[1][0][1])
 
+    def test_genre_decides_how_a_story_is_written(self):
+        channel = json.loads((ROOT / 'channel.json').read_text())
+        part = {'title': 'T', 'cast': [], 'scenes': [{'bg_id': 'interior_day', 'bg_prompt': 'x', 'camera': 'static',
+                                                      'actors': [], 'props': [],
+                                                      'lines': [{'speaker': 'narrator', 'text': 'Một câu.'}]}]}
+        prompts = {}
+        for genre in ('story', 'drama'):
+            with mock.patch.object(script_mod, '_ask', return_value=part) as ask:
+                script_mod.write_script('Một truyện ngắn.', channel, 'vi', 2, 'muse', genre=genre)
+            prompts[genre] = ask.call_args[0][1]
+        self.assertIn('ghost and folklore story', prompts['story'])
+        self.assertIn(channel['host']['personality'], prompts['story'])
+        self.assertIn('real-life drama story', prompts['drama'])
+        for ghost_only in ('ghost stories', 'folklore', 'ma da', 'chilling'):
+            self.assertNotIn(ghost_only, prompts['drama'])
+        days = {s['bg_id'] for s in script_mod._offline_script('Một. Hai. Ba. Bốn. Năm. Sáu. Bảy.', 'drama')['scenes']}
+        self.assertTrue(all(b.endswith('_day') for b in days))
+
     def test_local_checks_flag_short_videos_and_long_scenes(self):
         script = copy.deepcopy(SAMPLE)
         script['scenes'][0]['lines'][0]['text'] = 'chữ ' * 60

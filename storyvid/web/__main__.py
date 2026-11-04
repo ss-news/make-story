@@ -17,7 +17,7 @@ from PIL import Image
 from .. import pack
 from ..character import ARM_POSES, Character
 from ..character_catalog import PRESETS, OUTFITS, ACCESSORIES, resolve_character, validate_selection
-from ..script import ACTIONS, CAMERAS, EXPRESSIONS, KINDS, LANG_NAMES, POSES, POSITIONS, _normalize
+from ..script import ACTIONS, CAMERAS, EXPRESSIONS, GENRES, KINDS, LANG_NAMES, POSES, POSITIONS, _normalize
 
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "output"
@@ -229,7 +229,7 @@ def update_project(pid):
                              "short": str(body["published"].get("short", "")), "at": int(time.time())}
     if isinstance(body.get("publish_checklist"), dict):
         meta["publish_checklist"] = {str(k): bool(v) for k, v in body["publish_checklist"].items()}
-    if body.get("genre") in ("story", "explainer"):
+    if body.get("genre") in GENRES:
         meta["genre"] = body["genre"]
     if "keep_text" in body:
         meta["keep_text"] = bool(body["keep_text"])
@@ -350,7 +350,7 @@ def run_script(pid):
             "--minutes", str(meta.get("minutes", 2))]
     if body.get("provider"):
         args += ["--provider", body["provider"]]
-    if meta.get("genre") in ("story", "explainer"):
+    if meta.get("genre") in GENRES:
         args += ["--genre", meta["genre"]]
     if meta.get("keep_text"):
         args.append("--keep-text")

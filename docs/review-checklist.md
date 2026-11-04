@@ -1,6 +1,6 @@
 # Checklist review video
 
-Bắt buộc cho cả hai agent: Claude soát khi chia cảnh (phần 2–5, 7) và khi kiểm định (phần 1–7); Codex tự soát phần 1–7 trước khi bàn giao `scenes.json` hoặc asset. Phần 8–9 do người dùng làm trước và sau khi đăng. Mỗi mục không đạt ghi thành một issue trong `output/<id>/review.json`, cột "area" là giá trị `area` cần dùng. Mục có dấu ★ rút ra từ số liệu Ma Lon (`docs/research/2026-10-28-ma-lon-analytics.md`): không đạt thì tối thiểu `major`.
+Bắt buộc cho cả hai agent: Claude soát khi chia cảnh (phần 2–5, 7) và khi kiểm định (phần 1–7); Codex tự soát phần 1–7 trước khi bàn giao `scenes.json` hoặc asset. Phần 8–9 do người dùng làm trước và sau khi đăng. Mỗi mục không đạt ghi thành một issue trong `output/<id>/review.json`, cột "area" là giá trị `area` cần dùng. Mục có dấu ★ rút ra từ số liệu Ma Lon (`docs/research/2026-10-28-ma-lon-analytics.md`): không đạt thì tối thiểu `major`. Mục ghi *(truyện ma)*, *(đời thường)* hay *(kiến thức)* chỉ áp cho loại video đó (`meta.json` `genre`); mục không ghi áp cho mọi loại.
 
 ## 1. Kiểm tra máy
 
@@ -12,9 +12,9 @@ Bắt buộc cho cả hai agent: Claude soát khi chia cảnh (phần 2–5, 7) 
 
 | | Mục | area |
 |---|---|---|
-| [ ] ★ | Giây đầu tiên đã là cảnh đáng sợ nhất hoặc điều lạ nhất của truyện | story |
-| [ ] ★ | Chủ thể đáng sợ to, rõ, nằm giữa khung (không nhỏ ở góc) | staging |
-| [ ] ★ | 30 giây đầu không có đoạn tả làng, bối cảnh, cảnh ban ngày trước khi có điều lạ | story |
+| [ ] ★ | Giây đầu tiên đã là khoảnh khắc mạnh nhất: *(truyện ma)* cảnh đáng sợ hoặc lạ nhất; *(đời thường)* lúc mâu thuẫn lên đỉnh; *(kiến thức)* câu hỏi hoặc điều bất ngờ | story |
+| [ ] ★ | Chủ thể chính to, rõ, nằm giữa khung (không nhỏ ở góc) | staging |
+| [ ] ★ | 30 giây đầu không có đoạn tả bối cảnh dài trước khi có chuyện; *(truyện ma)* không tả làng, cảnh ban ngày trước khi có điều lạ | story |
 | [ ] ★ | 30 giây đầu kết bằng một câu hỏi hoặc câu lửng khiến người xem muốn biết tiếp | story |
 | [ ] ★ | Trong 60 giây đầu không cảnh nào giữ một hình quá 8 giây | pacing |
 | [ ] | Mở đầu khớp đúng điều thumbnail và tiêu đề hứa | story |
@@ -23,9 +23,9 @@ Bắt buộc cho cả hai agent: Claude soát khi chia cảnh (phần 2–5, 7) 
 
 | | Mục | area |
 |---|---|---|
-| [ ] ★ | Tắt tiếng xem 3 khung hình bất kỳ: nhìn ra ngay là truyện ma, không nhầm với hoạt hình thiếu nhi | render |
-| [ ] ★ | Cảnh ma, cảnh đêm có nền tối và bóng đổ | background |
-| [ ] ★ | Nhân vật biểu cảm sợ, căng thẳng ở cảnh đáng sợ, không mang vẻ hài | character |
+| [ ] ★ | Tắt tiếng xem 3 khung hình bất kỳ: nhìn ra ngay đúng loại video (truyện ma, đời thường hay kiến thức), không nhầm với hoạt hình thiếu nhi | render |
+| [ ] ★ | *(truyện ma)* Cảnh ma, cảnh đêm có nền tối và bóng đổ | background |
+| [ ] ★ | Biểu cảm nhân vật khớp cảm xúc cảnh: *(truyện ma)* sợ, căng thẳng, không mang vẻ hài; *(đời thường)* cảm xúc thật, không sến | character |
 | [ ] | Nền và đồ vật khớp nơi chốn, thời điểm (ngày/đêm) | background / props |
 | [ ] | Ai đứng đâu, hướng nhìn, hành động khớp lời thoại | staging |
 | [ ] | Không có lỗi dựng hình: chồng chéo, lệch, mất nhân vật, đồ vật trôi | render |
@@ -34,9 +34,10 @@ Bắt buộc cho cả hai agent: Claude soát khi chia cảnh (phần 2–5, 7) 
 
 | | Mục | area |
 |---|---|---|
-| [ ] | Có giải thích luật của con ma hoặc điều kiêng kỵ của làng | story |
+| [ ] | *(truyện ma)* Có giải thích luật của con ma hoặc điều kiêng kỵ của làng | story |
 | [ ] | Có 3–4 nấc leo thang, cao trào rõ, kết có dư âm | story |
-| [ ] | Có đoạn giải thích văn hóa (con ma là gì, vì sao làng kiêng), đúng chi tiết Việt | story |
+| [ ] | *(truyện ma)* Có đoạn giải thích văn hóa (con ma là gì, vì sao làng kiêng), đúng chi tiết Việt | story |
+| [ ] | *(đời thường)* Có bước ngoặt nhân vật phải chọn, kết thúc cho thấy hệ quả của lựa chọn đó; không giảng đạo | story |
 | [ ] | Lời thoại tự nhiên, đúng vai, đúng ngôn ngữ, không như dịch máy | dialogue |
 | [ ] | Khoảng 2–3 phút có một câu kéo người xem lại (re-hook) | story |
 
@@ -81,11 +82,11 @@ Bước 1 và 2 của tab Hoàn thành (`docs/pipeline.md`, mục “Hoàn thàn
 
 ## 8. Trước khi đăng (người dùng làm, không ghi vào review.json)
 
-- [ ] ★ Thumbnail riêng (2–3 phương án nếu dùng Test & Compare): nền tối, một chủ thể đáng sợ thật to, một màu nhấn, chữ tối đa 3–4 từ
+- [ ] ★ Thumbnail riêng (2–3 phương án nếu dùng Test & Compare): một chủ thể thật to, cảm xúc rõ, một màu nhấn, chữ tối đa 3–4 từ; *(truyện ma)* nền tối, chủ thể đáng sợ; *(đời thường)* gương mặt nhân vật chính với cảm xúc mạnh
 - [ ] ★ Tải bản 1080p gốc, không dùng bản nén
 - [ ] ★ Tải phụ đề SRT
 - [ ] ★ Không đánh dấu "dành cho trẻ em"
-- [ ] Tiêu đề có "Vietnamese" + "ghost/folklore", không nói quá nội dung
+- [ ] Tiêu đề có từ khóa đúng loại video (*(truyện ma)* "Vietnamese" + "ghost/folklore"), không nói quá nội dung
 - [ ] Mô tả: 2 dòng đầu có từ khóa và hook; chapters; ghi công nhạc và âm thanh (gói đăng ở tab Hoàn thành đã soạn sẵn, sửa lại nếu cần)
 - [ ] Video hình AI: giữ ghi chú hình AI trong mô tả; chỉ bật nhãn “nội dung đã thay đổi hoặc tổng hợp” khi hình trông như người hoặc sự kiện thật
 - [ ] Đánh dấu “Đã đăng” và dán link ở tab Hoàn thành
@@ -96,5 +97,5 @@ Bước 1 và 2 của tab Hoàn thành (`docs/pipeline.md`, mục “Hoàn thàn
 ## 9. Sau 48 giờ
 
 - [ ] Đọc CTR (mục tiêu ≥ 3%), thời lượng xem trung bình và đường giữ chân
-- [ ] Xem mục "Nội dung giúp người xem tìm thấy video này": YouTube có ghép đúng nhóm truyện ma không
+- [ ] Xem mục "Nội dung giúp người xem tìm thấy video này": YouTube có ghép đúng nhóm video cùng loại không
 - [ ] Ghi số liệu và bài học vào `docs/research/`
