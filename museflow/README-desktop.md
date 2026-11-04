@@ -13,6 +13,7 @@ App mở ở tab **🎬 Dự án video**: web UI storyvid (dự án, kịch bả
 
 1. Bấm **Accounts** → **＋ Add account**. Một cửa sổ Muse riêng mở ra (cookie riêng cho từng tài khoản). Đăng nhập rồi mở trang chat của Muse.
 2. Lặp lại cho các tài khoản khác. Tài khoản xanh = sẵn sàng. Đóng cửa sổ Muse chỉ ẩn nó, app vẫn dùng được.
+   - **Tự đăng nhập (email + mã)**: mở mục **Auto sign-in** trong bảng Accounts, điền URL trang hộp thư của domain nhận mã (dùng `{email}`, `{user}`, `{domain}`, ví dụ `https://mail.example.com/inbox/{email}`), dán danh sách email (mỗi dòng một cái) → **＋ Add & sign in**. App tự nhập email trên Muse, mở trang hộp thư trong cửa sổ ẩn, lấy mã *mới* (mã đã có trước đó bị bỏ qua) và nhập vào. Các tài khoản đăng nhập lần lượt; tài khoản bị đăng xuất tự đăng nhập lại (tối đa 1 lần mỗi 10 phút). Trang hộp thư cần đăng nhập thì bấm **Open inbox site** đăng nhập một lần, phiên được lưu ở `persist:otp-inbox`.
 3. Bấm **📖 Truyện → Video**, dán truyện, chọn số giây mỗi cảnh, khung hình, phong cách → **▶ Tạo video**.
 
 Luồng tự động: Muse viết kịch bản theo template `templates/museflow-scene-script-template-vi.txt` (truyện dài được chia thành nhiều phần ~3500 ký tự) → tạo node ảnh/video cho từng cảnh → chạy song song, mỗi tài khoản rảnh nhận một node → ghép MP4 bằng FFmpeg WASM → lưu vào `~/Downloads/MuseFlow/`.
@@ -26,6 +27,7 @@ Luồng tự động: Muse viết kịch bản theo template `templates/museflow
 | File | Vai trò |
 |---|---|
 | `electron/main.js` | Chạy và tắt web UI storyvid (`STORYVID_PYTHON`, `STORYVID_WEB_PORT`), protocol `museflow://`, quản lý tài khoản (mỗi tài khoản một `persist:muse-<id>` partition + cửa sổ), hàng đợi chia job cho tài khoản rảnh, tải video về `userData/media`. |
+| `electron/autologin.js` | Tự đăng nhập Muse bằng email + mã: điền form trên trang Muse, đọc mã mới từ trang hộp thư (URL mẫu `otpInboxUrl` trong `storage.json`). |
 | `electron/muse-preload.js` | Nạp `muse-bridge.js` vào trang Muse, nối `chrome.runtime.onMessage` sang IPC. |
 | `electron/app-preload.js`, `desktop-shim.js` | API `museDesktop` + shim `chrome.storage`/`chrome.runtime` cho `app.js`. |
 | `muse-bridge.js` | Điều khiển DOM chat Muse (giữ từ extension) + lệnh mới `MUSEFLOW_CHAT` để lấy câu trả lời dạng text. |

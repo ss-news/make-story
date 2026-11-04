@@ -199,6 +199,9 @@ body{grid-template-rows:58px auto minmax(0,1fr) auto}
 .account-info{display:grid;gap:3px;min-width:0}.account-info span{color:#a0a3af;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .account-actions{display:flex;gap:6px;flex:0 0 auto}.account-actions button{padding:5px 9px;font-size:11px}
 .accounts-empty{color:#a0a3af;font-size:13px}
+.accounts-auto{margin:0 0 12px;padding:10px 12px;border:1px solid #343744;border-radius:9px;background:#12131a}.accounts-auto summary{cursor:pointer;font-weight:600}
+.accounts-auto p{color:#a0a3af;font-size:12px}.accounts-auto textarea{width:100%;box-sizing:border-box;resize:vertical;background:#0e1017;color:#eee;border:1px solid #393c49;border-radius:9px;padding:8px;font:12px/1.5 ui-monospace,monospace}
+#autoSignInStatus{color:#a0a3af;font-size:12px;align-self:center}
 .connection-check{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 /* Desktop: story to video */
 .story-modal{width:min(820px,94vw);max-height:94vh;overflow:auto}

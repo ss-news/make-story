@@ -127,6 +127,13 @@
       <p>Each account runs in its own browser window with a separate saved sign-in. Open an account, sign in and leave it on the Muse chat page. Workflows run one generation per ready account at the same time.</p>
       <div class="accounts-add"><input id="newAccountName" type="text" maxlength="60" placeholder="Account name (optional)" autocomplete="off" /><button id="addAccountBtn" type="button" class="primary">＋ Add account</button></div>
       <div id="accountsList" class="accounts-list"></div>
+      <details class="accounts-auto">
+        <summary>Auto sign-in (email + code)</summary>
+        <p>Accounts with an email sign in by themselves: MuseFlow enters the email on Muse, reads the new code from your inbox page and types it in. Use <code>{email}</code>, <code>{user}</code> or <code>{domain}</code> in the inbox URL.</p>
+        <div class="accounts-add"><input id="otpInboxUrl" type="url" placeholder="https://mail.example.com/inbox/{email}" autocomplete="off" spellcheck="false" /><button id="openOtpInboxBtn" type="button">Open inbox site</button></div>
+        <textarea id="newAccountEmails" rows="4" placeholder="Paste emails, one per line" spellcheck="false"></textarea>
+        <div class="accounts-add"><button id="addAccountEmailsBtn" type="button" class="primary">＋ Add &amp; sign in</button><button id="signInAllBtn" type="button">Sign in all signed-out</button><span id="autoSignInStatus" role="status"></span></div>
+      </details>
       <div class="connection-check"><button id="testMuseBtn" type="button">Check all accounts</button><button id="openMediaFolderBtn" type="button">Open media folder</button><span id="connectionStatus" role="status"></span></div>
       <div class="modal-actions">
         <button id="closeSettingsBtn">Cancel</button>

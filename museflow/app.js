@@ -1016,12 +1016,14 @@
       const row=document.createElement('div');row.className=`account-row account-${profile.status}${profile.busy?' account-busy':''}`;
       const info=document.createElement('div');info.className='account-info';
       const name=document.createElement('strong');name.textContent=profile.name;
-      const meta=document.createElement('span');meta.textContent=`${profile.busy?'Busy':accountStatusText[profile.status]||profile.status}${profile.detail?` · ${profile.detail}`:''}`;
+      const meta=document.createElement('span');meta.textContent=`${profile.email&&profile.email!==profile.name?`${profile.email} · `:''}${profile.busy?'Busy':accountStatusText[profile.status]||profile.status}${profile.detail?` · ${profile.detail}`:''}`;meta.title=meta.textContent;
       info.append(name,meta);
       const actions=document.createElement('div');actions.className='account-actions';
       const button=(label,title,handler)=>{const item=document.createElement('button');item.type='button';item.textContent=label;item.title=title;item.onclick=handler;actions.append(item);return item;};
       button(profile.visible?'Hide':'Open',profile.visible?'Hide this account window':'Show this account\'s Muse window',()=>window.museDesktop.showProfile(profile.id,!profile.visible));
       button('Reload','Reload Muse in this account',()=>window.museDesktop.reloadProfile(profile.id));
+      if(profile.email&&profile.status!=='ready')button('Sign in','Sign in with the email and the code from the OTP inbox',()=>window.museDesktop.signInProfiles(profile.id)).disabled=profile.signingIn;
+      button('Email','Email used for auto sign-in',()=>{const input=document.createElement('input');input.type='email';input.value=profile.email||'';input.placeholder='name@your-domain';let done=false;const commit=save=>{if(done)return;done=true;if(save&&input.value.trim()!==(profile.email||''))window.museDesktop.setProfileEmail(profile.id,input.value.trim());else renderAccountsPanel();};input.onkeydown=event=>{if(event.key==='Enter')commit(true);if(event.key==='Escape')commit(false);};input.onblur=()=>commit(true);meta.replaceWith(input);input.focus();});
       // Electron has no window.prompt, so rename inline.
       button('Rename','Rename this account',()=>{const input=document.createElement('input');input.type='text';input.value=profile.name;input.maxLength=60;let done=false;const commit=save=>{if(done)return;done=true;if(save&&input.value.trim()&&input.value.trim()!==profile.name)window.museDesktop.renameProfile(profile.id,input.value.trim());else renderAccountsPanel();};input.onkeydown=event=>{if(event.key==='Enter')commit(true);if(event.key==='Escape')commit(false);};input.onblur=()=>commit(true);name.replaceWith(input);input.focus();input.select();});
       button('Remove','Remove this account and sign it out',()=>{if(confirm(`Remove “${profile.name}” and delete its saved sign-in?`))window.museDesktop.removeProfile(profile.id);}).classList.add('danger');
@@ -1503,6 +1505,13 @@
   $('#cancelStoryBtn').onclick=()=>{if(storyAbortController){storyAbortController.abort();void window.museDesktop.stop(null);return;}$('#storyModal').classList.add('hidden');};
   $('#storyCopyPromptBtn').onclick=async()=>{const options=storyOptions();if(!options.story){setStoryStatus('Dán truyện trước đã.','error');return;}const prompts=await buildStoryPrompts(options);await navigator.clipboard.writeText(prompts.first);setStoryStatus(prompts.chunks.length>1?`Đã copy prompt phần 1/${prompts.chunks.length}. Truyện dài: nên dùng nút Tạo video để tự chia phần.`:'Đã copy prompt. Dán vào AI bất kỳ, rồi dán kết quả vào Script → Nodes.','ok');};
   $('#addAccountBtn').onclick=async()=>{const input=$('#newAccountName');await window.museDesktop.addProfile(input.value);input.value='';};
+  // Auto sign-in: the inbox URL template lives in storage so the main process can read it.
+  chrome.storage.local.get('otpInboxUrl').then(saved=>{$('#otpInboxUrl').value=saved.otpInboxUrl||'';});
+  $('#otpInboxUrl').onchange=()=>chrome.storage.local.set({otpInboxUrl:$('#otpInboxUrl').value.trim()});
+  const autoSignInStatus=(text,kind='')=>{const el=$('#autoSignInStatus');el.textContent=text;el.className=kind;};
+  $('#openOtpInboxBtn').onclick=async()=>{await chrome.storage.local.set({otpInboxUrl:$('#otpInboxUrl').value.trim()});try{await window.museDesktop.openOtpInbox(museProfiles.find(profile=>profile.email)?.email);autoSignInStatus('Sign in to the inbox site in that window if it asks, then close it.');}catch(error){autoSignInStatus(error.message.replace(/^.*Error: /,''),'error');}};
+  $('#addAccountEmailsBtn').onclick=async()=>{const input=$('#newAccountEmails');if(!$('#otpInboxUrl').value.trim()){autoSignInStatus('Set the OTP inbox URL first.','error');return;}await chrome.storage.local.set({otpInboxUrl:$('#otpInboxUrl').value.trim()});const added=await window.museDesktop.addProfilesByEmail(input.value);input.value='';autoSignInStatus(added.length?`Added ${added.length} account${added.length===1?'':'s'}; they sign in one after another.`:'No new emails found.');};
+  $('#signInAllBtn').onclick=async()=>{await chrome.storage.local.set({otpInboxUrl:$('#otpInboxUrl').value.trim()});autoSignInStatus('Signing in…');await window.museDesktop.signInProfiles(null);autoSignInStatus('Done. Check each account’s status above.');};
   $('#openMediaFolderBtn').onclick=()=>window.museDesktop.openMediaFolder();
 
   $('#scriptImportBtn').onclick=()=>{$('#scriptModal').classList.remove('hidden');$('#scriptImportStatus').textContent='';$('#scriptInput').focus();};

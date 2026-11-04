@@ -13,6 +13,7 @@ const fsp = require('node:fs/promises');
 const crypto = require('node:crypto');
 const { Readable } = require('node:stream');
 const { startApi } = require('./api');
+const autologin = require('./autologin');
 
 const ROOT = path.join(__dirname, '..');
 // MUSEFLOW_MUSE_HOME points accounts at a local mock chat page for testing (see test/mock-muse).
@@ -90,17 +91,17 @@ function writeJson(file, value) {
 
 // ---------- Profiles (one persistent session + window per Muse account) ----------
 
-const profiles = new Map(); // id -> { id, name, lastUrl, window, status, busy, detail, checkTimer }
+const profiles = new Map(); // id -> { id, name, email, lastUrl, window, status, busy, detail, checkTimer, signingIn, lastSignIn }
 
 function profileSummary(p) {
-  return { id: p.id, name: p.name, status: p.status, busy: p.busy, detail: p.detail || '', url: p.lastUrl || '', visible: Boolean(p.window && !p.window.isDestroyed() && p.window.isVisible()) };
+  return { id: p.id, name: p.name, email: p.email || '', signingIn: Boolean(p.signingIn), status: p.status, busy: p.busy, detail: p.detail || '', url: p.lastUrl || '', visible: Boolean(p.window && !p.window.isDestroyed() && p.window.isVisible()) };
 }
 function listProfiles() { return [...profiles.values()].map(profileSummary); }
 function broadcastProfiles() {
   if (appWindow && !appWindow.isDestroyed()) appWindow.webContents.send('profiles:changed', listProfiles());
 }
 function saveProfiles() {
-  writeJson(profilesFile, [...profiles.values()].map(p => ({ id: p.id, name: p.name, lastUrl: p.lastUrl })));
+  writeJson(profilesFile, [...profiles.values()].map(p => ({ id: p.id, name: p.name, email: p.email || '', lastUrl: p.lastUrl })));
 }
 function setStatus(p, status, detail = '') {
   p.status = status; p.detail = detail;
@@ -149,21 +150,69 @@ function createProfileWindow(p) {
   };
   wc.on('did-navigate', remember);
   wc.on('did-navigate-in-page', remember);
-  wc.on('did-start-loading', () => { if (!p.busy) setStatus(p, 'loading'); });
+  wc.on('did-start-loading', () => { if (!p.busy && !p.signingIn) setStatus(p, 'loading'); });
   wc.on('did-finish-load', () => scheduleCheck(p, 2500));
   wc.on('did-navigate-in-page', () => scheduleCheck(p, 1500));
   wc.on('render-process-gone', () => setStatus(p, 'error', 'Page crashed. Reload this account.'));
   win.loadURL(p.lastUrl || MUSE_HOME);
 }
 
-function addProfile(name) {
+function addProfile(name, email = '') {
   const id = crypto.randomUUID().slice(0, 8);
-  const p = { id, name: String(name || '').trim() || `Account ${profiles.size + 1}`, lastUrl: '', status: 'loading', busy: false };
+  email = String(email || '').trim().toLowerCase();
+  const p = { id, name: String(name || '').trim() || email || `Account ${profiles.size + 1}`, email, lastUrl: '', status: 'loading', busy: false };
   profiles.set(id, p);
   saveProfiles();
   createProfileWindow(p);
-  p.window.show(); // first time: user signs in
+  if (!email) p.window.show(); // first time: user signs in (accounts with an email sign in by themselves)
   broadcastProfiles();
+  return profileSummary(p);
+}
+
+function addProfilesByEmail(text) {
+  const known = new Set([...profiles.values()].map(p => p.email).filter(Boolean));
+  const added = [];
+  for (const email of String(text).toLowerCase().match(/[^\s,;<>"']+@[^\s,;<>"']+\.[a-z]{2,}/g) || []) {
+    if (known.has(email)) continue;
+    known.add(email);
+    added.push(addProfile(email, email));
+  }
+  return added;
+}
+
+// ---------- Automatic sign-in (email + code read from the OTP inbox page) ----------
+
+const AUTO_SIGNIN_COOLDOWN_MS = 10 * 60 * 1000;
+function otpInboxTemplate() { return String(readJson(storageFile, {}).otpInboxUrl || '').trim(); }
+
+let signInChain = Promise.resolve();
+
+// Accounts sign in one at a time: the inbox window is shared and Muse may rate-limit codes.
+function autoSignIn(p) {
+  if (p.signingIn || p.busy) return Promise.resolve(profileSummary(p));
+  p.signingIn = true; p.lastSignIn = Date.now();
+  clearTimeout(p.checkTimer);
+  setStatus(p, 'login', 'Auto sign-in: waiting for the other accounts…');
+  const run = signInChain.then(() => runSignIn(p));
+  signInChain = run.catch(() => {});
+  return run;
+}
+
+async function runSignIn(p) {
+  if (!profiles.has(p.id)) { p.signingIn = false; return profileSummary(p); }
+  if (!p.window || p.window.isDestroyed()) createProfileWindow(p);
+  try {
+    const ok = await autologin.signIn({
+      wc: p.window.webContents, email: p.email, template: otpInboxTemplate(), home: MUSE_HOME,
+      report: detail => setStatus(p, 'login', `Auto sign-in: ${detail}`)
+    });
+    p.signingIn = false;
+    if (!ok) setStatus(p, 'login', 'Auto sign-in did not reach the chat page. Open the window to finish.');
+    else await checkProfile(p);
+  } catch (error) {
+    p.signingIn = false;
+    setStatus(p, 'login', `Auto sign-in failed: ${error.message || error}`);
+  }
   return profileSummary(p);
 }
 
@@ -207,17 +256,24 @@ function scheduleCheck(p, delay) {
 }
 
 async function checkProfile(p) {
-  if (p.busy) return profileSummary(p);
+  if (p.busy || p.signingIn) return profileSummary(p);
   try {
     const result = await bridgeCall(p, { type: 'MUSEFLOW_CHECK_SESSION' }, 20000);
-    if (p.busy) return profileSummary(p);
+    if (p.busy || p.signingIn) return profileSummary(p);
     if (result?.composer && result?.signedIn) setStatus(p, 'ready');
+    else if (shouldAutoSignIn(p)) autoSignIn(p);
     else if (result?.loginRequired) setStatus(p, 'login', 'Sign in to Muse in this window.');
     else setStatus(p, 'login', result?.error || 'Open the Muse chat page in this window.');
   } catch (error) {
-    if (!p.busy) setStatus(p, 'login', error.message || String(error));
+    if (p.busy || p.signingIn) return profileSummary(p);
+    if (shouldAutoSignIn(p)) autoSignIn(p);
+    else setStatus(p, 'login', error.message || String(error));
   }
   return profileSummary(p);
+}
+
+function shouldAutoSignIn(p) {
+  return Boolean(p.email && otpInboxTemplate() && Date.now() - (p.lastSignIn || 0) > AUTO_SIGNIN_COOLDOWN_MS);
 }
 
 // ---------- Scheduler ----------
@@ -327,6 +383,23 @@ async function stopRequests(requestId) {
 function registerIpc() {
   ipcMain.handle('profiles:list', () => listProfiles());
   ipcMain.handle('profiles:add', (_e, name) => addProfile(name));
+  ipcMain.handle('profiles:addEmails', (_e, text) => addProfilesByEmail(text));
+  ipcMain.handle('profiles:signIn', async (_e, id) => {
+    const targets = id ? [profiles.get(id)].filter(Boolean) : [...profiles.values()].filter(p => p.email && p.status !== 'ready');
+    await Promise.all(targets.map(autoSignIn));
+    return listProfiles();
+  });
+  ipcMain.handle('profiles:setEmail', (_e, id, email) => {
+    const p = profiles.get(id);
+    if (p) { p.email = String(email || '').trim().toLowerCase(); saveProfiles(); broadcastProfiles(); }
+    return listProfiles();
+  });
+  ipcMain.handle('otp:openInbox', (_e, email) => {
+    const template = otpInboxTemplate();
+    if (!template) throw new Error('Set the OTP inbox URL first.');
+    autologin.openInboxSite(template, email);
+    return true;
+  });
   ipcMain.handle('profiles:remove', (_e, id) => removeProfile(id));
   ipcMain.handle('profiles:rename', (_e, id, name) => {
     const p = profiles.get(id);

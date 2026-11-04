@@ -21,6 +21,10 @@ contextBridge.exposeInMainWorld('museChrome', {
 contextBridge.exposeInMainWorld('museDesktop', {
   listProfiles: () => ipcRenderer.invoke('profiles:list'),
   addProfile: name => ipcRenderer.invoke('profiles:add', name),
+  addProfilesByEmail: text => ipcRenderer.invoke('profiles:addEmails', text),
+  signInProfiles: id => ipcRenderer.invoke('profiles:signIn', id ?? null),
+  setProfileEmail: (id, email) => ipcRenderer.invoke('profiles:setEmail', id, email),
+  openOtpInbox: email => ipcRenderer.invoke('otp:openInbox', email ?? ''),
   removeProfile: id => ipcRenderer.invoke('profiles:remove', id),
   renameProfile: (id, name) => ipcRenderer.invoke('profiles:rename', id, name),
   showProfile: (id, visible = true) => ipcRenderer.invoke('profiles:show', id, visible),
