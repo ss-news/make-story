@@ -248,7 +248,7 @@ def review(script: dict, source: str, minutes: float, provider: str, genre: str,
     length, local = local_checks(script, minutes)
     criteria.append(length)
     issues += local
-    if genre in ("story", "drama"):
+    if genre in ("story", "drama", "comedy"):
         issues += telling_issues(script)
     if keep_text and source:
         _, moved = source_order(script, source)

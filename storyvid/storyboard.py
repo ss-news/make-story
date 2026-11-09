@@ -111,6 +111,11 @@ Shots are clips
 - sound: what we hear beyond the words (wind, footsteps, a sudden silence), in Vietnamese or English."""
 
 
+COLD_OPEN = ("the most dangerous, shocking or mysterious moment anywhere in the story (a threat seen or heard, a "
+             "confrontation, a reveal), its subject big and clear; never a calm moment such as a ritual, a meal, a "
+             "lesson or a greeting")
+
+
 def _genre(genre: str) -> dict:
     from .script import GENRE_INFO
     return GENRE_INFO[genre if genre in GENRE_INFO and genre != "explainer" else "story"]
@@ -143,7 +148,7 @@ def treatment_prompt(channel: dict, lang: str, minutes: float, genre: str, chara
 First write the treatment, the plan every later step follows. Write title, logline, want, obstacle, stakes, theme, cold_open, beat summaries and setups in {LANG_NAMES.get(lang, lang)}.
 - logline: one sentence: who, what they want, what stands in the way, what is at stake.
 - protagonist: the cast id of the main character; the film follows them. want: what they try to get; obstacle; stakes: what they lose if they fail; theme: what the story is really about, in a few words.
-- cold_open: the moment shown first and the question it leaves the viewer with. Pick the most dangerous, shocking or mysterious moment anywhere in the story (a threat seen or heard, a confrontation, a reveal), its subject big and clear; never a calm moment such as a ritual, a meal, a lesson or a greeting.
+- cold_open: the moment shown first and the question it leaves the viewer with. Pick {info.get("cold_open", COLD_OPEN)}.
 - beats: in story order, from {", ".join(BEATS)}; cold_open first, outro last only if the narrator invites viewers to the next story. source = the first words of the source passage the beat comes from (empty for cold_open and outro). seconds = screen time; together about {seconds}.
 - setups: things planted early that pay off later.
 - cast: every character who appears (not the host). id = short ascii slug, name = how the story calls them. Pick the closest preset ({presets}). {info["cast_rule"]}

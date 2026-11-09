@@ -121,6 +121,13 @@ class StoryboardTest(unittest.TestCase):
                                                                  for s in script['scenes']])
             self.assertTrue(info['shots'][0]['first'])
 
+    def test_cold_open_follows_the_genre(self):
+        comedy = storyboard.treatment_prompt(CHANNEL, 'vi', 2, 'comedy')
+        self.assertIn('funniest, most chaotic moment', comedy)
+        self.assertNotIn('most dangerous', comedy)
+        self.assertIn('animal', comedy)
+        self.assertIn('most dangerous', storyboard.treatment_prompt(CHANNEL, 'vi', 2, 'story'))
+
     def test_kept_text_and_explainers_skip_the_storyboard(self):
         part = {'title': 'T', 'cast': [], 'scenes': [{'bg_id': 'river_night', 'bg_prompt': 'x', 'camera': 'static',
                                                       'actors': [], 'props': [],

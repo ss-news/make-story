@@ -64,6 +64,30 @@ GENRE_INFO = {
         "thumbnail": ("the finished building big in frame in warm light, or a striking half-built moment with the "
                       "builder, one accent colour"),
     },
+    "comedy": {
+        "label": "Hoạt hình vui nhộn",
+        "video": "funny animated cartoon with talking animal characters, for a family audience",
+        "host": "a playful, upbeat storyteller with good comic timing; teasing but never mean",
+        "cast_rule": ('Animals and other creatures talk and act like people: kind "human" with the closest preset '
+                      '(their animal look comes from the character sheets); keep the animal in the name, e.g. '
+                      '"Cua Đồng", "Châu Chấu".'),
+        "arc": ('- The first 30 seconds show the funniest, most chaotic moment of the story (a gag going wrong, a '
+                'crash, a ridiculous situation), its characters big and clear, and end on a question. Then go back '
+                'to how it started: who wants what and why the two clash.\n'
+                '- Comedy comes from character: each main character has one clear trait (boastful, slow but '
+                'stubborn...) that drives every gag. Build gags in threes, each bigger than the last; set up a gag '
+                'before paying it off; react shots carry the laugh (a deadpan stare, a double take).\n'
+                '- Mostly dialogue and action, short punchy lines, little narration; slapstick never hurts anyone '
+                'for real. A turn where the trait that caused the trouble saves the day, then a final button gag '
+                'after the ending; no lecture or moral spelled out.'),
+        "cold_open": ("the funniest, most chaotic moment anywhere in the story (a gag going wrong, a crash, a "
+                      "ridiculous situation), its characters big and clear; never a calm moment such as a greeting "
+                      "or a description of the place"),
+        "night": False,
+        "titles": "the funny situation or the clash between the characters, playful, no clickbait that overpromises",
+        "thumbnail": ("the two main characters big in frame with exaggerated funny expressions in the middle of the "
+                      "gag, bright saturated colours, one accent colour"),
+    },
     "explainer": {
         "label": "Kiến thức (khoa học, tâm lý)",
         "video": "science / psychology explainer",
