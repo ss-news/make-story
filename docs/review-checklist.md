@@ -41,6 +41,7 @@ Bắt buộc cho cả hai agent: Claude soát khi chia cảnh (phần 2–5, 7) 
 | [ ] | Có nhân vật chính với mục tiêu và trở ngại rõ; mỗi cảnh phim có xung đột và kết bằng bước ngoặt | story |
 | [ ] | Cho xem thay vì kể: điều thấy được nằm trên hình, lời dẫn không quá khoảng 40% số chữ, không 3 cảnh liền chỉ có lời dẫn trên nền trống | story |
 | [ ] | Cỡ cảnh thay đổi (không ba shot cùng cỡ liền nhau), đỉnh cảm xúc ở cận cảnh, có shot phản ứng sau cú sốc | staging |
+| [ ] | Các cảnh nối liền như một bộ phim: cảnh mới có câu nối (thời gian, âm thanh, hành động mang sang), shot sau bắt đầu từ khung cuối shot trước, giữ hướng màn hình và hướng nhìn | staging |
 | [ ] | Lời thoại tự nhiên, đúng vai, đúng ngôn ngữ, không như dịch máy | dialogue |
 | [ ] | Khoảng 2–3 phút có một câu kéo người xem lại (re-hook) | story |
 

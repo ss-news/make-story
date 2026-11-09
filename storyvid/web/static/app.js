@@ -277,19 +277,25 @@ function shotStrip(shot, board) {
   if (shot.first) {
     const film = el("div", "shot-scene");
     film.append(el("b", "", shot.slug || ""), el("span", "beat", board.beat_labels?.[shot.beat] || shot.beat));
-    const why = [["Mục đích", shot.purpose], ["Xung đột", shot.conflict], ["Bước ngoặt", shot.turn]]
-      .filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join(" · ");
-    if (why) film.appendChild(el("div", "muted small", why));
+    for (const [k, v] of [["Nối từ cảnh trước", shot.bridge], ["Bối cảnh", shot.setting], ["Mục đích", shot.purpose],
+      ["Xung đột", shot.conflict], ["Bước ngoặt", shot.turn]]) {
+      if (v) film.appendChild(el("div", "small", `${k}: ${v}`));
+    }
     wrap.appendChild(film);
   }
   const tags = el("div", "shot-tags");
+  if (shot.link) tags.appendChild(el("span", `tag link-${shot.link}`, board.links?.[shot.link] || shot.link));
   tags.append(el("span", "tag", shot.size), el("span", "tag", board.angles?.[shot.angle] || shot.angle),
     el("span", "tag", board.moves?.[shot.movement] || shot.movement));
   if (shot.transition && shot.transition !== "cut") tags.appendChild(el("span", "tag", shot.transition.replace("_", " ")));
   wrap.appendChild(tags);
-  if (shot.action) wrap.appendChild(el("div", "shot-action", shot.action));
+  if (shot.description) wrap.appendChild(el("div", "shot-action", shot.description));
+  for (const [k, v] of [["Hành động", shot.action], ["Diễn xuất", shot.performance], ["Khung cuối", shot.end_frame]]) {
+    if (v) wrap.appendChild(el("div", "muted small", `${k}: ${v}`));
+  }
   const extra = [shot.composition, shot.sound && `♪ ${shot.sound}`].filter(Boolean).join(" · ");
   if (extra) wrap.appendChild(el("div", "muted small", extra));
+  if (shot.transition_note) wrap.appendChild(el("div", "shot-next small", `→ ${shot.transition_note}`));
   return wrap;
 }
 

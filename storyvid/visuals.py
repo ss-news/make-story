@@ -75,8 +75,11 @@ SYSTEM = (
     "stick-figure catalogue: it only hints at age and gender. When the source story is given, write every look "
     "from it instead (age, build, skin, hair, face, clothing, what they carry, and the story's world and era) and "
     "drop any draft detail the story contradicts; keep each look to one or two sentences that fit the style. "
-    "When a scene comes with a storyboard shot, follow it: the image_prompt opens with its size and angle and "
-    "uses its composition; the video_prompt is its camera movement plus its action, nothing more happening.")
+    "When a scene comes with a storyboard shot, follow it: the image_prompt opens with its framing and shows its "
+    "start_frame with its composition; the video_prompt is its camera move, its action and performance, and ends "
+    "on its end_frame, nothing more happening. Scenes follow one another as one film: the opening frame continues "
+    "from previous_end as joins_previous says (same positions, screen direction, light, what people hold), so the "
+    "cut feels motivated.")
 SCHEMA = {
     "type": "object", "required": ["style", "cast", "scenes"],
     "properties": {
@@ -200,8 +203,11 @@ def _offline_scene(scene: dict, names: dict, shot: dict | None = None) -> dict:
     if shot:
         from .storyboard import MOVES, describe
         framing, motion = describe(shot), MOVES.get(shot.get("movement"), motion).capitalize()
-        if shot.get("action"):
-            motion = f"{motion}. {shot['action']}"
+        if shot.get("start_frame"):
+            framing = f"{framing}. {shot['start_frame']}"
+        for key, lead in (("action", ""), ("performance", ""), ("end_frame", "Ends on: ")):
+            if shot.get(key):
+                motion = f"{motion}. {lead}{shot[key]}"
     when = "at night" if scene["bg_id"].endswith("_night") else "in daylight"
     people = [f"{names.get(a['id'], a['id'])} {POSE_LOOK.get(a['pose'], 'standing')}, {a['expression']} expression, "
               f"{a['position'].replace('_', ' ')} of frame" for a in scene["actors"]]
@@ -381,12 +387,19 @@ CONTINUITY_NOTE = ("CONTINUITY: attached image 1 is the exact last frame of the 
                    "look as it goes on.")
 
 
-def linked(script: dict, visuals: dict) -> list[bool]:
-    """linked[i]: scene i's clip continues from scene i-1's last frame."""
+def linked(script: dict, visuals: dict, shots: list | None = None) -> list[bool]:
+    """linked[i]: scene i's clip continues from scene i-1's last frame. In auto mode a storyboard shot decides
+    (link "continuous" = the camera keeps rolling; any cut gets its own opening image); scenes without one link
+    when they stay in the same place."""
     mode = visuals.get("continuity", "auto")
     scenes = script["scenes"]
-    return [i > 0 and (mode == "all" or (mode == "auto" and scenes[i]["bg_id"] == scenes[i - 1]["bg_id"]))
-            for i in range(len(scenes))]
+    shots = shots or [None] * len(scenes)
+
+    def auto(i: int) -> bool:
+        if shots[i] and shots[i - 1]:
+            return shots[i].get("link") == "continuous"
+        return scenes[i]["bg_id"] == scenes[i - 1]["bg_id"]
+    return [i > 0 and (mode == "all" or (mode == "auto" and auto(i))) for i in range(len(scenes))]
 
 
 def chains(links: list[bool], todo: list[int]) -> list[list[int]]:
@@ -466,7 +479,8 @@ def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: 
         except RuntimeError as e:
             fail(i, e)
 
-    links = linked(script, visuals)
+    from .storyboard import aligned, load as load_storyboard
+    links = linked(script, visuals, aligned(load_storyboard(project), script))
 
     def clip(i: int) -> None:
         s = visuals["scenes"][i]

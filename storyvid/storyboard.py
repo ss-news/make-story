@@ -34,6 +34,9 @@ MOVES = {"static": "locked-off camera", "push_in": "slow push-in", "pull_out": "
 CAMERA_OF = {"push_in": "zoom_in", "pull_out": "zoom_out", "crane_up": "zoom_out", "pan_left": "pan_left",
              "pan_right": "pan_right"}  # scenes.json "camera" for the stage renderer; anything else is static
 TRANSITIONS = ["cut", "match_cut", "smash_cut", "dissolve", "fade_in", "fade_out"]
+LINKS = {"continuous": "liền mạch (máy chạy tiếp, không cắt)", "cut_on_action": "cắt theo hành động",
+         "eyeline": "cắt theo hướng nhìn", "reaction": "cắt sang phản ứng", "match_cut": "cắt khớp hình",
+         "cutaway": "cắt sang chi tiết", "new_scene": "sang cảnh mới"}
 BEATS = ["cold_open", "setup", "inciting", "rising", "midpoint", "crisis", "climax", "resolution", "outro"]
 BEAT_LABELS = {"cold_open": "Mở đầu nóng", "setup": "Giới thiệu", "inciting": "Biến cố khởi đầu",
                "rising": "Leo thang", "midpoint": "Bước ngoặt giữa", "crisis": "Khủng hoảng, lựa chọn",
@@ -62,12 +65,15 @@ def _schemas() -> tuple[dict, dict]:
                                                  "seconds": {"type": "integer"}})},
         "setups": {"type": "array", "items": obj({"setup": string, "payoff": string})},
     })
-    shot = obj({"size": enum(SIZES), "angle": enum(ANGLES), "movement": enum(MOVES), "subject": string,
-                "action": string, "composition": string, "actors": scene["actors"], "props": scene["props"],
-                "lines": scene["lines"], "transition": enum(TRANSITIONS), "sound": string})
+    shot = obj({"link": enum(LINKS), "size": enum(SIZES), "angle": enum(ANGLES), "movement": enum(MOVES),
+                "subject": string, "description": string, "start_frame": string, "action": string,
+                "performance": string, "end_frame": string, "composition": string, "actors": scene["actors"],
+                "props": scene["props"], "lines": scene["lines"], "sound": string, "transition": enum(TRANSITIONS),
+                "transition_note": string})
     shots = obj({"scenes": {"type": "array", "items": obj({
-        "slug": string, "bg_id": string, "bg_prompt": string, "beat": enum(BEATS), "purpose": string,
-        "conflict": string, "turn": string, "shots": {"type": "array", "items": shot}})}})
+        "slug": string, "bg_id": string, "bg_prompt": string, "beat": enum(BEATS), "setting": string,
+        "bridge": string, "purpose": string, "conflict": string, "turn": string,
+        "shots": {"type": "array", "items": shot}})}})
     return treatment, shots
 
 
@@ -89,10 +95,17 @@ Coverage and the camera
 - Never three shots of the same size in a row. Keep each character on the same side of frame within a scene (180-degree rule).
 - Angles carry meaning: low = power or threat, high = small and vulnerable, dutch = unease, pov = fear of what is seen, ots = two people facing off.
 - Movement has a reason: push_in to an idea dawning, pull_out to loneliness or a reveal, track to follow a chase, handheld for panic, static for stillness and dread.
+Continuity: the film must play as one piece, never as separate clips
+- Each scene opens with a bridge from the one before: a time jump the viewer can read (light, weather, a sound carried over), a character carrying the action into the new place, a match cut, or the question the last scene left. setting: the place, time of day, light, weather and mood in detail.
+- Every shot starts where the previous one ended. start_frame repeats what end_frame of the previous shot left (who is where, which way they face, what they hold, the light), seen from this shot's camera. Keep screen direction: someone leaving frame right enters the next shot from frame left; someone looking off-screen left is answered by a shot of what is on the left.
+- link says how a shot joins the one before: continuous = the same camera keeps rolling, no cut (only within one place and moment, and the clip starts from the previous clip's last frame); cut_on_action = the movement started at the end of the last shot finishes in this one from a new angle; eyeline = what the character just looked at; reaction = the face that receives what just happened; match_cut = a shape or gesture repeated across a jump; cutaway = a detail in the same moment; new_scene = the first shot of a scene.
+- end_frame: the last image of the shot, which hands over to the next one (a turn of the head, a hand reaching out of frame, a door opening, a sound starting).
+- transition_note: in the video's language, one sentence on how this shot hands over to the next, e.g. "Ông lão quay phắt ra cửa → cắt theo hướng nhìn sang khung cửa tối".
 Shots are clips
 - One shot = one clip an image-to-video model makes from a single opening frame: 4-10 seconds, one subject, one clear action that can be filmed (no montage, no time jump, no text on screen, no one speaking to camera). If the action needs "then" or a list of moves, it is two shots.
-- action: what moves during the shot, concrete and visual (in English). composition: where the subject sits in frame, foreground and background, light (in English). subject: who or what the shot is about.
-- Every shot has 1-3 lines (narration or dialogue) heard over it; at most {max_words} spoken words per shot. A quiet beat still gets one short line.
+- description: in the video's language, 2-3 sentences a storyboard artist would draw from: the place, the light, who is where, what happens and the mood.
+- action: what moves during the shot, concrete and visual (in English). performance: how each character on screen acts: gesture, where they look, the emotion on the face, how it changes during the shot (in English). composition: where the subject sits in frame, foreground and background, light (in English). start_frame and end_frame in English. subject: who or what the shot is about.
+- Every shot has 1-3 lines (narration or dialogue) heard over it; whoever speaks a line is in that shot's actors (no off-screen voices but the narrator); at most {max_words} spoken words per shot. A quiet beat still gets one short line.
 - Shorter shots and closer sizes as tension rises; one longer, wider shot to breathe after the climax.
 - transition: cut by default; smash_cut out of the cold open or into a shock, match_cut between two shapes or gestures, dissolve for time passing, fade_in to open, fade_out to end.
 - sound: what we hear beyond the words (wind, footsteps, a sudden silence), in Vietnamese or English."""
@@ -198,8 +211,9 @@ def write(story: str, channel: dict, lang: str, minutes: float, provider: str, c
             note.append("Do not end the film or invite viewers to the next video.")
         user = json.dumps({"treatment": plan, "cast": cast, "part": part,
                            "previous_shots": [{"slug": s["slug"], "action": sh.get("action"),
-                                               "lines": sh.get("lines")} for s in film_scenes[-2:]
-                                              for sh in s["shots"][-2:]]}, ensure_ascii=False)
+                                               "end_frame": sh.get("end_frame"), "lines": sh.get("lines")}
+                                              for s in film_scenes[-2:] for sh in s["shots"][-2:]]},
+                          ensure_ascii=False)
         if len(parts) > 1:
             print(f"  storyboard: shots, part {k + 1}/{len(parts)}...")
         else:
@@ -215,6 +229,24 @@ def _pick(value, values, default):
     return value if value in values else default
 
 
+def on_screen(shot: dict, cast_ids: set) -> tuple[list, list]:
+    """scenes.json lets only characters on screen speak: a speaker missing from the shot is added to it (at a free
+    position, talking); when the frame is full (3 actors) the line goes to the narrator."""
+    from .script import NARRATOR, POSITIONS
+    actors = [a for a in shot.get("actors") or [] if isinstance(a, dict)]
+    lines = [dict(l) for l in shot.get("lines") or [] if isinstance(l, dict)]
+    for line in lines:
+        who = line.get("speaker")
+        if who == NARRATOR or who not in cast_ids or any(a.get("id") == who for a in actors):
+            continue
+        free = [p for p in POSITIONS if p not in {a.get("position") for a in actors}]
+        if len(actors) < 3 and free:
+            actors.append({"id": who, "position": free[0], "pose": "talk", "expression": "neutral", "action": "none"})
+        else:
+            line["speaker"] = NARRATOR
+    return actors, lines
+
+
 def assemble(plan: dict, cast: list, film_scenes: list, lang: str) -> tuple[dict, dict]:
     """Shots -> scenes.json scenes (one per shot with spoken lines) and the storyboard that remembers each shot."""
     from .script import _normalize
@@ -225,18 +257,27 @@ def assemble(plan: dict, cast: list, film_scenes: list, lang: str) -> tuple[dict
             if not isinstance(sh, dict) or not shot_key(sh.get("lines")):
                 continue  # scenes.json needs words in every scene; a silent shot cannot become one
             movement = _pick(sh.get("movement"), MOVES, "static")
+            actors, lines = on_screen(sh, {c.get("id") for c in cast if isinstance(c, dict)})
             scenes.append({"bg_id": s.get("bg_id"), "bg_prompt": s.get("bg_prompt"),
-                           "camera": CAMERA_OF.get(movement, "static"), "actors": sh.get("actors") or [],
-                           "props": sh.get("props") or [], "lines": sh.get("lines") or []})
-            kept.append({"size": _pick(sh.get("size"), SIZES, "MS"), "angle": _pick(sh.get("angle"), ANGLES, "eye"),
-                         "movement": movement, "subject": str(sh.get("subject") or ""),
-                         "action": str(sh.get("action") or ""), "composition": str(sh.get("composition") or ""),
+                           "camera": CAMERA_OF.get(movement, "static"), "actors": actors,
+                           "props": sh.get("props") or [], "lines": lines})
+            text = lambda key: str(sh.get(key) or "").strip()  # noqa: E731
+            link = _pick(sh.get("link"), LINKS, "cut_on_action")
+            if not kept:
+                link = "new_scene"
+            elif link == "new_scene":
+                link = "cut_on_action"
+            kept.append({"link": link, "size": _pick(sh.get("size"), SIZES, "MS"),
+                         "angle": _pick(sh.get("angle"), ANGLES, "eye"), "movement": movement,
+                         **{k: text(k) for k in ("subject", "description", "start_frame", "action", "performance",
+                                                 "end_frame", "composition", "sound")},
                          "transition": _pick(sh.get("transition"), TRANSITIONS, "cut"),
-                         "sound": str(sh.get("sound") or ""), "lines": sh.get("lines")})
+                         "transition_note": text("transition_note"), "lines": sh.get("lines")})
         if kept:
             board.append({"slug": str(s.get("slug") or ""), "beat": _pick(s.get("beat"), BEATS, "rising"),
-                          "purpose": str(s.get("purpose") or ""), "conflict": str(s.get("conflict") or ""),
-                          "turn": str(s.get("turn") or ""), "shots": kept})
+                          **{k: str(s.get(k) or "").strip() for k in ("setting", "bridge", "purpose", "conflict",
+                                                                      "turn")},
+                          "shots": kept})
     script = _normalize({"title": plan.get("title"), "cast": cast, "scenes": scenes}, lang)
     # _normalize keeps every scene that has words, in order: shot n is scene n
     n = 0
@@ -264,11 +305,14 @@ def aligned(storyboard: dict | None, script: dict) -> list[dict | None]:
     if not storyboard:
         return [None] * len(script.get("scenes", []))
     by_text: dict[str, list] = {}
+    previous = None
     for s in storyboard.get("scenes", []):
         for sh in s.get("shots", []):
             by_text.setdefault(shot_key(sh.get("lines")), []).append(
                 {**{k: v for k, v in sh.items() if k not in ("lines", "scene")}, "slug": s.get("slug", ""),
-                 "beat": s.get("beat", "")})
+                 "beat": s.get("beat", ""), "setting": s.get("setting", ""),
+                 "previous_end": (previous or {}).get("end_frame", "")})
+            previous = sh
     out = []
     for sc in script.get("scenes", []):
         found = by_text.get(shot_key(sc.get("lines")))
@@ -286,9 +330,17 @@ def describe(shot: dict) -> str:
 
 def brief(shot: dict) -> dict:
     """The shot for the prompt writer, in plain film words."""
+    joins = {"continuous": "the same camera keeps rolling from the previous shot, no cut",
+             "cut_on_action": "a cut on action: the movement from the previous shot continues from a new angle",
+             "eyeline": "a cut to what the character in the previous shot was looking at",
+             "reaction": "a cut to the reaction of the person receiving what just happened",
+             "match_cut": "a match cut: the shape or gesture of the previous shot's end repeats here",
+             "cutaway": "a cutaway to a detail in the same moment", "new_scene": "the first shot of a new scene"}
     return {"framing": f"{SIZES.get(shot.get('size'), 'medium shot')}, {ANGLES.get(shot.get('angle'), 'eye-level')}",
             "camera_move": MOVES.get(shot.get("movement"), "locked-off camera"),
-            **{k: shot[k] for k in ("subject", "action", "composition") if shot.get(k)}}
+            "joins_previous": joins.get(shot.get("link"), joins["cut_on_action"]),
+            **{k: shot[k] for k in ("subject", "start_frame", "action", "performance", "end_frame", "composition",
+                                    "previous_end") if shot.get(k)}}
 
 
 def summary(project: Path, script: dict | None) -> dict | None:
@@ -298,9 +350,10 @@ def summary(project: Path, script: dict | None) -> dict | None:
         return None
     return {**{k: board.get(k) for k in ("logline", "protagonist", "want", "obstacle", "stakes", "theme",
                                          "cold_open", "beats", "setups")},
-            "beat_labels": BEAT_LABELS, "sizes": SIZES, "angles": ANGLES, "moves": MOVES,
+            "beat_labels": BEAT_LABELS, "links": LINKS, "sizes": SIZES, "angles": ANGLES, "moves": MOVES,
             "shots": [{**{k: v for k, v in sh.items() if k not in ("lines", "scene")}, "key": shot_key(sh.get("lines")),
                        "slug": s.get("slug", ""), "beat": s.get("beat", ""), "purpose": s.get("purpose", ""),
+                       "setting": s.get("setting", ""), "bridge": s.get("bridge", ""),
                        "conflict": s.get("conflict", ""), "turn": s.get("turn", ""), "first": j == 0}
                       for s in board.get("scenes", []) for j, sh in enumerate(s.get("shots", []))]}
 
@@ -316,12 +369,21 @@ def show(project: Path) -> None:
     for b in board.get("beats") or []:
         print(f"  [{BEAT_LABELS.get(b.get('beat'), b.get('beat'))}] {b.get('summary', '')} ({b.get('seconds', '?')}s)")
     for s in board.get("scenes", []):
-        print(f"\n{s['slug']}  ({BEAT_LABELS.get(s['beat'], s['beat'])})\n  mục đích: {s['purpose']}\n"
-              f"  xung đột: {s['conflict']}\n  bước ngoặt: {s['turn']}")
+        print(f"\n{s['slug']}  ({BEAT_LABELS.get(s['beat'], s['beat'])})")
+        for key, label in (("bridge", "nối từ cảnh trước"), ("setting", "bối cảnh"), ("purpose", "mục đích"),
+                           ("conflict", "xung đột"), ("turn", "bước ngoặt")):
+            if s.get(key):
+                print(f"  {label}: {s[key]}")
         for sh in s["shots"]:
             words = " / ".join(f"{l['speaker']}: {l['text']}" for l in sh["lines"])
-            print(f"  {sh['scene'] + 1:>3}. {sh['size']:<6} {sh['angle']:<8} {sh['movement']:<10} {sh['action']}\n"
-                  f"       {words}")
+            print(f"  {sh['scene'] + 1:>3}. [{LINKS.get(sh.get('link'), '')}] {sh['size']} · {sh['angle']} · "
+                  f"{sh['movement']} · {sh['transition']}")
+            for key in ("description", "performance", "end_frame"):
+                if sh.get(key):
+                    print(f"       {key}: {sh[key]}")
+            print(f"       lời: {words}")
+            if sh.get("transition_note"):
+                print(f"       → {sh['transition_note']}")
 
 
 def main() -> None:
