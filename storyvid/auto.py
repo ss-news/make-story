@@ -60,7 +60,11 @@ def run(project: Path, res: str, provider: str) -> int:
         print("The script is not approved yet: read it and press “Duyệt kịch bản” in tab Kịch bản first.")
         return 1
     p = str(project)
-    if load(project)[1] is None:
+    script, visuals = load(project)
+    if visuals is None or len(visuals["scenes"]) != len(script["scenes"]):  # none yet, or made for another script
+        if visuals is not None:
+            print(f"visuals.json has {len(visuals['scenes'])} scenes, scenes.json {len(script['scenes'])}: "
+                  "writing the picture prompts again")
         if step("1/5 Viết prompt hình", "storyvid.visuals", "prompts", p, "--provider", provider):
             return 1
     else:
