@@ -38,6 +38,9 @@ Bắt buộc cho cả hai agent: Claude soát khi chia cảnh (phần 2–5, 7) 
 | [ ] | Có 3–4 nấc leo thang, cao trào rõ, kết có dư âm | story |
 | [ ] | *(truyện ma)* Có đoạn giải thích văn hóa (con ma là gì, vì sao làng kiêng), đúng chi tiết Việt | story |
 | [ ] | *(đời thường)* Có bước ngoặt nhân vật phải chọn, kết thúc cho thấy hệ quả của lựa chọn đó; không giảng đạo | story |
+| [ ] | Có nhân vật chính với mục tiêu và trở ngại rõ; mỗi cảnh phim có xung đột và kết bằng bước ngoặt | story |
+| [ ] | Cho xem thay vì kể: điều thấy được nằm trên hình, lời dẫn không quá khoảng 40% số chữ, không 3 cảnh liền chỉ có lời dẫn trên nền trống | story |
+| [ ] | Cỡ cảnh thay đổi (không ba shot cùng cỡ liền nhau), đỉnh cảm xúc ở cận cảnh, có shot phản ứng sau cú sốc | staging |
 | [ ] | Lời thoại tự nhiên, đúng vai, đúng ngôn ngữ, không như dịch máy | dialogue |
 | [ ] | Khoảng 2–3 phút có một câu kéo người xem lại (re-hook) | story |
 

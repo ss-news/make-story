@@ -254,3 +254,17 @@ label.block { display: flex; flex-direction: column; gap: 6px; }
 .muse-pager { margin: 8px 0; }
 .muse-pager label.inline { flex-direction: row; align-items: center; gap: 6px; }
 .muse-pager .page-no { min-width: 80px; text-align: center; }
+
+/* storyboard (tab Kịch bản) */
+.storyboard h2 { margin: 0 0 4px; }
+.sb-logline { margin: 0 0 10px; font-weight: 600; }
+.sb-facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0 0 10px; }
+.sb-facts dt { color: var(--muted, #888); }
+.sb-facts dd { margin: 0; }
+.sb-beats { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.shot { border-left: 3px solid var(--accent, #c8553d); padding: 6px 10px; margin-bottom: 8px; background: var(--panel-2); border-radius: 6px; }
+.shot-scene { margin-bottom: 6px; }
+.shot-scene .beat { margin-left: 8px; font-size: 12px; color: var(--muted, #888); }
+.shot-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
+.shot-tags .tag { font-size: 12px; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line); }
+.shot-action { margin-bottom: 2px; }

@@ -41,6 +41,19 @@ Lệnh dựng video tự kiểm tra kịch bản và dừng nếu chưa đạt. 
 
 **Bước 3, Claude chấm những gì:** truyện (mở đầu có hook, giải thích luật của con ma, cao trào, kết), lời thoại (tự nhiên, đúng vai, đúng ngôn ngữ), dàn cảnh (ai đứng đâu, hướng nhìn, hành động khớp lời), nền và đồ vật (khớp nơi chốn và thời điểm), nhân vật, giọng đọc, phụ đề, nhịp (cảnh quá dài hay quá ngắn) và lỗi dựng hình. Danh sách đầy đủ để đánh dấu: `docs/review-checklist.md`; Codex cũng tự soát danh sách này ở bước 2 trước khi bàn giao.
 
+## Storyboard: `storyvid.storyboard/1`
+
+Truyện được lên kế hoạch như làm phim trước khi thành `scenes.json` (`storyvid/storyboard.py`, tự chạy khi tool viết kịch bản cho truyện ma, đời thường, xây dựng; video kiến thức, `--keep-text` và `offline` vẫn chia cảnh thẳng):
+
+1. **Treatment** (một lượt cho cả truyện): logline; nhân vật chính, điều họ muốn, trở ngại, cái giá nếu thất bại, chủ đề; cold open (khoảnh khắc mạnh nhất đưa lên đầu và câu hỏi nó để lại); beat sheet theo thứ tự truyện (mở đầu nóng, giới thiệu, biến cố khởi đầu, leo thang, bước ngoặt giữa, khủng hoảng và lựa chọn, cao trào, kết, lời chào), mỗi beat gắn đoạn nguồn và số giây; setup và payoff.
+2. **Shot list** (từng phần của truyện): cảnh phim có slugline (`NGOẠI. BẾN SÔNG - ĐÊM`), mục đích, xung đột, bước ngoặt; mỗi cảnh chia thành shot với cỡ cảnh (EWS, WS, FS, MS, MCU, CU, ECU, INSERT), góc máy (eye, low, high, overhead, ots, pov, dutch), chuyển động (static, push_in, pull_out, pan, tilt, track, handheld, crane_up, orbit), chủ thể, hành động thấy được, bố cục, lời nghe trong shot, chuyển cảnh (cut, match_cut, smash_cut, dissolve, fade) và âm thanh.
+
+Quy tắc nghề đưa vào prompt: mỗi cảnh có người muốn điều gì, có cản trở và kết bằng bước ngoặt; vào cảnh muộn, ra sớm; cho xem thay vì kể (lời dẫn tối đa khoảng 40% số chữ, chỉ để nối thời gian, nói điều hình không thể hiện được và đặt câu hỏi); thoại ngắn, có ý đồ; mỗi nơi mới mở bằng một shot toàn, rồi máy tiến gần khi căng thẳng tăng; đỉnh cảm xúc ở CU, ECU; sau cú sốc là shot phản ứng; không ba shot cùng cỡ liền nhau; giữ trục 180 độ; điều sẽ trả về sau được gieo bằng một shot riêng.
+
+Một shot là một clip 4–10 giây và thành đúng một cảnh của `scenes.json` (hợp đồng `storyvid.scenes/1` không đổi; `movement` đổi sang `camera`: push_in → zoom_in, pull_out/crane_up → zoom_out, pan_left/right giữ nguyên, còn lại static). Shot không có lời bị bỏ vì `scenes.json` cần lời ở mọi cảnh. `output/<id>/storyboard.json` giữ treatment và mọi shot; shot khớp với cảnh theo lời nói, nên cảnh sửa sau (Codex, AI sửa theo đánh giá, người dùng) chỉ mất ghi chú shot, không làm lệch cảnh khác. `storyvid.visuals prompts` đưa cỡ cảnh, góc máy, bố cục, chuyển động và hành động của shot vào prompt ảnh và clip. Web UI hiện storyboard ở tab Kịch bản. Xem dạng shot list: `python -m storyvid.storyboard show output/<id>`.
+
+AI đánh giá kịch bản (`storyvid.script_review`) chấm thêm hai tiêu chí `structure` (cấu trúc phim) và `cinema` (ngôn ngữ phim), và với truyện ma, đời thường tự báo khi lời dẫn chiếm quá 60% số chữ hoặc có từ 3 cảnh liền chỉ có lời dẫn trên nền trống.
+
 ## Hợp đồng kịch bản: `storyvid.scenes/1`
 
 Nguồn chuẩn duy nhất là `storyvid/contract.py`. File `schema/scenes.v1.schema.json` được sinh ra từ đó. Mẫu đầy đủ: `examples/ma_da_bac_bo.scenes.json`.
@@ -231,6 +244,7 @@ Mọi video, người que hay Muse, kết thúc theo đúng 5 bước. Bước s
 output/<id>/
   story.txt             truyện gốc
   meta.json             tên, ngôn ngữ, độ dài (web UI)
+  storyboard.json       treatment và shot list storyvid.storyboard/1 (khi tool viết kịch bản)
   scenes.json           kịch bản storyvid.scenes/1
   asset_requests.json   chỉ có khi thiếu asset; tự xóa khi đủ
   review.json           báo cáo kiểm định của Claude

@@ -29,6 +29,8 @@ CRITERIA = {
     "accuracy": "Đúng nội dung nguồn, không bịa (video kiến thức: đúng khoa học)",
     "clarity": "Dễ hiểu, giải thích rõ",
     "flow": "Mạch lạc, nhịp và chuyển ý",
+    "structure": "Cấu trúc phim: nhân vật chính có mục tiêu, trở ngại, leo thang, cao trào, kết",
+    "cinema": "Ngôn ngữ phim: cho xem thay vì kể, mỗi cảnh có xung đột và bước ngoặt, thoại có ý đồ",
     "visual": "Mỗi cảnh hình dung được thành clip, nhân vật nhất quán",
     "safety": "Tránh nội dung dễ bị Muse từ chối",
 }
@@ -96,6 +98,33 @@ def local_checks(script: dict, minutes: float) -> tuple[dict, list[dict]]:
     return ({"id": "length", "label": "Thời lượng so với mục tiêu", "score": score,
              "comment": f"Ước tính {seconds / 60:.1f} phút / mục tiêu {minutes:g} phút, {len(script['scenes'])} cảnh."},
             issues)
+
+
+NARRATION_SHARE = 0.6  # story and drama: above this the video is read aloud, not acted
+TELLING_RUN = 3        # scenes in a row with only narration and nobody on screen
+
+
+def telling_issues(script: dict) -> list[dict]:
+    """Show, don't tell, measured: too much narration overall, or long stretches of narration over empty places."""
+    issues = []
+    spoken = [(l["speaker"], words(l["text"])) for s in script["scenes"] for l in s["lines"]]
+    total = sum(n for _, n in spoken)
+    told = sum(n for who, n in spoken if who == "narrator")
+    if total and told / total > NARRATION_SHARE:
+        issues.append({"scene": None, "severity": "minor", "problem": f"Lời dẫn chiếm {told / total:.0%} số chữ: "
+                       "video thành đọc truyện, nhân vật ít diễn.", "fix": "Đổi những đoạn tả hành động, cảm xúc "
+                       "thành thoại hoặc hành động trên hình; lời dẫn chỉ để nối thời gian và đặt câu hỏi."})
+    run = []
+    for i, s in enumerate(script["scenes"] + [None]):
+        if s is not None and not s["actors"] and all(l["speaker"] == "narrator" for l in s["lines"]):
+            run.append(i)
+            continue
+        if len(run) >= TELLING_RUN:
+            issues.append({"scene": run[0], "severity": "minor", "problem": f"Cảnh {run[0] + 1}–{run[-1] + 1}: "
+                           f"{len(run)} cảnh liền chỉ có lời dẫn trên nền trống.", "fix": "Đưa nhân vật vào làm "
+                           "điều lời dẫn đang kể, hoặc gộp lại còn một cảnh."})
+        run = []
+    return issues
 
 
 def _plain(text: str) -> str:
@@ -202,7 +231,9 @@ def review(script: dict, source: str, minutes: float, provider: str, genre: str,
               + GENRE_INFO.get(genre, GENRE_INFO["story"])["video"] + ". Score the script "
               "against the source text from 1 to 10 on each criterion, then list concrete problems with the scene "
               "index (0-based; null for the whole video) and how to fix them. Major = must fix before production "
-              "(wrong or invented facts, confusing explanation, weak opening, a scene that cannot be shown). Write "
+              "(wrong or invented facts, confusing explanation, weak opening, a scene that cannot be shown). Judge it as "
+              "a film: a protagonist who wants something against a rising obstacle, scenes that each turn, things "
+              "shown on screen rather than told by the narrator, dialogue that wants something. Write "
               "comments, problems and fixes in Vietnamese. Criteria: "
               + "; ".join(f"{k}: {v}" for k, v in CRITERIA.items()))
     user = json.dumps({"source_text": source, "script": {"title": script["title"], "cast": script.get("cast", []),
@@ -217,6 +248,8 @@ def review(script: dict, source: str, minutes: float, provider: str, genre: str,
     length, local = local_checks(script, minutes)
     criteria.append(length)
     issues += local
+    if genre in ("story", "drama"):
+        issues += telling_issues(script)
     if keep_text and source:
         _, moved = source_order(script, source)
         if moved:

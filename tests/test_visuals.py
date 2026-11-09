@@ -145,11 +145,12 @@ class FlowTest(unittest.TestCase):
     def test_muse_writes_the_script_through_museflow(self):
         from unittest import mock
         from storyvid import script as script_mod
-        reply = {'ok': True, 'text': 'Here it is:\n```json\n' + json.dumps({
-            'title': 'T', 'cast': [], 'scenes': [{'bg_id': 'river_night', 'bg_prompt': 'river', 'camera': 'static',
-                                                 'actors': [], 'props': [],
-                                                 'lines': [{'speaker': 'narrator', 'text': 'Hi.'}]}]}) + '\n```'}
-        with mock.patch.object(visuals, 'muse', return_value=reply) as call:
+        treatment = {'title': 'T', 'logline': 'L', 'cast': [], 'beats': []}
+        shots = {'scenes': [{'slug': 'EXT. RIVER - NIGHT', 'bg_id': 'river_night', 'bg_prompt': 'river',
+                             'beat': 'cold_open', 'shots': [{'size': 'CU', 'movement': 'push_in', 'actors': [],
+                                                             'lines': [{'speaker': 'narrator', 'text': 'Hi.'}]}]}]}
+        replies = [{'ok': True, 'text': 'Here it is:\n```json\n' + json.dumps(r) + '\n```'} for r in (treatment, shots)]
+        with mock.patch.object(visuals, 'muse', side_effect=replies) as call:
             out = script_mod.write_script('story', CHANNEL, 'en', 1, 'muse')
         self.assertEqual(call.call_args[0][0], '/api/chat')
         self.assertEqual(contract.validate(out)[0], [])

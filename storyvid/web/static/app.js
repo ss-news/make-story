@@ -217,7 +217,79 @@ function renderScript() {
   $("#saveScriptBtn").disabled = !sc;
   renderCharacterEditor();
   renderCast();
+  renderStoryboard();
   renderScenes();
+}
+
+// ---------- storyboard (storyvid/storyboard.py): treatment above the scenes, a shot on each scene ----------
+const textKey = (lines) => ((lines || []).map((l) => l.text || "").join(" ").toLowerCase()
+  .match(/[\p{L}\p{N}_]+/gu) || []).join(" ");
+
+function sceneShots() {
+  const board = state.current?.storyboard;
+  const scenes = state.script?.scenes || [];
+  if (!board) return scenes.map(() => null);
+  const pool = {};
+  for (const shot of board.shots || []) (pool[shot.key] ||= []).push(shot);
+  return scenes.map((s) => pool[textKey(s.lines)]?.shift() || null);
+}
+
+function el(tag, cls, text) {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text != null) node.textContent = text;
+  return node;
+}
+
+function renderStoryboard() {
+  const box = $("#storyboardCard");
+  const board = state.current?.storyboard;
+  box.innerHTML = "";
+  box.classList.toggle("hidden", !board || !state.script);
+  if (!board || !state.script) return;
+  const head = el("div", "sb-head");
+  head.append(el("h2", "", "Storyboard"), el("p", "sb-logline", board.logline || ""));
+  box.appendChild(head);
+  const facts = el("dl", "sb-facts");
+  for (const [k, label] of [["want", "Muốn"], ["obstacle", "Cản trở"], ["stakes", "Cái giá"], ["theme", "Chủ đề"]]) {
+    if (!board[k]) continue;
+    facts.append(el("dt", "", label), el("dd", "", board[k]));
+  }
+  if (board.cold_open?.question) facts.append(el("dt", "", "Câu hỏi mở đầu"), el("dd", "", board.cold_open.question));
+  box.appendChild(facts);
+  const beats = el("ol", "sb-beats");
+  for (const b of board.beats || []) {
+    const li = el("li");
+    li.append(el("b", "", board.beat_labels?.[b.beat] || b.beat), el("span", "", ` ${b.summary || ""}`),
+      el("span", "muted small", b.seconds ? ` · ${b.seconds}s` : ""));
+    beats.appendChild(li);
+  }
+  box.appendChild(beats);
+  const shots = sceneShots();
+  const missing = shots.filter((s) => !s).length;
+  if (missing) box.appendChild(el("p", "muted small",
+    `${missing} cảnh đã sửa sau khi lập storyboard nên không còn ghi chú shot; prompt hình của các cảnh đó dựa theo kịch bản.`));
+}
+
+function shotStrip(shot, board) {
+  const wrap = el("div", "shot");
+  if (shot.first) {
+    const film = el("div", "shot-scene");
+    film.append(el("b", "", shot.slug || ""), el("span", "beat", board.beat_labels?.[shot.beat] || shot.beat));
+    const why = [["Mục đích", shot.purpose], ["Xung đột", shot.conflict], ["Bước ngoặt", shot.turn]]
+      .filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join(" · ");
+    if (why) film.appendChild(el("div", "muted small", why));
+    wrap.appendChild(film);
+  }
+  const tags = el("div", "shot-tags");
+  tags.append(el("span", "tag", shot.size), el("span", "tag", board.angles?.[shot.angle] || shot.angle),
+    el("span", "tag", board.moves?.[shot.movement] || shot.movement));
+  if (shot.transition && shot.transition !== "cut") tags.appendChild(el("span", "tag", shot.transition.replace("_", " ")));
+  wrap.appendChild(tags);
+  if (shot.action) wrap.appendChild(el("div", "shot-action", shot.action));
+  const extra = [shot.composition, shot.sound && `♪ ${shot.sound}`].filter(Boolean).join(" · ");
+  if (extra) wrap.appendChild(el("div", "muted small", extra));
+  return wrap;
 }
 
 function renderScenes() {
@@ -227,6 +299,7 @@ function renderScenes() {
   if (!sc) return;
   const bgs = state.current.backgrounds || {};
   const who = castNames();
+  const shots = sceneShots();
   sc.scenes.forEach((s, i) => {
     const el = document.createElement("div");
     el.className = "scene";
@@ -251,6 +324,7 @@ function renderScenes() {
         </div>
       </div>
       <div class="scene-thumb"></div>`;
+    if (shots[i]) $(".scene-body", el).prepend(shotStrip(shots[i], state.current.storyboard));
     $("[data-scene=bg_id]", el).value = s.bg_id;
     $("[data-scene=bg_prompt]", el).value = s.bg_prompt;
     const cam = sceneSelect("camera", s.camera);

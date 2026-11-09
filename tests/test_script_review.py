@@ -32,11 +32,19 @@ class ScriptReviewTest(unittest.TestCase):
         part = {'title': 'T', 'cast': [], 'scenes': [{'bg_id': 'interior_day', 'bg_prompt': 'x', 'camera': 'static',
                                                       'actors': [], 'props': [],
                                                       'lines': [{'speaker': 'narrator', 'text': 'Một câu.'}]}]}
+        from storyvid import storyboard
+        treatment = {'title': 'T', 'cast': [], 'beats': []}
+        shots = {'scenes': [{'slug': 'NỘI. NHÀ - NGÀY', 'bg_id': 'interior_day', 'bg_prompt': 'x', 'beat': 'setup',
+                             'shots': [{'size': 'WS', 'movement': 'static',
+                                        'lines': [{'speaker': 'narrator', 'text': 'Một câu.'}]}]}]}
         prompts = {}
         for genre in ('story', 'drama'):
-            with mock.patch.object(script_mod, '_ask', return_value=part) as ask:
-                script_mod.write_script('Một truyện ngắn.', channel, 'vi', 2, 'muse', genre=genre)
-            prompts[genre] = ask.call_args[0][1]
+            reply = lambda provider, system, user, schema: (  # noqa: E731
+                treatment if schema is storyboard.TREATMENT_SCHEMA else shots)
+            with mock.patch.object(script_mod, '_ask', side_effect=reply) as ask:
+                out = script_mod.write_script('Một truyện ngắn.', channel, 'vi', 2, 'muse', genre=genre)
+            self.assertEqual(len(out['scenes']), 1)
+            prompts[genre] = ' '.join(c[0][1] for c in ask.call_args_list)
         self.assertIn('ghost and folklore story', prompts['story'])
         self.assertIn(channel['host']['personality'], prompts['story'])
         self.assertIn('real-life drama story', prompts['drama'])

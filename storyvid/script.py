@@ -140,7 +140,7 @@ Write the story in {LANG_NAMES.get(lang, lang)} as an acted scene-by-scene scrip
 
 
 
-def _call_claude(system: str, user: str) -> dict:
+def _call_claude(system: str, user: str, schema: dict = SCENE_SCHEMA) -> dict:
     import anthropic
 
     client = anthropic.Anthropic()
@@ -152,7 +152,7 @@ def _call_claude(system: str, user: str) -> dict:
         fallbacks="default",
         system=system,
         messages=[{"role": "user", "content": user}],
-        output_config={"format": {"type": "json_schema", "schema": SCENE_SCHEMA}},
+        output_config={"format": {"type": "json_schema", "schema": schema}},
     )
     if response.stop_reason == "refusal":
         raise RuntimeError(f"Claude declined the request: {response.stop_details}")
@@ -269,12 +269,12 @@ def _normalize(script: dict, lang: str | None = None) -> dict:
     return result
 
 
-def _call_muse(system: str, user: str) -> dict:
+def _call_muse(system: str, user: str, schema: dict = SCENE_SCHEMA) -> dict:
     """Muse writes the script through MuseFlow's chat (no API key needed; museflow/ must be running)."""
     from . import llm
     from .visuals import muse
     prompt = (f"{system}\n\nReply with only one JSON object matching this schema, no other text, and do not create any "
-              f"image or video in this reply:\n{json.dumps(SCENE_SCHEMA)}\n\nSTORY:\n{user}")
+              f"image or video in this reply:\n{json.dumps(schema)}\n\nSTORY:\n{user}")
     reply = muse("/api/chat", {"prompt": prompt, "timeoutSec": 900}, timeout=1020)
     if not reply.get("ok"):
         raise RuntimeError(f"Muse could not write the script: {reply.get('error')}")
@@ -304,14 +304,14 @@ def explainer_prompt(channel: dict, lang: str, minutes: float, keep_text: bool) 
 - The first 30 seconds must hook: a surprising question or moment. End with a short summary and an invitation to the next video."""
 
 
-def _ask(provider: str, system: str, user: str) -> dict:
+def _ask(provider: str, system: str, user: str, schema: dict = SCENE_SCHEMA) -> dict:
     if provider == "claude":
-        return _call_claude(system, user)
+        return _call_claude(system, user, schema)
     if provider == "muse":
-        return _call_muse(system, user)
+        return _call_muse(system, user, schema)
     if provider in ("openai", "codex"):
         from . import llm
-        return (llm.openai_compatible if provider == "openai" else llm.codex)(system, user, SCENE_SCHEMA)
+        return (llm.openai_compatible if provider == "openai" else llm.codex)(system, user, schema)
     raise ValueError(f"Unknown LLM provider: {provider}")
 
 
@@ -340,10 +340,22 @@ def split_text(text: str, size: int = CHUNK_CHARS) -> list[str]:
 
 
 def write_script(story: str, channel: dict, lang: str, minutes: float, provider: str, character=None,
-                 genre: str = "story", keep_text: bool = False, cast: list | None = None) -> dict:
-    """cast: characters that already exist (e.g. when a missing passage is split into scenes again)."""
+                 genre: str = "story", keep_text: bool = False, cast: list | None = None,
+                 storyboard: dict | None = None) -> dict:
+    """cast: characters that already exist (e.g. when a missing passage is split into scenes again).
+
+    Stories are planned like a film first (storyvid/storyboard.py: treatment, then scenes and shots, one shot per
+    scenes.json scene); pass a dict as `storyboard` to get that plan back for storyboard.json. Explainers, kept
+    narration (keep_text) and offline mode are split straight into scenes."""
     if provider == "offline":
         return _normalize(_offline_script(story, genre), lang)
+    if genre != "explainer" and not keep_text and not cast:
+        from . import storyboard as board
+        plan, script = board.write(story, channel, lang, minutes, provider, character, genre)
+        if storyboard is not None:
+            storyboard.clear()
+            storyboard.update(plan)
+        return script
     parts = split_text(story)
     merged: dict = {"title": None, "cast": list(cast), "scenes": []} if cast else {}
     for k, part in enumerate(parts):

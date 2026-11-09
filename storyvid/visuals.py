@@ -74,7 +74,9 @@ SYSTEM = (
     "through mood, light, framing and what is half-hidden. Each cast member comes with a draft_look taken from a "
     "stick-figure catalogue: it only hints at age and gender. When the source story is given, write every look "
     "from it instead (age, build, skin, hair, face, clothing, what they carry, and the story's world and era) and "
-    "drop any draft detail the story contradicts; keep each look to one or two sentences that fit the style.")
+    "drop any draft detail the story contradicts; keep each look to one or two sentences that fit the style. "
+    "When a scene comes with a storyboard shot, follow it: the image_prompt opens with its size and angle and "
+    "uses its composition; the video_prompt is its camera movement plus its action, nothing more happening.")
 SCHEMA = {
     "type": "object", "required": ["style", "cast", "scenes"],
     "properties": {
@@ -193,8 +195,13 @@ def _offline_look(member: dict) -> str:
     return ", ".join(parts)
 
 
-def _offline_scene(scene: dict, names: dict) -> dict:
+def _offline_scene(scene: dict, names: dict, shot: dict | None = None) -> dict:
     framing, motion = CAMERA_LOOK.get(scene["camera"], CAMERA_LOOK["static"])
+    if shot:
+        from .storyboard import MOVES, describe
+        framing, motion = describe(shot), MOVES.get(shot.get("movement"), motion).capitalize()
+        if shot.get("action"):
+            motion = f"{motion}. {shot['action']}"
     when = "at night" if scene["bg_id"].endswith("_night") else "in daylight"
     people = [f"{names.get(a['id'], a['id'])} {POSE_LOOK.get(a['pose'], 'standing')}, {a['expression']} expression, "
               f"{a['position'].replace('_', ' ')} of frame" for a in scene["actors"]]
@@ -202,7 +209,8 @@ def _offline_scene(scene: dict, names: dict) -> dict:
                if a["action"] in ACTION_LOOK]
     beat = " ".join(line["text"] for line in scene["lines"])[:300]
     return {
-        "image_prompt": f"{framing} of {scene['bg_prompt']} {when}. " + ("; ".join(people) + ". " if people else "")
+        "image_prompt": (f"{framing}. Setting: {scene['bg_prompt']} {when}. " if shot
+                         else f"{framing} of {scene['bg_prompt']} {when}. ") + ("; ".join(people) + ". " if people else "")
                         + f"Story moment: {beat}",
         "video_prompt": f"{motion}. " + ("; ".join(actions) + ". " if actions else "")
                         + f"Natural, subtle movement that shows this moment: {beat}",
@@ -226,9 +234,12 @@ def _ask(provider: str, system: str, user: str) -> dict:
     raise ValueError(f"Unknown provider: {provider}")
 
 
-def write_prompts(script: dict, channel: dict, ratio: str, provider: str, style: str = "", source: str = "") -> dict:
+def write_prompts(script: dict, channel: dict, ratio: str, provider: str, style: str = "", source: str = "",
+                  storyboard: dict | None = None) -> dict:
     """style: the project's chosen style text; when empty the writer picks one. source: the original story, so the
-    looks follow how the story describes each character."""
+    looks follow how the story describes each character. storyboard: storyboard.json, whose shots frame each scene."""
+    from .storyboard import aligned, brief as shot_brief
+    shots = aligned(storyboard, script)
     names = cast_names(script, channel)
     members = {c["id"]: c for c in script.get("cast", [])}
     members[HOST] = {"id": HOST, "name": names[HOST], **{k: v for k, v in channel.get("host", {}).items()
@@ -237,7 +248,7 @@ def write_prompts(script: dict, channel: dict, ratio: str, provider: str, style:
     fixed_style = bool(style)
     style = style or DEFAULT_STYLE
     looks = {cid: _offline_look(members.get(cid, {})) for cid in ids}
-    scenes = [_offline_scene(s, names) for s in script["scenes"]]
+    scenes = [_offline_scene(s, names, shots[i]) for i, s in enumerate(script["scenes"])]
     if provider != "offline":
         for start in range(0, len(script["scenes"]), BATCH):
             batch = list(range(start, min(start + BATCH, len(script["scenes"]))))
@@ -251,7 +262,8 @@ def write_prompts(script: dict, channel: dict, ratio: str, provider: str, style:
                             "on_stage": [{"name": names.get(a["id"], a["id"]), "pose": a["pose"],
                                           "expression": a["expression"], "action": a["action"]}
                                          for a in script["scenes"][i]["actors"]],
-                            "narration": [line["text"] for line in script["scenes"][i]["lines"]]} for i in batch],
+                            "narration": [line["text"] for line in script["scenes"][i]["lines"]],
+                            **({"shot": shot_brief(shots[i])} if shots[i] else {})} for i in batch],
             }
             if source and not start:  # looks are fixed with the first batch
                 payload["source_story"] = source[:SOURCE_CHARS]
@@ -531,8 +543,10 @@ def main() -> None:
         channel = json.loads((ROOT / "channel.json").read_text(encoding="utf-8"))
         chosen = resolve(info.get("style"))
         story = project / "story.txt"
+        from .storyboard import load as load_storyboard
         visuals = write_prompts(script, channel, ratio, args.provider, chosen.get("text", ""),
-                                story.read_text(encoding="utf-8") if story.exists() else "")
+                                story.read_text(encoding="utf-8") if story.exists() else "",
+                                load_storyboard(project))
         refs = []
         for k, ref in enumerate(chosen.get("refs", [])):
             target = project / "muse" / "style" / f"ref_{k}{Path(ref).suffix}"

@@ -107,8 +107,16 @@ def main():
         print(f"[1/4] Writing script ({provider})...")
         previous_path = out_dir / "scenes.json"
         previous = json.loads(previous_path.read_text(encoding="utf-8")) if previous_path.exists() else {}
+        board: dict = {}
         script = write_script(story, channel, args.lang or "en", args.minutes, provider, previous.get("character"),
-                              args.genre, args.keep_text)
+                              args.genre, args.keep_text, storyboard=board)
+        board_path = out_dir / "storyboard.json"
+        if board:
+            board_path.write_text(json.dumps(board, ensure_ascii=False, indent=2), encoding="utf-8")
+            print(f"  storyboard: {sum(len(s['shots']) for s in board['scenes'])} shots in "
+                  f"{len(board['scenes'])} film scenes -> {board_path}")
+        elif board_path.exists():
+            board_path.unlink()  # a storyboard from an older script would describe other scenes
         if "character" in previous:
             from .character_catalog import validate_selection
             script["character"] = validate_selection(previous["character"])

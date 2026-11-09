@@ -202,6 +202,8 @@ def get_project(pid):
             data["script"] = _normalize(data["script"], data["meta"].get("lang"))
         except (RuntimeError, ValueError):
             pass
+    from ..storyboard import summary as storyboard_summary
+    data["storyboard"] = storyboard_summary(d, data["script"])
     from ..visuals import is_approved, is_cast_approved, load as load_visuals
     data["approved"] = is_approved(d)
     data["cast_approved"] = data["approved"] and is_cast_approved(d, load_visuals(d)[1])
