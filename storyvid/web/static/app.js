@@ -98,6 +98,7 @@ async function openProject(id, tab) {
 }
 
 function selectTab(name) {
+  try { sessionStorage.setItem("storyvid.tab", name); } catch {}
   $$(".tab").forEach((t) => t.classList.toggle("active", t.dataset.tab === name));
   $$(".tabpane").forEach((p) => p.classList.toggle("hidden", p.dataset.pane !== name));
 }
@@ -1357,14 +1358,68 @@ async function init() {
   window.addEventListener("beforeunload", (e) => { if (state.dirty) e.preventDefault(); });
 
   await loadProjects();
-  await route();
-  window.addEventListener("hashchange", run(route));
+  let tab = null;
+  try { tab = sessionStorage.getItem("storyvid.reloadTab"); sessionStorage.setItem("storyvid.reloadTab", ""); } catch {}
+  await route(tab);
+  window.addEventListener("hashchange", run(() => route()));
+  watchLive();
 }
 
-async function route() {
+// ---------- live reload: newer files on disk (a job, an agent, another window) or a restarted server ----------
+const LIVE_MS = 3000;
+function watchLive() {
+  let seen = null, warned = false, busy = false;
+  setInterval(async () => {
+    if (busy || document.hidden) return;
+    busy = true;
+    try {
+      const live = await api("/api/live");
+      const now = `${live.boot}|${live.ui}`;
+      if (seen && now !== seen) {  // new server or new page code: reload, back on the same project and tab
+        if (state.dirty || state.visualsDirty) {
+          if (!warned) toast("App vừa cập nhật. Lưu thay đổi rồi tải lại trang để dùng bản mới.");
+          warned = true;
+        } else {
+          try { sessionStorage.setItem("storyvid.reloadTab", sessionStorage.getItem("storyvid.tab") || ""); } catch {}
+          location.reload();
+          return;
+        }
+      }
+      seen ||= now;
+      await refreshIfChanged();
+    } catch { /* server restarting: try again next tick */ }
+    finally { busy = false; }
+  }, LIVE_MS);
+}
+
+async function refreshIfChanged() {
+  const cur = state.current;
+  if (!cur || (state.poll && cur.status?.state === "running")) return;  // a running job refreshes the page itself
+  const { stamp } = await api(`/api/projects/${cur.id}/stamp`);
+  if (!cur.stamp || stamp <= cur.stamp || state.current?.id !== cur.id) return;
+  const p = await api(`/api/projects/${cur.id}`);
+  if (state.current?.id !== cur.id) return;
+  state.current = p;
+  if (!state.dirty) {
+    state.script = p.script ? structuredClone(p.script) : null;
+    $("#story").value = p.story;
+    renderScript();
+  } else {
+    toast("Kịch bản trên đĩa vừa đổi; bạn đang có thay đổi chưa lưu nên trang chưa tải lại.");
+  }
+  renderVideo();
+  renderReview();
+  renderJob(p.status);
+  loadScriptReviews();
+  loadFinish();
+  if (!state.visualsDirty) await loadVisuals();
+  loadProjects();
+}
+
+async function route(tab) {
   const h = location.hash.slice(1);
   if (h === "settings") { if ($("#settingsView").classList.contains("hidden")) await openSettings(); }
-  else if (h && h !== state.current?.id && state.projects.some((p) => p.id === h)) await openProject(h);
+  else if (h && h !== state.current?.id && state.projects.some((p) => p.id === h)) await openProject(h, tab || undefined);
 }
 
 run(init)();

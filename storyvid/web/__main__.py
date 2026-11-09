@@ -40,6 +40,26 @@ def no_stale_ui(response):
         response.headers["Cache-Control"] = "no-cache"
     return response
 jobs_lock = threading.Lock()
+BOOT = f"{os.getpid()}-{time.time():.0f}"  # changes when the server restarts, so open pages reload
+
+
+def code_stamp() -> float:
+    """Newest change to the server's Python code (storyvid/**/*.py)."""
+    return max((f.stat().st_mtime for f in (ROOT / "storyvid").rglob("*.py")), default=0.0)
+
+
+def ui_stamp() -> float:
+    return max((f.stat().st_mtime for f in (Path(__file__).parent / "static").iterdir()), default=0.0)
+
+
+CODE_AT_START = code_stamp()
+WATCHED = ("story.txt", "meta.json", "scenes.json", "storyboard.json", "visuals.json", "review.json",
+           "script_reviews.json", "finish.json", "video.mp4", "video_short.mp4")
+
+
+def project_stamp(d: Path) -> float:
+    """Newest change to the files a project page shows, written by anyone (the UI, a job, an agent)."""
+    return max(((d / n).stat().st_mtime for n in WATCHED if (d / n).exists()), default=0.0)
 
 
 # ---------- helpers ----------
@@ -190,11 +210,26 @@ def create_project():
     return jsonify(summary(d))
 
 
+@app.get("/api/live")
+def live():
+    """What open pages and MuseFlow poll: a new boot id or UI files mean reload the page; changed Python code
+    while no job runs means MuseFlow may restart this server."""
+    with jobs_lock:
+        busy = any(proc.poll() is None for proc in jobs.values())
+    return jsonify(boot=BOOT, ui=ui_stamp(), code_changed=code_stamp() > CODE_AT_START, busy=busy)
+
+
+@app.get("/api/projects/<pid>/stamp")
+def get_stamp(pid):
+    return jsonify(stamp=project_stamp(project_dir(pid)))
+
+
 @app.get("/api/projects/<pid>")
 def get_project(pid):
     d = project_dir(pid)
     data = summary(d)
     data["meta"] = read_json(d / "meta.json", {})
+    data["stamp"] = project_stamp(d)
     data["story"] = (d / "story.txt").read_text(encoding="utf-8") if (d / "story.txt").exists() else ""
     data["script"] = read_json(d / "scenes.json")
     if data["script"]:

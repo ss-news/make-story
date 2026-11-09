@@ -502,6 +502,37 @@ async function startStoryvid() {
   return storyvid.state;
 }
 
+// The storyvid server loads its Python code once. When that code changes on disk (an update, an agent's edit)
+// and no job is running, restart the server MuseFlow started; its open page notices the new server and reloads.
+const STORYVID_WATCH_MS = 4000;
+let storyvidRestarting = false;
+function storyvidLive() {
+  return new Promise(resolve => {
+    const req = http.get(`${STORYVID_URL}/api/live`, { timeout: 2000 }, res => {
+      let body = '';
+      res.on('data', chunk => { body += chunk; });
+      res.on('end', () => { try { resolve(JSON.parse(body)); } catch { resolve(null); } });
+    });
+    req.on('error', () => resolve(null));
+    req.on('timeout', () => { req.destroy(); resolve(null); });
+  });
+}
+function watchStoryvidCode() {
+  setInterval(async () => {
+    if (storyvidRestarting || storyvid.state !== 'ready') return;
+    const live = await storyvidLive();
+    if (!live || !live.code_changed || live.busy) return;
+    if (!storyvid.proc) {  // a server started from a terminal: not ours to restart
+      storyvid.error = 'storyvid code changed: restart the storyvid web server to load it.';
+      return;
+    }
+    storyvidRestarting = true;
+    console.log('storyvid code changed: restarting the web UI server');
+    try { stopStoryvid(); await new Promise(r => setTimeout(r, 800)); await startStoryvid(); }
+    finally { storyvidRestarting = false; }
+  }, STORYVID_WATCH_MS);
+}
+
 function stopStoryvid() {
   if (storyvid.proc && storyvid.proc.exitCode === null) storyvid.proc.kill('SIGTERM');
   storyvid.proc = null;
@@ -546,6 +577,7 @@ app.whenReady().then(() => {
   }
   createAppWindow();
   startStoryvid();
+  watchStoryvidCode();
   startApi({
     port: Number(process.env.MUSEFLOW_API_PORT) || 8770,
     listProfiles,
