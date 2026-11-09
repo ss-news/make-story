@@ -85,6 +85,7 @@ class StoryboardTest(unittest.TestCase):
         self.assertIn('Lan steps back', out['scenes'][1]['video_prompt'])
         self.assertIn('breath held', out['scenes'][1]['video_prompt'])
         self.assertIn('Ends on: Lan turns her head', out['scenes'][1]['video_prompt'])
+        self.assertTrue(out['scenes'][1]['video_prompt'].endswith('Sound: nước'))
         sent = {}
 
         def ask(provider, system, user):
@@ -96,6 +97,7 @@ class StoryboardTest(unittest.TestCase):
         self.assertEqual(second['framing'], 'extreme close-up, low angle')
         self.assertIn('keeps rolling', second['joins_previous'])
         self.assertEqual(second['previous_end'], 'Lan turns her head to the left')
+        self.assertEqual(second['sound'], 'nước')
 
     def test_storyboard_decides_which_clips_continue(self):
         board, script, _ = self.write()

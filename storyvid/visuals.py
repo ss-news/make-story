@@ -79,7 +79,8 @@ SYSTEM = (
     "keep each look to one or two sentences that fit the style. "
     "When a scene comes with a storyboard shot, follow it: the image_prompt opens with its framing and shows its "
     "start_frame with its composition; the video_prompt is its camera move, its action and performance, and ends "
-    "on its end_frame, nothing more happening. Scenes follow one another as one film: the opening frame continues "
+    "on its end_frame, nothing more happening, then 'Sound:' with the shot's sound in English (real sounds and "
+    "sound effects only: no speech, no music). Scenes follow one another as one film: the opening frame continues "
     "from previous_end as joins_previous says (same positions, screen direction, light, what people hold), so the "
     "cut feels motivated.")
 SCHEMA = {
@@ -221,7 +222,8 @@ def _offline_scene(scene: dict, names: dict, shot: dict | None = None) -> dict:
                          else f"{framing} of {scene['bg_prompt']} {when}. ") + ("; ".join(people) + ". " if people else "")
                         + f"Story moment: {beat}",
         "video_prompt": f"{motion}. " + ("; ".join(actions) + ". " if actions else "")
-                        + f"Natural, subtle movement that shows this moment: {beat}",
+                        + f"Natural, subtle movement that shows this moment: {beat}"
+                        + (f". Sound: {shot['sound']}" if shot and shot.get("sound") else ""),
         "negative": NEGATIVE,
     }
 

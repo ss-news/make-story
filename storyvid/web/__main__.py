@@ -270,6 +270,8 @@ def update_project(pid):
         meta["genre"] = body["genre"]
     if "keep_text" in body:
         meta["keep_text"] = bool(body["keep_text"])
+    if "no_voice" in body:
+        meta["no_voice"] = bool(body["no_voice"])
     if isinstance(body.get("voice"), dict):
         meta["voice"] = {"provider": str(body["voice"].get("provider", "")), "voice": str(body["voice"].get("voice", ""))}
     if "minutes" in body:

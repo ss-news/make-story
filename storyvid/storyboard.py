@@ -345,7 +345,7 @@ def brief(shot: dict) -> dict:
             "camera_move": MOVES.get(shot.get("movement"), "locked-off camera"),
             "joins_previous": joins.get(shot.get("link"), joins["cut_on_action"]),
             **{k: shot[k] for k in ("subject", "start_frame", "action", "performance", "end_frame", "composition",
-                                    "previous_end") if shot.get(k)}}
+                                    "sound", "previous_end") if shot.get(k)}}
 
 
 def summary(project: Path, script: dict | None) -> dict | None:

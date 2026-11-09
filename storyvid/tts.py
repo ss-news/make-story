@@ -214,7 +214,9 @@ def ambient_timeline(script: dict, media: list, work_dir: Path, still_seconds: f
             samples[:fade] *= np.linspace(0, 1, fade, dtype=np.float32)
             samples[-fade:] *= np.linspace(1, 0, fade, dtype=np.float32)
         pieces.append(samples.astype(np.int16))
-        texts = [line["text"] for line in scene["lines"]]
+        names = {c["id"]: c["name"] for c in script.get("cast", [])}
+        texts = [f"{names[line['speaker']]}: {line['text']}" if line["speaker"] in names else line["text"]
+                 for line in scene["lines"]]
         step = length / max(1, len(texts))
         spans = [{"start": t + k * step, "end": t + (k + 1) * step, "speaker": "narrator"} for k in range(len(texts))]
         cues.append({"start": t, "end": t + length, "text": " · ".join(texts), "speaker": ""})

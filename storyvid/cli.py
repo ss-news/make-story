@@ -163,7 +163,7 @@ def main():
         print(f"[3/3] Rendering {timeline['duration']:.1f}s from Muse clips at {size[0]}x{size[1]}...")
         media = scene_media(scenes_path.parent, visuals, list(range(len(script["scenes"]))))
         ClipRenderer(channel, size, args.fps).render_clips(
-            timeline, media, video, dissolves(script, is_silent(scenes_path.parent)))
+            timeline, media, video, dissolves(script, genre_silent(scenes_path.parent)))
         record_render(out_dir, "video", script, timeline, list(range(len(script["scenes"]))), args, visuals)
         print(f"Done in {time.time() - started:.0f}s -> {video}")
         return
@@ -180,11 +180,20 @@ def main():
     print(f"Done in {time.time() - started:.0f}s -> {video}")
 
 
-def is_silent(project: Path) -> bool:
+def _meta(project: Path) -> dict:
+    return json.loads((project / "meta.json").read_text(encoding="utf-8")) if (project / "meta.json").exists() else {}
+
+
+def genre_silent(project: Path) -> bool:
     """Genres without a voice (GENRE_INFO "silent"), from the project's meta.json."""
     from .script import GENRE_INFO
-    meta = json.loads((project / "meta.json").read_text(encoding="utf-8")) if (project / "meta.json").exists() else {}
-    return bool(GENRE_INFO.get(meta.get("genre", ""), {}).get("silent"))
+    return bool(GENRE_INFO.get(_meta(project).get("genre", ""), {}).get("silent"))
+
+
+def is_silent(project: Path) -> bool:
+    """No voice: a silent genre, or a project that turned the voice off (meta.json "no_voice"). The video then
+    plays the Muse clips' own sound and shows the lines as captions."""
+    return genre_silent(project) or bool(_meta(project).get("no_voice"))
 
 
 DISSOLVE = 0.6  # seconds
@@ -192,7 +201,8 @@ DISSOLVE = 0.6  # seconds
 
 def dissolves(script: dict, silent: bool) -> list[float]:
     """A dissolve where time or place changes (a new bg_id: another place or day/night), a hard cut within one
-    place. In a silent build video every scene is a later day, so every scene dissolves in."""
+    place. In a silent build video (silent: the genre, not a project without voice) every scene is a later day, so
+    every scene dissolves in."""
     scenes = script["scenes"]
     return [0.0] + [DISSOLVE if silent or scenes[i]["bg_id"] != scenes[i - 1]["bg_id"] else 0.0
                     for i in range(1, len(scenes))]
@@ -203,7 +213,7 @@ def make_timeline(script: dict, voice: str, work_dir: Path, lang: str, visuals: 
     """The voice timeline, or for a silent genre with Muse clips the clips' own sound with captions."""
     if visuals and is_silent(project):
         from .render_clips import scene_media
-        print("[2/4] No voice (silent genre): scenes follow their clips, sound comes from the clips...")
+        print("[2/4] No voice: scenes follow their clips, sound comes from the clips...")
         return ambient_timeline(script, scene_media(project, visuals, picked), work_dir)
     provider = tts_provider()
     print(f"[2/4] Narrating with {voice if provider == 'edge' else provider}...")
@@ -285,7 +295,7 @@ def render_short(script: dict, channel: dict, voice: str, out_dir: Path, args, v
         print(f"[3/3] Rendering {timeline['duration']:.1f}s from Muse clips at "
               f"{renderer.out_size[0]}x{renderer.out_size[1]}...")
         renderer.render_clips(timeline, scene_media(out_dir, visuals, picked), out_dir / "video_short.mp4",
-                              dissolves(short, is_silent(out_dir)))
+                              dissolves(short, genre_silent(out_dir)))
         record_render(out_dir, "video_short", script, timeline, picked, args, visuals)
         return
     print("[3/4] Backgrounds...")

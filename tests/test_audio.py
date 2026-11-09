@@ -120,6 +120,13 @@ class AmbientTimelineTest(unittest.TestCase):
             self.assertTrue(cli.is_silent(d))
             (d / 'meta.json').write_text(json.dumps({'genre': 'drama'}))
             self.assertFalse(cli.is_silent(d))
+            (d / 'meta.json').write_text(json.dumps({'genre': 'comedy', 'no_voice': True}))
+            self.assertTrue(cli.is_silent(d))  # voice turned off: clip sound and captions
+            self.assertFalse(cli.genre_silent(d))  # but scenes cut as usual, they do not all dissolve
+            talk = {'cast': [{'id': 'cua', 'name': 'Cua Đồng'}],
+                    'scenes': [{'lines': [{'speaker': 'cua', 'text': 'Hừm.'}, {'speaker': 'narrator', 'text': 'Mưa.'}]}]}
+            cues = tts.ambient_timeline(talk, [(None, None)], d / 'work2', still_seconds=2)['cues']
+            self.assertEqual(cues[0]['text'], 'Cua Đồng: Hừm. · Mưa.')
         place = lambda bg: {'bg_id': bg, 'lines': []}  # noqa: E731
         story = {'scenes': [place('river_day'), place('river_day'), place('river_night')]}
         self.assertEqual(cli.dissolves(story, False), [0.0, 0.0, cli.DISSOLVE])  # only where time or place changes

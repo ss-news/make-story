@@ -86,6 +86,7 @@ async function openProject(id, tab) {
   renderReview();
   $("#pGenre").value = p.meta.genre || "story";
   $("#pKeepText").checked = !!p.meta.keep_text;
+  $("#pNoVoice").checked = !!p.meta.no_voice;
   loadScriptReviews();
   loadFinish();
   await Promise.all([loadVisuals(), loadStyles(), loadVoices(), loadPlaces()]);
@@ -1338,6 +1339,7 @@ async function init() {
   $("#autoReviewBtn").onclick = run(() => runScriptReview("auto"));
   $("#pGenre").onchange = run(() => saveProjectField({ genre: $("#pGenre").value }));
   $("#pKeepText").onchange = run(() => saveProjectField({ keep_text: $("#pKeepText").checked }));
+  $("#pNoVoice").onchange = run(() => saveProjectField({ no_voice: $("#pNoVoice").checked }));
   $("#sampleStylesBtn").onclick = run(() => sampleStyles({}));
   $("#sampleCustomBtn").onclick = run(async () => { await chooseStyle("custom"); await sampleStyles({ preset: "custom", redo: true }); });
   $("#customStyle").oninput = () => { state.customStyleDirty = true; };
