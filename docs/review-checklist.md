@@ -84,6 +84,19 @@ Bước 1 và 2 của tab Hoàn thành (`docs/pipeline.md`, mục “Hoàn thàn
 | [ ] | Video kiến thức: mọi số liệu, kết quả nghiên cứu và trích dẫn đã đối chiếu nguồn; câu chưa chắc nói rõ là “theo X kể lại” | story |
 | [ ] | Nội dung sức khỏe có câu lưu ý không thay thế lời khuyên chuyên môn | story |
 
+## 7c. Nhất quán hình và clip (Muse, bắt buộc trước hàng loạt và bàn giao)
+
+Theo [quy trình nhất quán](visual-continuity.md), kiểm các mục sau; lệch chi tiết trọng yếu tối thiểu `major`, ghi area tương ứng theo phân vai review.
+
+- [ ] Có `continuity.md`: ảnh chuẩn/phiên bản và ánh xạ cảnh → địa điểm, nhân vật, vật, thời điểm, trạng thái.
+- [ ] Mỗi cảnh nhận đúng ảnh tham chiếu và không vượt ngân sách 4 ảnh; shot cận tay gắn đúng actor.
+- [ ] Nhà, mái, cửa, chuồng, hàng rào, địa hình khớp chuẩn ở các góc quay và khi quay lại sau nhiều cảnh (`background`).
+- [ ] Khuôn mặt, trang phục, phụ kiện và vật cầm giữ nguyên; thay đổi có nguyên nhân trong truyện (`character`, `props`).
+- [ ] Ánh sáng, tuyết, thời tiết, mức hư hỏng/sửa chữa và vị trí người/vật khớp dòng thời gian (`background`, `staging`).
+- [ ] Nhóm thử 3–5 shot đã kiểm ảnh và đầu–giữa–cuối clip trước khi chạy phần còn lại; từng lô tối đa 10 cảnh có kết quả kiểm.
+- [ ] Phân biệt shot liên tục với cú cắt; giữ hướng nhìn/trục máy, không ép mọi shot nối khung cuối (`staging`).
+- [ ] Thay mẫu/clip đã kiểm tất cả cảnh và chuỗi liên tục phụ thuộc; kiểm lại toàn bộ clip trước bàn giao (`render`).
+
 ## 8. Trước khi đăng (người dùng làm, không ghi vào review.json)
 
 - [ ] ★ Thumbnail riêng (2–3 phương án nếu dùng Test & Compare): một chủ thể thật to, cảm xúc rõ, một màu nhấn, chữ tối đa 3–4 từ; *(truyện ma)* nền tối, chủ thể đáng sợ; *(đời thường)* gương mặt nhân vật chính với cảm xúc mạnh
