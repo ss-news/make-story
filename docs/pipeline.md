@@ -230,7 +230,7 @@ Quy tắc của `visuals.json`: đủ trường, không trường lạ (tùy ch�
 
 ### Bắt buộc trước khi tạo hàng loạt
 
-Theo [docs/visual-continuity.md](visual-continuity.md): lập bản khóa thiết kế và bảng tham chiếu/trạng thái từng cảnh trong `output/<id>/continuity.md`; gắn ảnh địa điểm qua `refs/places.json`; kiểm nhóm thử 3–5 shot cả ảnh lẫn clip, rồi tạo theo lô tối đa 10 cảnh và kiểm từng lô. Dùng lại mẫu đã chốt cho các tập cùng series. Đây là quy trình thủ công; nút chạy tự động hiện chưa kiểm nhóm thử hoặc chặn khi bối cảnh chưa nhất quán. Không chạy `auto` tới hàng loạt trước bước này. Không có khóa `approved_*` mới và không đổi schema.
+Theo [docs/visual-continuity.md](visual-continuity.md): lập bản khóa thiết kế và bảng tham chiếu/trạng thái từng cảnh trong `output/<id>/continuity.md`; gắn ảnh địa điểm qua `refs/places.json`; kiểm nhóm thử 3–5 shot cả ảnh lẫn clip, rồi tạo theo lô tối đa 10 cảnh và kiểm từng lô. Dùng lại mẫu đã chốt cho các tập cùng series. App đã có **Khóa hình ảnh** (nhà/địa điểm, đồ vật, ảnh/mô tả và gán cảnh) và **Duyệt bộ mẫu**. Snapshot nội dung nằm trong `refs/continuity.json`; đổi mẫu/prompt mất duyệt, backend/CLI/auto dừng trước tạo cảnh. `refs/generated.json` đánh dấu kết quả cũ theo đầu vào/đầu ra; ảnh/clip được tạo lại khi không còn khớp. Ô **Cảnh chạy thử** hỗ trợ thử ảnh/clip một nhóm tối đa 10 cảnh. Việc đánh giá hình và chấp nhận nhóm thử vẫn thủ công; chỉ dùng `auto` sau khi nhóm thử đạt. Không đổi schema scenes/visuals/storyboard.
 
 ## Hoàn thành video (tab 6. Hoàn thành, `storyvid/finish.py`)
 

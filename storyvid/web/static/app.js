@@ -67,7 +67,7 @@ async function loadProjects() {
 
 // ---------- project ----------
 async function openProject(id, tab) {
-  if (state.dirty && !confirm("Kịch bản chưa lưu. Bỏ thay đổi?")) return;
+  if ((state.dirty || state.visualsDirty || state.continuityDirty) && !confirm("Có kịch bản, prompt hoặc bộ mẫu chưa lưu. Bỏ thay đổi?")) return;
   const p = await api(`/api/projects/${id}`);
   state.current = p;
   if (window.parent !== window) window.parent.postMessage({ type: "storyvid:project", id }, "*");  // MuseFlow's diagram
@@ -89,6 +89,7 @@ async function openProject(id, tab) {
   $("#pNoVoice").checked = !!p.meta.no_voice;
   loadScriptReviews();
   loadFinish();
+  state.continuity = null; state.continuityDirty = false;
   await Promise.all([loadVisuals(), loadStyles(), loadVoices(), loadPlaces()]);
   checkMuse();
   renderJob(p.status);
@@ -541,12 +542,14 @@ function museSteps(busy = state.jobRunning) {
   const v = state.visuals, approved = !!state.current.approved;
   const castDone = !!v && v.cast.every((c) => c.sheet), castOk = castDone && !!state.current.cast_approved;
   const images = v ? v.scenes.filter((s) => s.image).length : 0;
+  const locksOk = !!state.continuity?.approved && !state.continuityDirty && !state.visualsDirty && !state.dirty;
   const steps = [
     ["musePromptsBtn", approved, !!v, "Bấm “1. Viết prompt hình”, hoặc “▶ Chạy tự động”."],
     ["museCastBtn", !!v, castDone, "Bấm “2. Ảnh mẫu nhân vật”, hoặc “▶ Chạy tự động”."],
     ["approveCastBtn", castDone, castOk, "Xem ảnh mẫu từng nhân vật (sửa mô tả và tạo lại nếu chưa ưng), rồi bấm “✓ Duyệt nhân vật”."],
-    ["museImagesBtn", castOk, !!v && images === v.scenes.length, "Bấm “▶ Chạy tự động” để làm hết ảnh, clip và video, hoặc “3. Ảnh các cảnh”."],
-    ["museClipsBtn", images > 0, false, "Bấm “4. Clip từ ảnh”."],
+    ["lockApprove", castOk, locksOk, "Mở Khóa hình ảnh, thêm mẫu và gán cảnh, rồi bấm “Duyệt bộ mẫu”."],
+    ["museImagesBtn", castOk && locksOk, !!v && images === v.scenes.length, "Bấm “▶ Chạy tự động” để làm hết ảnh, clip và video, hoặc “3. Ảnh các cảnh”."],
+    ["museClipsBtn", castOk && locksOk && images > 0, false, "Bấm “4. Clip từ ảnh”."],
   ];
   const next = steps.find(([, open, done]) => open && !done);
   for (const [id, open] of steps) {
@@ -554,7 +557,12 @@ function museSteps(busy = state.jobRunning) {
     $("#" + id).classList.toggle("primary", next?.[0] === id);
   }
   $("#approveCastBtn").classList.toggle("hidden", !castDone || castOk);
-  $("#autoBtn").disabled = busy || !approved || (castDone && !castOk);
+  $("#autoBtn").disabled = busy || !approved || (castDone && (!castOk || !locksOk));
+  $("#lockTrialImages").disabled = !!busy || !locksOk;
+  $("#lockTrialClips").disabled = !!busy || !locksOk || images === 0;
+  for (const el of $$("#museScenes button[data-redo]")) el.disabled = !!busy || !locksOk;
+  for (const el of $$("#continuityBox [data-remove]")) el.disabled = !!busy;
+  for (const el of $$("#continuityBox input, #continuityBox textarea, #lockSave, #lockAddPlace, #lockAddProp")) el.disabled = !!busy;
   $("#museNext").textContent = !approved ? "Duyệt kịch bản ở tab 3 trước." : next ? `Bước tiếp theo: ${next[3]}` : "";
 }
 
@@ -955,6 +963,7 @@ async function loadVisuals() {
   state.visuals = await api(`/api/projects/${state.current.id}/visuals`);
   state.visualsDirty = false;
   renderMuse();
+  if (!state.continuityDirty) await loadContinuity();
 }
 
 const museUrl = (file) => `/files/${state.current.id}/${file}?v=${state.visuals?._files?.[file] ?? 0}`;
@@ -997,10 +1006,10 @@ function renderMuse() {
   if (!v) return;
   $("#museStyle").value = v.style;
   $("#museContinuity").value = v.continuity || "auto";
-  $("#museContinuity").onchange = (e) => { v.continuity = e.target.value; state.visualsDirty = true; renderMuse(); };
+  $("#museContinuity").onchange = (e) => { v.continuity = e.target.value; state.visualsDirty = true; invalidateLocks(); renderMuse(); };
   const mode = v.continuity || "auto", sc = script?.scenes || [];
   const linkedTo = (i) => i > 0 && (mode === "all" || (mode === "auto" && sc[i]?.bg_id === sc[i - 1]?.bg_id));
-  $("#museStyle").oninput = (e) => { v.style = e.target.value; state.visualsDirty = true; };
+  $("#museStyle").oninput = (e) => { v.style = e.target.value; state.visualsDirty = true; invalidateLocks(); };
   const names = Object.fromEntries((script?.cast || []).map((c) => [c.id, c.name]));
   names[HOST_ID] = state.settings?.channel?.host?.name || "Người dẫn";
   const cast = $("#museCast");
@@ -1013,7 +1022,7 @@ function renderMuse() {
     card.querySelector("strong").textContent = names[c.id] || c.id;
     const look = card.querySelector("textarea");
     look.value = c.look;
-    look.oninput = () => { c.look = look.value; state.visualsDirty = true; };
+    look.oninput = () => { c.look = look.value; state.visualsDirty = true; invalidateLocks(); };
     if (c.sheet) card.querySelector(".muse-media").innerHTML = `<img alt="" src="${museUrl(c.sheet)}">`;
     card.querySelector(".muse-error").textContent = c.error || "";
     const redo = card.querySelector("button");
@@ -1042,10 +1051,13 @@ function renderMuse() {
       <div class="muse-media"><div class="files"></div>
         <button class="btn small muse-redo" data-redo="clip">↻ Tạo lại clip</button>
         <button class="btn small muse-redo" data-redo="all">↻ Tạo lại ảnh + clip</button></div>`;
-    el.querySelector("p").textContent = (linkedTo(i) ? `⛓ nối tiếp từ khung cuối cảnh ${i} · ` : "") + narration;
+    const refs = (state.continuity?.assets || []).filter((a) => a.scenes.includes(i + 1)).map((a) => a.name);
+    const lockNote = refs.length ? `Mẫu: ${refs.join(" · ")}. ` : "";
+    const staleNote = state.continuity?.stale.includes(i + 1) ? "⚠ Cần tạo lại theo bộ mẫu hiện tại. " : "";
+    el.querySelector("p").textContent = staleNote + lockNote + (linkedTo(i) ? `⛓ nối tiếp từ khung cuối cảnh ${i} · ` : "") + narration;
     for (const ta of el.querySelectorAll("textarea")) {
       ta.value = sc[ta.dataset.k];
-      ta.oninput = () => { sc[ta.dataset.k] = ta.value; state.visualsDirty = true; };
+      ta.oninput = () => { sc[ta.dataset.k] = ta.value; state.visualsDirty = true; invalidateLocks(); };
     }
     el.querySelector(".muse-error").textContent = sc.error || "";
     const files = el.querySelector(".files");
@@ -1061,6 +1073,75 @@ function renderMuse() {
     list.appendChild(el);
   });
   if (shown.length > MUSE_PAGE) list.appendChild(musePager(shown.length, pages));
+}
+
+// ---------- visual reference locks ----------
+function invalidateLocks() {
+  if (state.continuity) state.continuity.approved = false;
+  $("#continuityStatus").textContent = "Có thay đổi chưa duyệt. Lưu và duyệt lại bộ mẫu trước khi tạo cảnh.";
+  museSteps();
+}
+
+async function loadContinuity() {
+  state.continuity = await api(`/api/projects/${state.current.id}/continuity`);
+  state.continuityDirty = false;
+  renderContinuity();
+}
+
+function renderContinuity() {
+  const c = state.continuity;
+  if (!c) return;
+  $("#continuityStatus").textContent = (c.approved && !state.visualsDirty && !state.continuityDirty && !state.dirty ? "✓ Bộ mẫu đã duyệt." : "Bộ mẫu chưa được duyệt hoặc đã thay đổi.")
+    + (c.stale.length ? ` ${c.stale.length} cảnh cần tạo lại/kiểm chứng: ${c.stale.slice(0, 12).join(", ")}${c.stale.length > 12 ? ", …" : ""}.` : "");
+  $("#continuityErrors").textContent = c.errors.join("\n");
+  const list = $("#continuityAssets"); list.innerHTML = "";
+  for (const a of c.assets) {
+    const el = document.createElement("div"); el.className = "place lock-asset";
+    el.innerHTML = `<strong></strong><div class="place-fields">
+      <label>Tên mẫu<input data-k="name"></label>
+      <label>Các cảnh sử dụng (số từ 1, cách nhau dấu phẩy)<input data-k="scenes" placeholder="1, 2, 9"></label></div>
+      <label class="block">Đặc điểm cố định<textarea data-k="description" placeholder="Kiểu mái, số cửa, vật liệu, vị trí nhà–chuồng…"></textarea></label>
+      <div class="place-photos"></div><label class="block">Ảnh mẫu<input type="file" accept="image/*"></label>
+      <button class="btn small ghost" data-remove>Xóa mẫu</button>`;
+    el.querySelector("strong").textContent = a.kind === "place" ? "Nhà / địa điểm" : "Đồ vật";
+    for (const k of ["name", "description", "scenes"]) {
+      const field = el.querySelector(`[data-k="${k}"]`);
+      field.value = k === "scenes" ? a.scenes.join(", ") : a[k];
+      field.oninput = () => {
+        if (k === "scenes") {
+          const raw = field.value.trim();
+          const valid = !raw || /^\d+(\s*,\s*\d+)*$/.test(raw);
+          field.setCustomValidity(valid ? "" : "Nhập số cảnh cách nhau bằng dấu phẩy");
+          a.scenes = valid && raw ? [...new Set(raw.split(",").map(Number))] : [];
+        } else a[k] = field.value;
+        state.continuityDirty = true; invalidateLocks();
+      };
+    }
+    if (a.image) {
+      const img = document.createElement("img"); img.alt = a.name;
+      img.src = `/files/${state.current.id}/${a.image}`;
+      el.querySelector(".place-photos").appendChild(img);
+    }
+    el.querySelector('input[type="file"]').onchange = run(async (e) => {
+      const photo = e.target.files[0]; if (!photo) return;
+      const form = new FormData(); form.append("photo", photo);
+      const res = await fetch(`/api/projects/${state.current.id}/continuity/photo`, {method:"POST", body:form});
+      const data = await res.json(); if (!res.ok) throw new Error(data.error || "Không tải được ảnh");
+      a.image = data.image; state.continuityDirty = true; invalidateLocks(); renderContinuity();
+    });
+    el.querySelector("[data-remove]").onclick = () => {
+      c.assets = c.assets.filter((x) => x !== a); state.continuityDirty = true; invalidateLocks(); renderContinuity();
+    };
+    list.appendChild(el);
+  }
+  if (state.visuals) renderMuse();
+  museSteps();
+}
+
+async function saveContinuity() {
+  for (const field of $$("#continuityAssets input")) if (!field.reportValidity()) throw new Error("Kiểm tra số cảnh của mẫu");
+  state.continuity = await api(`/api/projects/${state.current.id}/continuity`, {method:"PUT", body:{assets:state.continuity.assets}});
+  state.continuityDirty = false; renderContinuity();
 }
 
 // ---------- real places (refs/places.json) ----------
@@ -1079,6 +1160,7 @@ async function uploadPhotos(place, files) {
 
 function renderPlaces(places) {
   const list = $("#placesList"), base = `/api/projects/${state.current.id}/places`;
+  if (!state.continuityDirty) loadContinuity().catch((e) => toast(e.message, true));
   list.innerHTML = places.length ? "" : `<p class="muted small">Chưa có địa điểm nào.</p>`;
   for (const p of places) {
     const el = document.createElement("div");
@@ -1152,6 +1234,7 @@ async function saveVisuals() {
   if (!state.visuals) return;
   await api(`/api/projects/${state.current.id}/visuals`, { method: "PUT", body: state.visuals });
   state.visualsDirty = false;
+  if (!state.continuityDirty) await loadContinuity();
 }
 
 async function runVisuals(step, body = {}) {
@@ -1165,7 +1248,7 @@ async function runVisuals(step, body = {}) {
 
 // ---------- settings ----------
 async function openSettings() {
-  if (state.dirty && !confirm("Kịch bản chưa lưu. Bỏ thay đổi?")) return;
+  if ((state.dirty || state.visualsDirty || state.continuityDirty) && !confirm("Có kịch bản, prompt hoặc bộ mẫu chưa lưu. Bỏ thay đổi?")) return;
   state.dirty = false;
   state.current = null;
   location.hash = "settings";
@@ -1286,6 +1369,7 @@ async function init() {
     if (!confirm("Bạn đã xem ảnh mẫu của mọi nhân vật và đồng ý dùng chúng cho tất cả các cảnh?")) return;
     state.current = await api(`/api/projects/${state.current.id}/approve-cast`, { method: "POST" });
     museSteps();
+    await loadContinuity();
     toast("Đã duyệt nhân vật");
   });
   $("#autoBtn").onclick = run(async () => {
@@ -1295,6 +1379,30 @@ async function init() {
       body: { res: "1080", provider: $("#museProvider").value } }));  // 1080p: the finish checks need it
     $("#log").textContent = "";
     startPolling();
+  });
+  for (const [id, kind] of [["lockAddPlace", "place"], ["lockAddProp", "prop"]]) {
+    $("#" + id).onclick = () => {
+      state.continuity.assets.push({id: `ref_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, kind,
+        name: "", description: "", scenes: [], image: ""});
+      state.continuityDirty = true; invalidateLocks(); renderContinuity();
+    };
+  }
+  for (const [id, key] of [["lockTrialImages", "images_only"], ["lockTrialClips", "clips_only"]]) {
+    $("#" + id).onclick = run(async () => {
+      const raw = $("#lockTrialScenes").value.trim();
+      if (!/^\d+(\s*,\s*\d+)*$/.test(raw)) throw new Error("Nhập số cảnh cách nhau bằng dấu phẩy");
+      const nums = [...new Set(raw.split(",").map(Number))];
+      if (!nums.length || nums.length > 10 || nums.some((n) => n < 1 || n > state.visuals.scenes.length))
+        throw new Error("Chọn tối đa 10 số cảnh có trong kịch bản");
+      await runVisuals("scenes", {only:nums.map((n) => n - 1).join(","), [key]:true});
+    });
+  }
+  $("#lockSave").onclick = run(saveContinuity);
+  $("#lockApprove").onclick = run(async () => {
+    await saveVisuals(); await saveContinuity();
+    if (!confirm("Bạn đã xem ảnh mẫu nhân vật, nhà/địa điểm, đồ vật và rà soát đủ các cảnh sử dụng? Nếu không có mẫu địa điểm/đồ vật, xác nhận dự án không cần chúng.")) return;
+    state.continuity = await api(`/api/projects/${state.current.id}/continuity/approve`, {method:"POST", body:{reviewed:true}});
+    renderContinuity(); toast("Đã duyệt bộ mẫu");
   });
   $("#placeAddBtn").onclick = run(async () => {
     const name = $("#placeName").value.trim();
@@ -1363,7 +1471,7 @@ async function init() {
   });
   $("#saveSettingsBtn").onclick = run(saveSettings);
   $$("[data-host]").forEach((el) => el.addEventListener("input", previewCharacter));
-  window.addEventListener("beforeunload", (e) => { if (state.dirty) e.preventDefault(); });
+  window.addEventListener("beforeunload", (e) => { if (state.dirty || state.visualsDirty || state.continuityDirty) e.preventDefault(); });
 
   await loadProjects();
   let tab = null;
@@ -1384,7 +1492,7 @@ function watchLive() {
       const live = await api("/api/live");
       const now = `${live.boot}|${live.ui}`;
       if (seen && now !== seen) {  // new server or new page code: reload, back on the same project and tab
-        if (state.dirty || state.visualsDirty) {
+        if (state.dirty || state.visualsDirty || state.continuityDirty) {
           if (!warned) toast("App vừa cập nhật. Lưu thay đổi rồi tải lại trang để dùng bản mới.");
           warned = true;
         } else {

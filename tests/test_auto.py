@@ -52,6 +52,11 @@ class CastGateTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             d = Path(tmp)
             plan = project(d, sheets=True)
+            plan['continuity'] = 'off'
+            visuals.save(d, plan)
+            from storyvid import continuity
+            continuity.save(d, {'assets': []})
+            continuity.save(d, {'assets': [], 'approved': continuity.digest(d)})
             meta = json.loads((d / 'meta.json').read_text())
             meta['approved_cast'] = visuals.cast_digest(d, plan)
             (d / 'meta.json').write_text(json.dumps(meta))

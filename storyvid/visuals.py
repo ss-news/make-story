@@ -142,8 +142,8 @@ def is_approved(project: Path) -> bool:
 
 def cast_digest(project: Path, visuals: dict) -> str:
     """The character sheets as they are now: a new look or a remade sheet needs a new approval."""
-    sheets = [(c["id"], c["look"], c["sheet"], (project / c["sheet"]).stat().st_size
-               if c["sheet"] and (project / c["sheet"]).is_file() else 0) for c in visuals["cast"]]
+    from .continuity import content
+    sheets = [(c["id"], c["look"], c["sheet"], content(project, c["sheet"])) for c in visuals["cast"]]
     return hashlib.sha256(json.dumps(sheets, ensure_ascii=False).encode()).hexdigest()
 
 
@@ -446,7 +446,12 @@ def checked(project: Path, visuals: dict, i: int, key: str, file: Path) -> Path:
     return file
 
 
-def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: bool, clips_only: bool = False) -> int:
+def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: bool, clips_only: bool = False,
+                skip_review: bool = False) -> int:
+    from . import continuity
+    if not skip_review:
+        continuity.require(project)
+    approval_inputs = continuity.digest(project)
     script, visuals = load(project)
     if not visuals:
         raise SystemExit("No visuals.json yet: run the prompts step first")
@@ -460,6 +465,9 @@ def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: 
 
     def fail(i: int, e: Exception) -> None:
         failed.add(i)
+        if not skip_review and continuity.digest(project) != approval_inputs:
+            print(f"[scene {i + 1}] failed after inputs changed: {e}")
+            return  # never overwrite edits made while Muse was generating
         visuals["scenes"][i]["error"] = str(e)[:500]
         print(f"[scene {i + 1}] failed: {e}")
         save(project, visuals)
@@ -467,6 +475,9 @@ def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: 
     def image(i: int) -> None:
         s = visuals["scenes"][i]
         try:
+            if not skip_review:
+                continuity.require(project)
+            expected = continuity.input_digest(project, i, "image")
             print(f"[scene {i + 1}] image")
             refs = [sheets[a["id"]] for a in script["scenes"][i]["actors"] if a["id"] in sheets][:MAX_SHEETS]
             prompt = scene_image_prompt(visuals, i, script, names)
@@ -474,12 +485,21 @@ def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: 
                 if len(refs) + len(photos) <= MAX_REFS:
                     refs += photos
                     prompt += "\n\n" + places.PLACE_NOTE.format(name=name)
-            refs = (refs + styling)[:MAX_REFS]
+            note, locked_refs = continuity.references(project, i)
+            prompt += "\n\n" + note
+            refs = refs + locked_refs + styling
+            if len(refs) > MAX_REFS:
+                raise RuntimeError(f"Cảnh {i + 1}: vượt {MAX_REFS} ảnh tham chiếu")
             file = checked(project, visuals, i, "image", _generate("image", prompt, visuals["ratio"],
                            project / "muse" / f"scene_{i:02d}.png", refs, s["negative"]))
+            if not skip_review:
+                continuity.require(project)
+                if expected != continuity.input_digest(project, i, "image"):
+                    raise RuntimeError("Bộ mẫu hoặc prompt đổi trong khi tạo ảnh; hãy chạy lại")
             s["image"], s["clip"] = file.relative_to(project).as_posix(), ""
             s.pop("error", None)
             save(project, visuals)
+            continuity.record(project, i, "image", expected)
         except RuntimeError as e:
             fail(i, e)
 
@@ -498,32 +518,60 @@ def make_scenes(project: Path, only: list[int] | None, redo: bool, images_only: 
             print(f"[scene {i + 1}] previous clip missing: starting from this scene's own image")
         # Without the sheets a character who turns or moves is redrawn as someone else; they come after the frame.
         actors = [a["id"] for a in script["scenes"][i]["actors"]]
-        refs += [sheets[cid] for cid in actors if cid in sheets][:MAX_REFS - len(refs)]
+        refs += [sheets[cid] for cid in actors if cid in sheets]
+        note, locked_refs = continuity.references(project, i)
+        refs += locked_refs
+        prompt += "\n\n" + note
+        for name, photos in places.for_scene(project, script, visuals, i):
+            refs += photos
+            prompt += "\n\n" + places.PLACE_NOTE.format(name=name)
         who = [f"{names.get(cid, cid)}: {looks[cid]}" for cid in actors if cid in looks]
         if who:
             prompt += ("\n\nCharacters in this clip keep exactly this look from the first to the last frame (the "
                        "attached sheets after the opening frame show them):\n" + "\n".join(who))
         try:
+            if len(refs) > MAX_REFS:
+                raise RuntimeError(f"Cảnh {i + 1}: vượt {MAX_REFS} ảnh tham chiếu")
+            if not skip_review:
+                continuity.require(project)
+                if links[i] and not continuity.current(project, i - 1, "clip"):
+                    raise RuntimeError(f"Tạo lại clip cảnh {i} trước: cảnh này nối từ khung cuối của nó")
+            if not skip_review and not continuity.current(project, i, "image"):
+                raise RuntimeError("Ảnh mở cảnh dùng bộ mẫu cũ; tạo lại ảnh trước khi tạo clip")
+            expected = continuity.input_digest(project, i, "clip")
             print(f"[scene {i + 1}] clip" + (" (continues from scene %d)" % i if continues else ""))
             file = checked(project, visuals, i, "clip", _generate("video", prompt, visuals["ratio"],
                            project / "muse" / f"scene_{i:02d}.mp4", refs, s["negative"]))
+            if not skip_review:
+                continuity.require(project)
+                if expected != continuity.input_digest(project, i, "clip"):
+                    raise RuntimeError("Bộ mẫu hoặc khung nối đổi trong khi tạo clip; hãy chạy lại")
             s["clip"] = file.relative_to(project).as_posix()
             s.pop("error", None)
             save(project, visuals)
+            continuity.record(project, i, "clip", expected)
             nxt = i + 1
             if only is not None and nxt not in only and nxt < len(links) and links[nxt] and has("clip", nxt):
                 print(f"  note: scene {nxt + 1} continues from this clip; make its clip again if the seam shows")
         except RuntimeError as e:
             fail(i, e)
 
+    if clips_only:
+        for i in todo:
+            if not has("image", i):
+                fail(i, RuntimeError("Chưa có ảnh mở cảnh; chạy thử ảnh trước khi tạo clip"))
     workers = max(1, ready_accounts())  # one generation per signed-in account at a time
     with ThreadPoolExecutor(max_workers=max(1, min(workers, len(todo)))) as pool:
         if not clips_only:  # opening images do not depend on each other
-            list(pool.map(image, [i for i in todo if redo or not has("image", i)]))
+            wanted_images = [i for i in todo if redo or not has("image", i)
+                             or (not skip_review and not continuity.current(project, i, "image"))]
+            list(pool.map(image, wanted_images))
         if not images_only:
             # a chain of linked scenes goes in order; separate chains run side by side
             # a scene whose new image failed keeps its old image: making a clip from that would hide the failure
-            wanted = [i for i in todo if i not in failed and has("image", i) and (redo or not has("clip", i))]
+            wanted = [i for i in todo if i not in failed and has("image", i)
+                      and (redo or not has("clip", i)
+                           or (not skip_review and not continuity.current(project, i, "clip")))]
             list(pool.map(lambda chain: [clip(i) for i in chain], chains(links, wanted)))
     return len(failed)
 
@@ -590,7 +638,7 @@ def main() -> None:
                              "Hình Muse, \"Duyệt nhân vật\"). A new or remade sheet needs a new approval.")
         only = [int(x) for x in args.only.split(",") if x.strip()] if args.only is not None else None
         failed = make_scenes(project, only, args.redo, args.images_only,
-                             args.clips_only)
+                             args.clips_only, skip_review=args.skip_review)
     if failed:
         raise SystemExit(f"{failed} item(s) failed; see the error fields in visuals.json and retry them")
     print("Done")

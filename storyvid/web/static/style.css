@@ -271,3 +271,10 @@ label.block { display: flex; flex-direction: column; gap: 6px; }
 .shot-tags .tag.link-continuous { border-color: var(--ok); color: var(--ok); }
 .shot-tags .tag.link-new_scene { border-color: var(--accent); color: var(--accent); }
 .shot-next { margin-top: 4px; font-style: italic; }
+
+/* Visual reference locks */
+#continuityBox { border-color: var(--accent, #88624a); }
+#continuityErrors { white-space: pre-line; }
+.lock-asset { padding: 12px 0; }
+.lock-asset .place-photos > img { max-width: 260px; max-height: 180px; object-fit: contain; }
+.lock-asset textarea { min-height: 72px; width: 100%; }

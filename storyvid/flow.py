@@ -36,6 +36,8 @@ def steps(project: Path, job: dict | None = None) -> list[dict]:
     finish = _json(project / "finish.json", {})
     check, review = finish.get("check_video") or {}, finish.get("review") or {}
     approved, cast_ok = is_approved(project), is_cast_approved(project, visuals)
+    from . import continuity
+    locks_ok = continuity.status(project)["approved"] if visuals else False
 
     def step(key, label, done, detail="", tab="", wait=False):
         return {"key": key, "label": label, "state": "done" if done else "wait" if wait else "todo",
@@ -51,6 +53,8 @@ def steps(project: Path, job: dict | None = None) -> list[dict]:
         step("cast", "Ảnh nhân vật", cast_ready(project, visuals), f"{sheets}/{len(cast)}" if visuals else "", "muse"),
         step("approve_cast", "Duyệt nhân vật", cast_ok, "người duyệt" if cast_ok else "chờ bạn xem và duyệt",
              "muse", wait=cast_ready(project, visuals)),
+        step("approve_references", "Duyệt bộ mẫu", locks_ok,
+             "đã khóa" if locks_ok else "mở Khóa hình ảnh, xem và duyệt bộ mẫu", "muse", wait=cast_ok),
         step("images", "Ảnh cảnh", bool(n) and has("image") == n, f"{has('image')}/{n}" if visuals else "", "muse"),
         step("clips", "Clip cảnh", bool(n) and has("clip") == n, f"{has('clip')}/{n}" if visuals else "", "muse"),
         step("video", "Dựng video", (project / "video.mp4").exists(),

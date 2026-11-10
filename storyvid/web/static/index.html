@@ -152,7 +152,7 @@
             <option value="openai">API chuẩn OpenAI (.env)</option><option value="codex">Codex CLI</option></select></label>
           <button class="btn" id="musePromptsBtn">1. Viết prompt hình</button>
           <label>Nối khung cuối <select id="museContinuity">
-            <option value="auto">Tự động: cảnh liền nhau cùng bối cảnh</option>
+            <option value="auto">Tự động: theo storyboard / bối cảnh</option>
             <option value="all">Tất cả cảnh</option><option value="off">Tắt (clip chạy song song hết)</option></select></label>
           <span class="grow"></span>
           <button class="btn" id="museSaveBtn">Lưu prompt</button>
@@ -161,11 +161,30 @@
           <button class="btn" id="museClipsBtn">4. Clip từ ảnh</button>
           <span class="grow"></span>
           <button class="btn hidden" id="approveCastBtn">✓ Duyệt nhân vật</button>
-          <button class="btn primary" id="autoBtn" title="Viết prompt → ảnh mẫu nhân vật → (dừng chờ duyệt nhân vật) → ảnh và clip các cảnh → dựng video 1080p → chuẩn hóa âm lượng → máy kiểm tra">▶ Chạy tự động đến video</button>
+          <button class="btn primary" id="autoBtn" title="Viết prompt → ảnh mẫu nhân vật → (dừng chờ duyệt nhân vật và bộ mẫu) → ảnh và clip các cảnh → dựng video 1080p → chuẩn hóa âm lượng → máy kiểm tra">▶ Chạy tự động đến video</button>
         </div>
         <p class="muted small" id="museNext"></p>
+        <div class="card places" id="continuityBox">
+          <div class="places-head"><strong>Khóa hình ảnh</strong>
+            <span class="muted small">Dùng cùng mẫu nhân vật, nhà/địa điểm và đồ vật cho các cảnh. Đổi mẫu, prompt hoặc cách gán cảnh cần duyệt lại.</span></div>
+          <p id="continuityStatus" role="status"></p>
+          <div id="continuityErrors" class="muse-error"></div>
+          <div id="continuityAssets"></div>
+          <div class="actions">
+            <button class="btn small" id="lockAddPlace">＋ Nhà / địa điểm</button>
+            <button class="btn small" id="lockAddProp">＋ Đồ vật</button>
+            <button class="btn" id="lockSave">Lưu bộ mẫu</button>
+            <button class="btn primary" id="lockApprove">✓ Duyệt bộ mẫu</button>
+          </div>
+          <div class="actions">
+            <label>Cảnh chạy thử<input id="lockTrialScenes" placeholder="1, 2, 9" value="1, 2, 3"></label>
+            <button class="btn small" id="lockTrialImages">Thử ảnh các cảnh đã chọn</button>
+            <button class="btn small" id="lockTrialClips">Thử clip các cảnh đã chọn</button>
+          </div>
+          <p class="muted small">Nhân vật dùng ảnh mẫu ở phần bên dưới. Nếu không có nhà/địa điểm hoặc đồ vật cần giữ cố định, bạn vẫn cần rà soát và duyệt bộ mẫu. Ảnh tham chiếu giúp AI giữ thiết kế; hãy kiểm tra hình và clip sau khi tạo.</p>
+        </div>
         <div class="card places" id="placesBox">
-          <div class="places-head"><strong>Ảnh thật của địa điểm</strong>
+          <div class="places-head"><strong>Ảnh địa điểm đã thêm trước đây</strong>
             <span class="muted small">Cảnh nào có từ khóa trong mô tả nền sẽ được gửi kèm một ảnh, để Muse vẽ lại đúng hình dáng theo phong cách đã chọn. Ảnh không được đưa thẳng vào video.</span>
             <span class="grow"></span>
             <input id="placeName" placeholder="Tên địa điểm, ví dụ Nhà 300 Kim Mã">

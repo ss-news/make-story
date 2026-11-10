@@ -54,7 +54,8 @@ def ui_stamp() -> float:
 
 CODE_AT_START = code_stamp()
 WATCHED = ("story.txt", "meta.json", "scenes.json", "storyboard.json", "visuals.json", "review.json",
-           "script_reviews.json", "finish.json", "video.mp4", "video_short.mp4")
+           "script_reviews.json", "finish.json", "video.mp4", "video_short.mp4",
+           "refs/continuity.json", "refs/generated.json", "refs/places.json")
 
 
 def project_stamp(d: Path) -> float:
@@ -249,6 +250,7 @@ def get_project(pid):
 
 @app.put("/api/projects/<pid>")
 def update_project(pid):
+    continuity_editable(pid)
     d = project_dir(pid)
     body = request.get_json(force=True)
     meta = read_json(d / "meta.json", {})
@@ -440,6 +442,7 @@ def get_visuals(pid):
 
 @app.put("/api/projects/<pid>/visuals")
 def put_visuals(pid):
+    continuity_editable(pid)
     from ..contract import validate_visuals
     d = project_dir(pid)
     visuals = request.get_json(force=True)
@@ -465,14 +468,27 @@ def run_visuals(pid, step):
     if step == "scenes" and not is_cast_approved(d):
         abort(409, "Ảnh mẫu nhân vật chưa được duyệt: xem từng nhân vật rồi bấm “Duyệt nhân vật”")
     body = request.get_json(silent=True) or {}
+    if step == "scenes":
+        from .. import continuity
+        try:
+            continuity.require(d)
+        except RuntimeError as e:
+            abort(409, str(e))
     args = [step, str(d)]
     if step == "prompts":
         if body.get("provider") in ("offline", "muse", "openai", "codex"):
             args += ["--provider", body["provider"]]
         if body.get("ratio") in ("16:9", "9:16"):
             args += ["--ratio", body["ratio"]]
-    if body.get("only") is not None and re.fullmatch(r"[a-z0-9_]+", str(body["only"])):
-        args += ["--only", str(body["only"])]
+    if body.get("only") is not None:
+        only = str(body["only"])
+        if step == "scenes":
+            n = len(read_json(d / "scenes.json")["scenes"])
+            if not re.fullmatch(r"\d+(,\d+)*", only) or any(int(x) >= n for x in only.split(",")):
+                abort(400, "Danh sách cảnh không hợp lệ (API đếm từ 0)")
+        elif not re.fullmatch(r"[a-z0-9_]+", only):
+            abort(400, "Mã nhân vật không hợp lệ")
+        args += ["--only", only]
     if body.get("redo"):
         args.append("--redo")
     if body.get("images_only"):
@@ -630,6 +646,80 @@ def publish_file(pid, name):
     return send_file(path, conditional=True)
 
 
+# ---------- approved visual references ----------
+def continuity_editable(pid):
+    job = jobs.get(pid)
+    if job and job.poll() is None:
+        abort(409, "Dừng tác vụ đang chạy trước khi sửa bộ mẫu hoặc prompt")
+
+
+@app.get("/api/projects/<pid>/continuity")
+def get_continuity(pid):
+    from .. import continuity
+    return jsonify(continuity.status(project_dir(pid)))
+
+
+@app.put("/api/projects/<pid>/continuity")
+def put_continuity(pid):
+    from .. import continuity
+    continuity_editable(pid)
+    d = project_dir(pid)
+    body = request.get_json(force=True)
+    assets = body.get("assets")
+    if not isinstance(assets, list) or len(assets) > 200:
+        abort(400, "Danh sách mẫu không hợp lệ")
+    for a in assets:
+        if (not isinstance(a, dict) or set(a) - {"id", "kind", "name", "description", "scenes", "image"}
+                or not all(isinstance(a.get(k), str) for k in ("id", "kind", "name", "description", "image"))
+                or not re.fullmatch(r"[a-z0-9_]+", a["id"])
+                or a["kind"] not in ("place", "prop")
+                or not isinstance(a.get("scenes"), list)
+                or any(type(n) is not int for n in a["scenes"])
+                or (a["image"] and (Path(a["image"]).is_absolute()
+                    or not (d / a["image"]).resolve().is_relative_to((d / "refs").resolve())))):
+            abort(400, "Mẫu không hợp lệ; ảnh phải nằm trong refs/ của dự án")
+    data = continuity.load(d)
+    data["assets"] = assets  # never accept an approval supplied by PUT
+    continuity.save(d, data)
+    return jsonify(continuity.status(d))
+
+
+@app.post("/api/projects/<pid>/continuity/photo")
+def continuity_photo(pid):
+    from .. import continuity, places
+    continuity_editable(pid)
+    d = project_dir(pid)
+    photo = request.files.get("photo")
+    if not photo:
+        abort(400, "Chọn một ảnh mẫu")
+    raw = photo.read(places.MAX_DOWNLOAD + 1)
+    if len(raw) > places.MAX_DOWNLOAD:
+        abort(400, "Ảnh tối đa 15 MB")
+    try:
+        name = places.add_photo(d, {"id": "locked"}, raw, photo.filename or "reference.png")
+    except ValueError as e:
+        abort(400, str(e))
+    return jsonify(image=name)
+
+
+@app.post("/api/projects/<pid>/continuity/approve")
+def approve_continuity(pid):
+    from .. import continuity, visuals
+    continuity_editable(pid)
+    d = project_dir(pid)
+    if (request.get_json(silent=True) or {}).get("reviewed") is not True:
+        abort(400, "Xem các mẫu và xác nhận đã rà soát cách gán cảnh")
+    if not visuals.is_approved(d) or not visuals.is_cast_approved(d):
+        abort(409, "Duyệt kịch bản và ảnh nhân vật trước")
+    errors = continuity.errors(d)
+    if errors:
+        abort(409, " ".join(errors[:5]))
+    data = continuity.load(d)
+    data["approved"], data["approved_at"] = continuity.digest(d), int(time.time())
+    continuity.save(d, data)
+    return jsonify(continuity.status(d))
+
+
 # ---------- real places (storyvid/places.py): photos attached to the scenes that show them ----------
 def places_reply(d: Path):
     from .. import places
@@ -652,6 +742,7 @@ def get_places(pid):
 
 @app.post("/api/projects/<pid>/places")
 def add_place(pid):
+    continuity_editable(pid)
     from .. import places
     d = project_dir(pid)
     body = request.get_json(silent=True) or {}
@@ -667,6 +758,7 @@ def add_place(pid):
 
 @app.put("/api/projects/<pid>/places/<place_id>")
 def edit_place(pid, place_id):
+    continuity_editable(pid)
     from .. import places
     d = project_dir(pid)
     data = places.load(d)
@@ -679,6 +771,7 @@ def edit_place(pid, place_id):
 
 @app.delete("/api/projects/<pid>/places/<place_id>")
 def delete_place(pid, place_id):
+    continuity_editable(pid)
     from .. import places
     d = project_dir(pid)
     data = places.load(d)
@@ -692,6 +785,7 @@ def delete_place(pid, place_id):
 @app.post("/api/projects/<pid>/places/<place_id>/photos")
 def add_place_photos(pid, place_id):
     """Multipart files ("photos"), or JSON {"url": "..."} to download one image."""
+    continuity_editable(pid)
     from .. import places
     d = project_dir(pid)
     data = places.load(d)
@@ -713,6 +807,7 @@ def add_place_photos(pid, place_id):
 
 @app.delete("/api/projects/<pid>/places/<place_id>/photos/<path:name>")
 def delete_place_photo(pid, place_id, name):
+    continuity_editable(pid)
     from .. import places
     d = project_dir(pid)
     data = places.load(d)

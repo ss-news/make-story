@@ -52,7 +52,8 @@ def stop(_signum, _frame) -> None:
 
 def scenes_left(project: Path) -> int:
     _, visuals = load(project)
-    return sum(1 for s in visuals["scenes"] if not (s["clip"] and (project / s["clip"]).is_file()))
+    from . import continuity
+    return sum(1 for i, s in enumerate(visuals["scenes"]) if not continuity.current(project, i, "clip"))
 
 
 def run(project: Path, res: str, provider: str) -> int:
@@ -76,6 +77,10 @@ def run(project: Path, res: str, provider: str) -> int:
         print("2/5 ảnh mẫu nhân vật: đã có")
     if not is_cast_approved(project):
         print("\n" + WAITING_CAST)
+        return 0
+    from . import continuity
+    if not continuity.status(project)['approved']:
+        print("WAITING: xem mục Khóa hình ảnh, lưu và bấm “Duyệt bộ mẫu”, rồi chạy tự động lại.")
         return 0
     for attempt in (1, 2):
         if not scenes_left(project):
