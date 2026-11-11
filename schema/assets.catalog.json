@@ -633,6 +633,10 @@
     [
       "forest_frogs",
       "Forest ambience with croaking frogs"
+    ],
+    [
+      "rain_steady",
+      "Steady rain (outdoors)"
     ]
   ],
   "sfx": [
@@ -671,6 +675,14 @@
     [
       "metal_hit",
       "Metal hammer hit (can clack alternative)"
+    ],
+    [
+      "steam_train_pass",
+      "Steam locomotive passing with carriages (40 s)"
+    ],
+    [
+      "steam_train_whistle",
+      "Steam locomotive stopping and whistling (6 s)"
     ]
   ]
 }

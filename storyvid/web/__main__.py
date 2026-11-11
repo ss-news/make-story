@@ -44,8 +44,10 @@ BOOT = f"{os.getpid()}-{time.time():.0f}"  # changes when the server restarts, s
 
 
 def code_stamp() -> float:
-    """Newest change to the server's Python code (storyvid/**/*.py)."""
-    return max((f.stat().st_mtime for f in (ROOT / "storyvid").rglob("*.py")), default=0.0)
+    """Newest change to what the server loads once: its Python code (storyvid/**/*.py) and the sound library
+    (assets/audio/manifest.json, cached by storyvid.audio), so a new sound does not fail the script check here."""
+    files = [*(ROOT / "storyvid").rglob("*.py"), ROOT / "assets" / "audio" / "manifest.json"]
+    return max((f.stat().st_mtime for f in files if f.exists()), default=0.0)
 
 
 def ui_stamp() -> float:

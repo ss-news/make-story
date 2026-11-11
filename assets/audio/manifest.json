@@ -17,7 +17,8 @@
       "file": "music/curse_of_old.mp3",
       "license": "YouTube Audio Library",
       "source": "YouTube Audio Library (YouTube Studio > Audio Library)",
-      "author": "Density & Time"
+      "author": "Density & Time",
+      "gain_db": -24
     },
     {
       "id": "midnight_trace",
@@ -78,6 +79,7 @@
       "label": "Wind in the trees",
       "kind": "ambience",
       "file": "ambience/wind_trees.mp3",
+      "gain_db": -28,
       "license": "CC0",
       "source": "https://bigsoundbank.com/forest-wind-in-the-trees-s0904.html",
       "author": "Joseph Sardin (BigSoundBank)"
@@ -162,6 +164,33 @@
       "license": "Mixkit Free License",
       "source": "https://mixkit.co/free-sound-effects/metal-hit/ (item 833)",
       "author": "Mixkit"
+    },
+    {
+      "id": "rain_steady",
+      "label": "Steady rain (outdoors)",
+      "kind": "ambience",
+      "file": "ambience/rain_steady.mp3",
+      "license": "CC0",
+      "source": "https://bigsoundbank.com/rain-under-an-umbrella-s2679.html",
+      "author": "Pierre Sibanarco (BigSoundBank)"
+    },
+    {
+      "id": "steam_train_pass",
+      "label": "Steam locomotive passing with carriages (40 s)",
+      "kind": "sfx",
+      "file": "sfx/steam_train_pass.mp3",
+      "license": "CC0",
+      "source": "https://bigsoundbank.com/steam-locomotive-passage-s3009.html",
+      "author": "Joseph Sardin (BigSoundBank)"
+    },
+    {
+      "id": "steam_train_whistle",
+      "label": "Steam locomotive stopping and whistling (6 s)",
+      "kind": "sfx",
+      "file": "sfx/steam_train_whistle.mp3",
+      "license": "CC0",
+      "source": "https://bigsoundbank.com/steam-locomotive-stop-s3015.html",
+      "author": "Joseph Sardin (BigSoundBank)"
     }
   ]
 }
