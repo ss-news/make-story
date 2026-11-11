@@ -125,6 +125,8 @@ def main():
 
     # every script, whoever wrote it, must follow the contract before anything is rendered
     scenes_path = Path(args.script) if args.script else out_dir / "scenes.json"
+    # the channel badge (logo, name, tagline) is drawn only when the project asks for it: meta.json "logo": true
+    channel["show_logo"] = _meta(scenes_path.parent).get("logo") is True
     code = check_script(scenes_path)
     if code == 1:
         raise SystemExit(f"{scenes_path} does not follow {FORMAT} (see docs/pipeline.md)")

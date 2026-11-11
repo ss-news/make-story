@@ -18,6 +18,9 @@ FONT_BRAND = ("/System/Library/Fonts/Supplemental/ChalkboardSE.ttc", 2)  # (file
 ROOT = Path(__file__).resolve().parents[1]
 INK = (36, 33, 31)
 CREAM = (255, 253, 247)
+SUB_LIT = (255, 255, 255)      # subtitle words already spoken (karaoke)
+SUB_WAITING = (150, 150, 150)  # words still to come
+SUB_SPEAKER = (255, 204, 72)   # "Name:" before a character's line
 OVERSCAN = 1.15      # background is larger than the frame so the camera can move
 MOVE_TIME = 0.9      # seconds to walk to a new position between scenes
 ENTER_TIME = 1.3     # seconds to walk in from / out to the edge of the frame
@@ -60,15 +63,19 @@ def _vignette(img: Image.Image, strength: int) -> None:
     img.paste((0, 0, 0, 255), (0, 0), vig)
 
 
-def _badge(img: Image.Image, channel: dict, x: float, y: float, size: int, center: bool = False) -> None:
+def _badge(img: Image.Image, channel: dict, x: float, y: float, size: int, center: bool = False,
+           right: bool = False) -> None:
     """Channel badge drawn in place: round logo, then the channel name and tagline in hand lettering.
-    (x, y) is the top-left corner, or the top-centre when center is True; size is the logo diameter."""
+    (x, y) is the top-left corner, the top-centre when center is True, or the top-right corner when right is True;
+    size is the logo diameter. Nothing is drawn unless the project asked for the badge (channel "show_logo")."""
+    if not channel.get("show_logo"):
+        return
     d = ImageDraw.Draw(img)
     name_font, tag_font = _brand_font(int(size * 0.48)), _brand_font(int(size * 0.23))
     name, tagline = channel.get("channel_name", ""), channel.get("tagline", "")
     gap = size * 0.15
     width = size + gap + max(name_font.getlength(name), tag_font.getlength(tagline) if tagline else 0)
-    left = x - width / 2 if center else x
+    left = x - width / 2 if center else x - width if right else x
     logo_path = ROOT / channel["logo"] if channel.get("logo") else None
     if logo_path and logo_path.exists():
         logo = Image.open(logo_path).convert("RGBA").resize((size, size), Image.LANCZOS)
@@ -104,7 +111,7 @@ def _ease(t):
 
 
 class Renderer:
-    """16:9 video: the stage fills the frame, with the channel badge top left and subtitles in a bottom band."""
+    """16:9 video: the stage fills the frame, with a small channel badge top right and subtitles in a bottom band."""
     char_height = CHARACTER_HEIGHT  # of the stage height
     spread = 1.0                    # 1 = positions use the whole stage width, less pulls them to the middle
     sub_width = 0.86                # subtitle lines wrap at this much of the frame width
@@ -127,12 +134,21 @@ class Renderer:
         img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         d = ImageDraw.Draw(img)
         _vignette(img, 110)
-        _badge(img, self.channel, H * 0.035, H * 0.033, int(H * 0.11))
+        # small, top right: the top left is where title cards and on-screen text go
+        _badge(img, self.channel, W - H * 0.03, H * 0.03, int(H * 0.065), right=True)
         d.rectangle([0, H - self.band_h, W, H], fill=(10, 10, 12, 235))
         return img
 
-    def _subtitle(self, text: str, speaker: str = "") -> Image.Image:
-        key = (speaker, text)
+    def _cue_subtitle(self, cue: dict, t: float) -> Image.Image:
+        """The cue's subtitle at time t: karaoke, the words already spoken are lit, the rest wait in grey.
+        Cues without word timings (captions of silent videos) are shown fully lit."""
+        starts = cue.get("words")
+        lit = sum(1 for s in starts if s <= t) if starts else None
+        return self._subtitle(cue["text"], cue.get("speaker", ""), lit)
+
+    def _subtitle(self, text: str, speaker: str = "", lit: int | None = None) -> Image.Image:
+        """lit = how many words of text are lit (None: all of them)."""
+        key = (speaker, text, lit)
         if key in self._sub_cache:
             return self._sub_cache[key]
         prefix = f"{speaker}: " if speaker else ""
@@ -141,12 +157,22 @@ class Renderer:
         img = Image.new("RGBA", (self.W, lh * len(lines) + 8), (0, 0, 0, 0))
         d = ImageDraw.Draw(img)
         style = dict(font=self.sub_font, anchor="lm", stroke_width=2, stroke_fill=(0, 0, 0))
+        skip = len(prefix.split())  # the speaker name is not part of the spoken words
+        n = 0  # words of text drawn so far
         for i, ln in enumerate(lines):
             x0 = (self.W - self.sub_font.getlength(ln)) / 2
             y = 4 + i * lh + lh / 2
-            d.text((x0, y), ln, fill=(245, 245, 245), **style)
-            if i == 0 and prefix:  # speaker name in yellow over the start of the first line
-                d.text((x0, y), prefix.strip(), fill=(255, 204, 72), **style)
+            done = ""
+            for word in ln.split(" "):
+                x = x0 + self.sub_font.getlength(done)
+                if skip:
+                    skip -= 1
+                    colour = SUB_SPEAKER
+                else:
+                    colour = SUB_LIT if lit is None or n < lit else SUB_WAITING
+                    n += 1
+                d.text((x, y), word, fill=colour, **style)
+                done += word + " "
         self._sub_cache[key] = img
         return img
 
@@ -167,7 +193,7 @@ class Renderer:
     def _finish(self, frame: Image.Image, cue: dict | None, t: float, total: float) -> Image.Image:
         """Last step of a frame: the subtitle in the bottom band."""
         if cue:
-            sub = self._subtitle(cue["text"], cue.get("speaker", ""))
+            sub = self._cue_subtitle(cue, t)
             frame.paste(sub, (0, self.H - self.band_h + (self.band_h - sub.height) // 2), sub)
         return frame
 
@@ -489,7 +515,7 @@ class ShortRenderer(Renderer):
     def _finish(self, frame: Image.Image, cue: dict | None, t: float, total: float) -> Image.Image:
         zone_top = self.H - self.band_h
         if cue:
-            sub = self._subtitle(cue["text"], cue.get("speaker", ""))
+            sub = self._cue_subtitle(cue, t)
             frame.paste(sub, (0, zone_top + int(self.band_h * 0.2)), sub)
         if t > total - END_CARD_TIME:
             d = ImageDraw.Draw(frame)
@@ -550,7 +576,7 @@ class SafeShortRenderer(ShortRenderer):
 
     def _finish(self, frame: Image.Image, cue: dict | None, t: float, total: float) -> Image.Image:
         if cue:
-            sub = self._subtitle(cue["text"], cue.get("speaker", ""))
+            sub = self._cue_subtitle(cue, t)
             frame.paste(sub, (0, int(self.H * self.sub_top)), sub)
         if t > total - END_CARD_TIME:
             d = ImageDraw.Draw(frame)

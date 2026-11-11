@@ -179,8 +179,10 @@ def _cues(words: list, offset: float) -> list[dict]:
             current = carry
     if current:
         cues.append(current)
+    # "words": when each word of "text" starts, for the karaoke highlight (one entry per space-separated word)
     return [
-        {"start": offset + c[0][0], "end": offset + c[-1][1], "text": " ".join(w[2] for w in c if w[2])}
+        {"start": offset + c[0][0], "end": offset + c[-1][1], "text": " ".join(w[2] for w in c if w[2]),
+         "words": [round(offset + w[0], 3) for w in c if w[2] for _ in w[2].split()]}
         for c in cues
     ]
 

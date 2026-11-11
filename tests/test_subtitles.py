@@ -25,6 +25,37 @@ class SubtitleTests(unittest.TestCase):
         self.assertEqual([c['text'] for c in cues], ['No legs.', 'No footsteps.'])
         self.assertEqual(cues[1]['start'], 3.0)
 
+    def test_cues_carry_word_starts_for_karaoke(self):
+        cues = tts._cues(words('No legs. No footsteps.'), 2.0)
+        self.assertEqual(cues[0]['words'], [2.0, 2.5])
+        self.assertEqual(cues[1]['words'], [3.0, 3.5])
+        joined = tts._cues([(0.0, 0.4, 'twenty one'), (0.5, 0.9, 'days.')], 0)  # one token, two printed words
+        self.assertEqual(len(joined[0]['words']), len(joined[0]['text'].split()))
+
+    def test_karaoke_lights_spoken_words_only(self):
+        from storyvid import render
+        r = render.Renderer({'channel_name': 'Test'}, (640, 360), 24)
+        cue = {'start': 0, 'end': 2, 'text': 'one two three', 'speaker': 'Tung', 'words': [0.0, 0.5, 1.0]}
+
+        same = lambda a, b: a.tobytes() == b.tobytes()  # noqa: E731
+        full = r._subtitle('one two three', 'Tung', None)
+        self.assertTrue(same(r._cue_subtitle(cue, 1.5), full))          # every word spoken: fully lit
+        self.assertTrue(same(r._cue_subtitle(cue, 0.2), r._subtitle('one two three', 'Tung', 1)))
+        self.assertFalse(same(r._cue_subtitle(cue, 0.2), full))         # "two three" still waiting
+        self.assertFalse(same(r._cue_subtitle(cue, 0.2), r._cue_subtitle(cue, 0.7)))
+        self.assertTrue(same(r._subtitle('one two three', 'Tung', 0), r._cue_subtitle(cue, -1)))
+        # the name keeps its colour whatever is lit; captions without timings are shown fully lit
+        self.assertIn(render.SUB_SPEAKER + (255,), list(r._subtitle('one', 'Tung', 0).getdata()))
+        self.assertTrue(same(r._cue_subtitle({'text': 'Day 1', 'speaker': ''}, 0), r._subtitle('Day 1', '', None)))
+
+    def test_no_channel_badge_unless_asked(self):
+        from storyvid import render
+        img = Image.new('RGBA', (400, 200), (0, 0, 0, 0))
+        render._badge(img, {'channel_name': 'Chamlore', 'tagline': 'Stories'}, 10, 10, 60)
+        self.assertIsNone(img.getbbox())
+        render._badge(img, {'channel_name': 'Chamlore', 'tagline': 'Stories', 'show_logo': True}, 10, 10, 60)
+        self.assertIsNotNone(img.getbbox())
+
     def test_srt_file(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = tts.write_srt([{'start': 0, 'end': 1.25, 'text': 'Run!', 'speaker': 'Tung'},
