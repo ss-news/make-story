@@ -168,6 +168,28 @@ def _limit_bed(bed: np.ndarray, voice: np.ndarray) -> np.ndarray:
     return bed * np.repeat(gain, hop)[:len(bed)]
 
 
+def _ambience_runs(script: dict, timeline: dict, total: int) -> list[tuple[str, int, int]]:
+    """(id, start, end) in samples: scenes in a row with the same ambience play as one unbroken loop, so the
+    bed does not fade out and restart at every cut. Where the ambience changes the two overlap by FADE and
+    their fades cross."""
+    runs: list[list] = []
+    for scene, span in zip(script["scenes"], timeline["scenes"]):
+        sound_id = scene.get("ambience")
+        start, end = int(span["start"] * SAMPLE_RATE), min(total, int(span["end"] * SAMPLE_RATE))
+        if not sound_id or end <= start:
+            continue
+        if runs and runs[-1][0] == sound_id and start - runs[-1][2] <= 1:
+            runs[-1][2] = end
+        else:
+            runs.append([sound_id, start, end])
+    overlap = int(FADE * SAMPLE_RATE / 2)
+    for prev, nxt in zip(runs, runs[1:]):
+        if nxt[1] - prev[2] <= 1:  # touching runs of different sounds: crossfade around the cut
+            prev[2] = min(total, prev[2] + overlap)
+            nxt[1] = max(0, nxt[1] - overlap)
+    return [tuple(r) for r in runs]
+
+
 def has_sound(script: dict) -> bool:
     return bool(script.get("music")) or any(s.get("ambience") or s.get("sfx") for s in script["scenes"])
 
@@ -177,10 +199,9 @@ def mix(script: dict, timeline: dict, out_path: Path) -> Path:
     voice = timeline["samples"].astype(np.float32) / 32768.0
     total = len(voice)
     bed = np.zeros(total, dtype=np.float32)
+    for sound_id, start, end in _ambience_runs(script, timeline, total):
+        bed[start:end] += _fade(_loop(_decoded(sound_id), end - start)) * _gain(sound_id)
     for scene, span in zip(script["scenes"], timeline["scenes"]):
-        start, end = int(span["start"] * SAMPLE_RATE), min(total, int(span["end"] * SAMPLE_RATE))
-        if scene.get("ambience") and end > start:
-            bed[start:end] += _fade(_loop(_decoded(scene["ambience"]), end - start)) * _gain(scene["ambience"])
         for cue in scene.get("sfx", []):
             line = span["lines"][min(cue["line"], len(span["lines"]) - 1)] if span["lines"] else span
             at = int(line["start"] * SAMPLE_RATE)

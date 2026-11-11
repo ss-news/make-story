@@ -93,6 +93,27 @@ class AudioTest(unittest.TestCase):
         self.assertTrue(audio.has_sound(script))
         self.assertFalse(audio.has_sound(SAMPLE))
 
+    def test_same_ambience_runs_through_the_cuts(self):
+        scenes = [{'ambience': 'night_frogs', 'lines': []} for _ in range(3)] + [{'ambience': None, 'lines': []}]
+        spans = [{'start': i * 1.0, 'end': (i + 1) * 1.0, 'lines': []} for i in range(4)]
+        total = SAMPLE_RATE * 4
+        self.assertEqual(audio._ambience_runs({'scenes': scenes}, {'scenes': spans}, total),
+                         [('night_frogs', 0, SAMPLE_RATE * 3)])
+        out = audio.mix({'scenes': scenes}, {'samples': np.zeros(total, dtype=np.int16), 'scenes': spans},
+                        self.dir / 'mix.wav')
+        with wave.open(str(out)) as w:
+            mixed = np.abs(np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float32))
+        hop = SAMPLE_RATE // 20
+        at_cuts = [mixed[int(SAMPLE_RATE * t) - hop:int(SAMPLE_RATE * t) + hop].mean() for t in (1, 2)]
+        middle = mixed[int(SAMPLE_RATE * 0.8):int(SAMPLE_RATE * 1.2)].mean()
+        for level in at_cuts:  # no dip where one scene ends and the next begins
+            self.assertGreater(level, middle * 0.8)
+        # a different ambience next door crossfades instead of a gap
+        scenes[2] = {'ambience': 'dark_bed', 'lines': []}
+        runs = audio._ambience_runs({'scenes': scenes}, {'scenes': spans}, total)
+        self.assertEqual([r[0] for r in runs], ['night_frogs', 'dark_bed'])
+        self.assertGreater(runs[0][2], runs[1][1])
+
 
 if __name__ == '__main__':
     unittest.main()
